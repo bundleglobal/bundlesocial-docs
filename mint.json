@@ -1,0 +1,185 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "openapi": ["/api-reference/openapi.json"],
+  "name": "bundle.social",
+  "logo": {
+    "dark": "/favicon.svg",
+    "light": "/favicon.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#EB6700",
+    "light": "#EB6700",
+    "dark": "#EB6700",
+    "anchors": {
+      "from": "#EB6700",
+      "to": "#EB6700"
+    }
+  },
+  "topbarLinks": [
+    {
+      "name": "Contact",
+      "url": "https://bundle.social/contact"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Dashboard",
+    "url": "https://bundle.social/dashboard"
+  },
+  "tabs": [
+    {
+      "name": "API Reference",
+      "url": "api-reference"
+    },
+    {
+      "name": "Changelog",
+      "url": "changelog"
+    },
+    {
+      "name": "Knowledge",
+      "url": "knowledge"
+    },
+    {
+      "name": "Blog",
+      "url": "blog"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "Dashboard",
+      "icon": "browser",
+      "url": "https://bundle.social/dashboard"
+    },
+    {
+      "name": "Community",
+      "icon": "discord",
+      "url": "https://discord.gg/w3tZ2CQRrd"
+    },
+    {
+      "name": "Github",
+      "icon": "github",
+      "url": "https://github.com/bundlesocial"
+    },
+    {
+      "name": "Status",
+      "icon": "wave-pulse",
+      "url": "https://bundlesocial.betteruptime.com"
+    },
+    {
+      "name": "Feedback",
+      "icon": "messages",
+      "url": "https://bundle.social/dashboard/feedback"
+    },
+    {
+      "name": "Help",
+      "icon": "life-ring",
+      "url": "https://bundle.social/dashboard/help"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Introduction",
+      "pages": ["welcome", "demo", "faq", "glossary"]
+    },
+    {
+      "group": "Knowledge Base",
+      "pages": ["knowledge/index"]
+    },
+    {
+      "group": "Changelog",
+      "pages": ["changelog/index"]
+    },
+    {
+      "group": "Blog",
+      "pages": [
+        "blog/index",
+        {
+          "group": "Posts",
+          "pages": [
+            "blog/quick-guide-on-when-to-post",
+            "blog/why-solanda-is-next-big-thing",
+            "blog/ai-interview-are-here",
+            "blog/dopamine-detox",
+            "blog/ai-regulations",
+            "blog/all-my-homies-hate-blizzard",
+            "blog/books-can-change-you",
+            "blog/cloud-seeding-is-funny",
+            "blog/get-money-from-instagram",
+            "blog/get-your-money-from-twitter",
+            "blog/google-borrowed-chatgpt-data",
+            "blog/grow-your-tiktok-audience",
+            "blog/how-to-get-customer-insights",
+            "blog/how-to-get-more-facebook-followers",
+            "blog/is-data-science-dead",
+            "blog/linkedin-is-cringe",
+            "blog/marketing-in-the-future",
+            "blog/mental-health-and-social-media",
+            "blog/product-design-by-zalando",
+            "blog/why-we-think-in-the-shower",
+            "blog/real-cost-of-cloud",
+            "blog/seo-and-ads-managment",
+            "blog/social-media-trends-2024",
+            "blog/stop-using-loops-now",
+            "blog/you-are-an-addict",
+            "blog/tiktok-banned",
+            "blog/what-is-mojo",
+            "blog/what-is-quantum-computing",
+            "blog/working-burnout"
+          ]
+        }
+      ]
+    },
+    {
+      "group": "API Documentation",
+      "pages": [
+        "api-reference/introduction",
+        "api-reference/openapi",
+        "api-reference/sdk",
+        "api-reference/webhooks",
+        "api-reference/rate-limits",
+        "api-reference/examples"
+      ]
+    },
+    {
+      "group": "App",
+      "pages": ["api-reference/client/app/get-health"]
+    },
+    {
+      "group": "Team",
+      "pages": ["api-reference/client/team/get-team"]
+    },
+    {
+      "group": "Upload",
+      "pages": [
+        "api-reference/client/upload/create-upload",
+        "api-reference/client/upload/delete-upload",
+        "api-reference/client/upload/delete-many-uploads",
+        "api-reference/client/upload/get-upload-list",
+        "api-reference/client/upload/get-upload"
+      ]
+    },
+    {
+      "group": "Post",
+      "pages": [
+        "api-reference/client/post/create-post",
+        "api-reference/client/post/update-post",
+        "api-reference/client/post/delete-post",
+        "api-reference/client/post/get-post-list",
+        "api-reference/client/post/get-post"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "twitter": "https://twitter.com/bundle_social",
+    "github": "https://www.github.com/bundlesocial",
+    "linkedin": "https://www.linkedin.com/company/bundlesocial"
+  },
+  "feedback": {
+    "thumbsRating": true,
+    "suggestEdit": true,
+    "raiseIssue": true
+  },
+  "seo": {
+    "indexHiddenPages": false
+  }
+}

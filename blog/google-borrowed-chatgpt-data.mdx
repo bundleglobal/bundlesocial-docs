@@ -1,0 +1,15 @@
+---
+title: How Google “borrowed” ChatGPT data ALLEGEDLY.
+---
+
+The paper "Scalable Extraction of Training Data from (Production) Language Models" by Deepmind researchers presents a significant finding in the realm of AI security and data privacy. The researchers developed a method, referred to as a "new divergence attack," which manipulates the model into deviating from its standard output behavior and revealing parts of its training data at a rate 150 times higher than normal. This method demonstrated the ability to extract several megabytes of ChatGPT’s training data for a relatively low cost, with the potential to scale up to a gigabyte with increased expenditure. This reveals a vulnerability in "aligned" models like ChatGPT, which are specifically designed to avoid such data regurgitation.
+
+The importance of this discovery is magnified when considering the broader implications for AI safety and security. It challenges the reliance on Alignment Tuning or Fine Tuning as comprehensive solutions for improving both generation quality and security, suggesting that these methods might not sufficiently protect against data extraction attacks.
+
+Furthermore, the paper highlights the nuanced issue of memorization in language models (LMs), distinguishing between extractive and discoverable memorization and examining how model size influences the extent of memorization. It suggests that larger models, despite being potentially more secure against certain types of memorization, can still be vulnerable to targeted extraction attacks.
+
+The researchers' ability to extract data from not just open-source models like Pythia or GPT-Neo, but also semi-open and closed models, including ChatGPT, underscores a widespread issue across the spectrum of LMs. This vulnerability is not limited to any single type of model, raising concerns about the privacy and security of the vast amounts of data these models are trained on.
+
+The paper calls for a reevaluation of current strategies for securing LMs against data extraction attacks, suggesting that reducing a model's capability to regurgitate training data from the outset might be a more effective approach than attempting to retrofit security measures. It also hints at a potential shift in the industry towards specializing in alignment as a service, pointing out the inherent trade-offs between model performance, memorization, and privacy.
+
+This analysis opens up critical discussions about the future of LLMs, their security, and the ethical implications of their use, especially in light of increasing scrutiny from legal and public domains. The specificity of the attack on ChatGPT, compared to other models, further complicates the landscape of LLM security, suggesting that no model is immune and that each may require tailored defenses. This complexity adds another layer to the challenge of creating safe, secure, and private AI solutions in an ever-evolving digital landscape.

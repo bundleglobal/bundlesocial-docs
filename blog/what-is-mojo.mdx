@@ -1,0 +1,179 @@
+---
+title: What is Mojo
+---
+
+Designed by Chris Lattner, the creator of the Swift programming language and LLVM Compiler Infrastructure, Mojo presents a novel solution for Python’s speed constraints. Despite its popularity, Python often lags in performance, making languages like C and C++ preferable for high-speed, high-performance tasks. In response, Mojo was born to integrate Python’s usability with C’s performance.
+
+But what does this mean for the average web developer? Mojo has an astonishing 35,000x speed advantage over Python, substantially outpacing competitors like PyPy, Scala, and C++.
+
+Here’s a benchmark test result of Mojo versus other languages, running the Mandelbrot algorithm on an AWS r7iz.metal-16xl instance:
+
+A benchmark screenshot of Mojo vs. other languages from the Modular website
+
+This leap in AI programming opens up new possibilities for developing high-performance, AI-powered web applications without sacrificing the familiarity of Python’s syntax and extensive libraries.
+
+<h2>Mojo lang: Designed for the future of AI</h2>
+
+A significant selling point for Mojo is its compatibility with AI hardware. It leverages multilevel intermediate representation (MLIR) to scale various hardware types, including GPUs running CUDA and similar hardware, without adding complexity.
+
+Mojo’s design also ensures portability across several hardware platforms and specialized accelerators. This makes it a great choice for developing applications that need to run on a variety of devices.
+
+One of the reasons Python is so beloved in the development community is its robust ecosystem, and Mojo takes this legacy forward. As a Python superset, it offers smooth access to Python libraries like NumPy. This means you can jump into AI development using tools you’re already familiar with.
+
+To start your journey with Mojo, head over to the Mojo playground, an interactive platform provided by Modular that allows developers to run Mojo code. As of May 2023, Mojo is still under development, but you can experience its functionalities in this playground.
+
+<h2>Features that set Mojo apart</h2>
+
+Here are some of the features that make Mojo stand out:
+
+Enhanced speed: While Python’s biggest hurdle has been its performance speed, Mojo has been designed to circumvent this challenge. In comparison to Python, Scala, and C++, Mojo is exponentially faster, with the numbers suggesting it is 35,000x faster than Python
+
+Compatibility with AI hardware: Mojo has been thoughtfully designed for programming on AI hardware, like GPUs running CUDA. As mentioned above, the language uses MLIR to manage diverse hardware types without increasing complexity
+
+Python superset: As a superset of Python, Mojo does not necessitate learning an entirely new programming language because it is fully compatible with Python
+
+Error checking and performance enhancements: Mojo uses types to improve performance and carry out error checking. It also offers control over storage by inline-allocating values into structures, providing zero-cost abstractions.
+
+Memory safety: Mojo features an ownership and borrower checker, which ensures memory safety without introducing complications
+
+Autotuning: With autotuning, Mojo can automatically find the best values for your parameters, which can drastically streamline the programming process
+
+Tiling optimization: Mojo includes a built-in tiling optimization tool that effectively caches and reuses data, which helps optimize performance by using memory located near each other at a given time and reusing it
+
+Parallel computing: Mojo introduces inbuilt parallelization, enabling multithreaded code execution, which can increase execution speed by 2,000x
+
+<h2>Writing your first Mojo code</h2>
+
+Mojo’s syntax is heavily influenced by Python. For instance, a “Hello, World!” program in Mojo looks exactly like one in Python:
+
+```
+def greet():
+  print("Welcome to Mojo!")
+
+greet()
+```
+
+Variables in Mojo
+
+Mojo supports let and var declarations, which introduce a new scoped runtime value. let is used to declare immutable variables, while var is for mutable ones. Here is a basic example of how you can use these declarations:
+
+```
+def calculateDifference(num1, num2):
+  let initialSum = num1 + num2
+  if num1 > num2:
+    var difference = num1 - num2
+    print("Difference:", difference)
+  else:
+    print("No significant difference")
+
+calculateDifference(10, 5)
+```
+
+With let and var declarations, you can also specify the variable type. Here’s an example with several data types:
+
+```
+def isEven(number) -> Bool:
+  let checkNumber: Int = number
+  var result: StringLiteral = ""
+  if checkNumber % 2 == 0:
+    result = "It's even!"
+    print(result)
+    return True
+  else:
+    result = "It's odd!"
+    print(result)
+    return False
+
+isEven(42)
+```
+
+Using struct types
+
+In Mojo, you can build safe high-level abstractions on top of low-level data layout controls with the struct type. In programming, a struct is a data type that allows for the combination of different kinds of data items, but which can be manipulated as a single unit.
+
+In the Mojo programming language, struct types are a bit similar to classes in other object-oriented languages. They can have methods and properties, but unlike classes, structs in Mojo are statically bound at compile time, and they are directly inserted or “inlined” into their container without needing a separate memory reference, or “indirection.”
+
+Here’s a simple definition of a struct:
+
+```
+struct Rectangle:
+  var length: Int
+  var width: Int
+  fn area(inout self) -> Int:
+  return self.length \* self.width
+
+      fn __init__(inout self, length: Int, width: Int):
+          self.length = length
+          self.width = width
+
+  # Creating a Rectangle instance and calculating its area
+
+let myRectangle = Rectangle(length: 20, width: 10)
+print("Area of rectangle:", myRectangle.area())
+```
+
+Integrating Python with Mojo
+
+Mojo doesn’t abandon the versatility of Python. You can import any Python module into your Mojo program and create Python types from Mojo types. This makes Mojo a powerful language, combining the performance of C and the vast ecosystem of Python.
+
+Here’s how you can import a Python module in Mojo:
+
+```
+from PythonInterface import Python
+
+let plt = Python.import_module("matplotlib.pyplot")
+
+# Example of using matplotlib in Mojo
+
+def plotExample():
+  var x = [1, 2, 3, 4, 5]
+  var y = [1, 4, 9, 16, 25]
+  plt.plot(x, y)
+  plt.title("Simple Plot")
+  plt.ylabel('y - values')
+  plt.xlabel('x - values')
+  plt.show()
+
+plotExample()
+```
+
+This example imports Python from the PythonInterface module and uses it to access the numpy module. With this flexibility, it’s easy for Python developers to adopt Mojo, as they can leverage the Python ecosystem and their existing knowledge of Python.
+
+However, since Mojo is focused on performance, it might not support all dynamic features of Python, and not all Python libraries are guaranteed to work seamlessly with Mojo.
+
+<h2>What to watch out for</h2>
+
+Since Mojo is in the early development phase, be prepared for potential instability or missing functionality as the language continues to be refined and expanded. Let’s have a look at some things to watch out for and examine some of the challenges with the current state of Mojo.
+
+<Steps>
+  <Step title='Core language refinement'>
+    It is expected that further improvements will be made to Mojo’s core
+    language as its foundation is established, tweaking it towards stability and
+    a more intuitive user experience. This foundational work should encourage
+    robust software development and provide a comprehensive framework for the
+    language’s subsequent evolution.
+  </Step>
+  <Step title='Error handling'>
+    Mojo’s current implementation of exceptions is done through the Error type.
+    The language’s error handling is expected to become more nuanced, with
+    improved error messages and more appropriate error types that provide better
+    explicit debugging information.
+  </Step>
+  <Step title='Enhanced interoperability'>
+    Interoperability with other languages has consistently been Mojo’s strength.
+    There’s an expectation of continued improvements in this area to make Mojo
+    appealing for projects that require interaction with existing codebases.
+  </Step>
+  <Step title='Adoption and potential instability'>
+    Despite its innovative programming paradigm, Mojo is relatively new and in
+    the early stages of adoption. This means persuading the community to embrace
+    and contribute to its ecosystem might be challenging. However, Mojo’s unique
+    features and ease of migration with Python should help it gain acceptance..
+  </Step>
+</Steps>
+
+<h2>Conclusion</h2>
+
+Mojo promises a new era of efficiency and robustness for AI developers. By combining the simplicity of Python with C’s high-performance capabilities, Mojo aims to democratize AI programming and simplify the development process.
+
+As we eagerly anticipate Mojo’s public launch, it’s the perfect time to explore its possibilities through the Mojo playground and kickstart your journey into the future of AI development

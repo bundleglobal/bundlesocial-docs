@@ -1,0 +1,96 @@
+---
+title: Webhooks
+description: Webhooks are a way for your application to receive real-time notifications from bundle.social when certain events occur. When the event occurs, bundle.social sends an HTTP POST request to a URL you specify.
+---
+
+<Note>
+  At this stage we assume you have already created an API key. If you haven't, please refer to the [Introduction](/api-reference) page.
+</Note>
+
+To receive webhook events, you need to provide us with a URL that we can send the events to. 
+
+You can use a service like ngrok to create a secure tunnel to your local development environment.
+
+To create a new webhook go to the [Webhooks](https://bundle.social/dashboard/team/webhooks) page.
+
+After creating a webhook, you will receive a secret key that you can use to verify the webhook events.
+
+
+<Note>
+  After running ngrok wait a minute for DNS to resolve correctly. Otherwise, you may get an error.
+</Note>
+
+
+## Handling webhook events
+<Note>
+  If you are using the bundle.social SDK, you can use the `webhook` module to handle webhook events.
+  [Check it out](/api-reference/sdk#handling-webhook-events)
+</Note>
+
+```ts
+import crypto from 'crypto';
+
+/**
+ * Verify the signature of a webhook request
+ * @param body - Stringified body of the webhook request
+ * @param signature - The signature passed in the `x-signature` header
+ * @param secret - The webhook secret used to sign the request
+ * @returns Whether the signature is valid
+ */
+private verifySignature(
+  body: string,
+  signature: string,
+  secret: string,
+): boolean {
+  // Create a hash using the body and the secret
+  const sig = crypto.createHmac('sha256', secret).update(body).digest('hex');
+
+  return sig === signature;
+}
+
+/**
+ * Construct a webhook event from a request
+ * @param rawBody - The raw body of the webhook request
+ * @param signature - The signature passed in the `x-signature` header
+ * @param secret - The webhook secret used to sign the request
+ * @returns Parsed webhook event
+ */
+public constructEvent(rawBody: string, signature: string, secret: string) {
+  const body = typeof rawBody === 'string' ? rawBody : JSON.stringify(rawBody);
+
+if (!this.verifySignature(body, signature, secret)) {
+  throw new Error('Invalid signature');
+}
+
+return JSON.parse(body);
+}
+```
+
+Simple example using express
+  
+```ts
+import express from 'express';
+
+const app = express();
+
+app.post('/webhook', express.json({ type: 'application/json' }), (req, res) => {
+  const signature = req.headers['x-signature'];
+
+  let event;
+
+  try {
+    // Verify the webhook signature and return the event
+    event = bundlesocial.webhooks.constructEvent(
+      req.body,
+      signature as string,
+      secret,
+    );
+    // Do something with the event
+  } catch (err) {
+    console.log(`Webhook signature verification failed.`, err);
+    return res.sendStatus(400);
+  }
+
+  return res.send();
+});
+```

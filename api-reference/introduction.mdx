@@ -1,0 +1,49 @@
+---
+title: Introduction
+# icon: terminal
+description: API reference documentation for the bundle.social API.
+---
+
+<Note>
+  Watch our [API Demo](/demo#api-demo)
+</Note>
+
+<Note>
+  If you don't yet have a bundle.social account you can sign up for a free account at [https://bundle.social](https://bundle.social).
+  Then create a new API key.
+</Note>
+
+<Accordion
+  title="How to create a new API key"
+>
+Go to [API keys page](https://bundle.social/dashboard/team/api-keys).
+
+Click create a new key
+![Click create a new key](/images/api-reference/create-api-key/step1.png)
+
+Name your key to know what it is used for
+![Name your key to know what it is used for](/images/api-reference/create-api-key/step2.png)
+
+Copy your key and store it in a safe place
+![Copy your key and store it in a safe place](/images/api-reference/create-api-key/step3.png)
+</Accordion>
+
+
+## Authentication
+
+All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+
+```json
+"security": [
+  { 
+    "ApiKeyAuth": [] 
+  }
+]
+```
+
+To authorize with the API, you need to provide an API key in the `x-api-key` header.
+```json
+{
+  "x-api-key": "YOUR_API_KEY",
+}
+```
