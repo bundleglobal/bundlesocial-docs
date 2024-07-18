@@ -181,28 +181,6 @@
       ]
     }
   ],
-  "redirects": [
-    {
-      "source": "/api-reference",
-      "destination": "/api-reference/introduction",
-      "permanent": true
-    },
-    {
-      "source": "/knowledge",
-      "destination": "/knowledge/index",
-      "permanent": true
-    },
-    {
-      "source": "/blog",
-      "destination": "/blog/index",
-      "permanent": true
-    },
-    {
-      "source": "/comparison",
-      "destination": "/comparison/index",
-      "permanent": true
-    }
-  ],
   "footerSocials": {
     "twitter": "https://twitter.com/bundle_social",
     "github": "https://www.github.com/bundlesocial",
