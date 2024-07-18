@@ -32,16 +32,16 @@
       "url": "api-reference"
     },
     {
-      "name": "Changelog",
-      "url": "changelog"
-    },
-    {
       "name": "Knowledge",
       "url": "knowledge"
     },
     {
       "name": "Blog",
       "url": "blog"
+    },
+    {
+      "name": "Comparison",
+      "url": "comparison"
     }
   ],
   "anchors": [
@@ -86,8 +86,20 @@
       "pages": ["knowledge/index"]
     },
     {
-      "group": "Changelog",
-      "pages": ["changelog/index"]
+      "group": "Comparison",
+      "pages": [
+        "comparison/index",
+        "comparison/buffer",
+        "comparison/ayrshare",
+        "comparison/later",
+        "comparison/publer",
+        "comparison/sproutsocial",
+        "comparison/hootsuite",
+        "comparison/socialpilot",
+        "comparison/socialbee",
+        "comparison/planoly",
+        "comparison/zohosocial"
+      ]
     },
     {
       "group": "Blog",
