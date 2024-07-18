@@ -79,7 +79,7 @@
   "navigation": [
     {
       "group": "Introduction",
-      "pages": ["welcome", "demo", "faq", "glossary"]
+      "pages": ["welcome", "demo", "faq", "changelog", "glossary"]
     },
     {
       "group": "Knowledge Base",
