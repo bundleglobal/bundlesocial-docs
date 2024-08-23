@@ -4,7 +4,7 @@ description: Rate limits are the number of requests that can be made to the bund
 ---
 
 <Note>
-  We don't use rate limits per endpoint, we use rate limits per user. This means that if you exceed the rate limit on one endpoint, you will be rate limited on all endpoints.
+  We don't use rate limits per endpoint, we use rate limits per user. This means that if you exceed the rate limit on one endpoint, you will be rate limited on all endpoints. You will receive a 429 status code if you exceed the rate limit.
 </Note>
 
 **Short term rate limit**: 5 requests per second
