@@ -1,0 +1,69 @@
+---
+title: Connect social accounts
+description: Learn how to connect social accounts to bundle.social via API.
+---
+
+![Connect social account flow](/images/api-reference/connect-social-account/connect-social-account.png)
+
+For most of the platforms flow is pretty simple.
+The only exception are Youtube, Facebook, Instagram and Linkedin where you need to select the channel after the initial connection. Channel in this context means different things for different platforms:
+
+- For Youtube it's a Youtube channel.
+- For Facebook it's a Facebook page.
+- For Instagram it's an Instagram account.
+- For LinkedIn it's a LinkedIn page.
+
+## List of errors we can return in the query params:
+- twitter-callback - Error connecting Twitter
+- twitter-not-enought-permissions - You didn't grant all the necessary permissions
+
+- pinterest-callback - Error connecting Pinterest
+- pinterest-not-enought-permissions - You didn't grant all the necessary permissions
+
+- tiktok-callback - Error connecting TikTok
+- tiktok-not-enought-permissions - You didn't grant all the necessary permissions
+
+- facebook-callback - Error connecting Facebook
+- facebook-not-enough-pages - You don't have enough permissions in any of your Facebook pages
+- facebook-not-enought-permissions - You didn't grant all the necessary permissions
+
+- instagram-callback - Error connecting Instagram
+- instagram-not-enough-accounts - You don't have enough permissions in any of your Instagram accounts or none of your Facebook pages has an Instagram account connected
+- instagram-not-enought-permissions - You didn't grant all the necessary permissions
+
+- linkedin-callback - Error connecting LinkedIn
+- linkedin-not-enough-channels - You don't have enough permissions in any of your LinkedIn organizations
+- linkedin-not-enought-permissions - You didn't grant all the necessary permissions
+
+- reddit-callback - Error connecting Reddit
+- reddit-not-enought-permissions - You didn't grant all the necessary permissions
+
+- discord-callback - Error connecting Discord
+- discord-not-enough-servers - You don't have enough permissions in any of your Discord servers
+- discord-not-enought-permissions - You didn't grant all the necessary permissions
+
+- slack-callback - Error connecting Slack
+- slack-not-enough-workspaces - You don't have enough permissions in any of your Slack workspaces
+- slack-not-enought-permissions - You didn't grant all the necessary permissions
+
+- youtube-callback - Error connecting Youtube
+- youtube-not-enough-channels - You don't have enough permissions in any of your Youtube channels
+- youtube-not-enought-permissions - You didn't grant all the necessary permissions
+
+- threads-callback - Error connecting Threads
+- telegram-callback - Error connecting Telegram
+
+
+## List of success messages we can return in the query params:
+- twitter-callback - Twitter connected successfully
+- pinterest-callback - Pinterest connected successfully
+- tiktok-callback - TikTok connected successfully
+- facebook-callback - Facebook connected successfully
+- instagram-callback - Instagram connected successfully
+- linkedin-callback - LinkedIn connected successfully
+- reddit-callback - Reddit connected successfully
+- discord-callback - Discord connected successfully
+- slack-callback - Slack connected successfully
+- youtube-callback - Youtube connected successfully
+- threads-callback - Threads connected successfully
+- telegram-callback - Telegram connected successfully
