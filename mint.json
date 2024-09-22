@@ -147,9 +147,10 @@
         "api-reference/introduction",
         "api-reference/openapi",
         "api-reference/sdk",
+        "api-reference/connect-social-accounts",
         "api-reference/webhooks",
-        "api-reference/rate-limits",
-        "api-reference/examples"
+        "api-reference/examples",
+        "api-reference/rate-limits"
       ]
     },
     {
@@ -157,8 +158,26 @@
       "pages": ["api-reference/client/app/get-health"]
     },
     {
+      "group": "Organization",
+      "pages": ["api-reference/client/organization/get-organization"]
+    },
+    {
       "group": "Team",
-      "pages": ["api-reference/client/team/get-team"]
+      "pages": [
+        "api-reference/client/team/create-new-team",
+        "api-reference/client/team/update-team",
+        "api-reference/client/team/delete-team",
+        "api-reference/client/team/get-team"
+      ]
+    },
+    {
+      "group": "Social account",
+      "pages": [
+        "api-reference/client/socialaccount/generate-oauth-url",
+        "api-reference/client/socialaccount/set-channel-for-social-account",
+        "api-reference/client/socialaccount/disconnect-social-account-from-team",
+        "api-reference/client/socialaccount/refresh-channels-for-social-account"
+      ]
     },
     {
       "group": "Upload",
