@@ -3,6 +3,22 @@ title: Connect social accounts
 description: Learn how to connect social accounts to bundle.social via API.
 ---
 
+## Hosted by us
+
+We have an endpoint to create an authenicated user session on our portal to let you user connect their social accounts.
+The endpoint is `/api/v1/social-account/create-portal-link`, you can test it out in the 
+[Swagger](https://api.bundle.social/swagger#/socialAccount/socialAccount.createPortalLink) or [API Reference Client](/api-reference/client/socialaccount/create-portal-link).
+
+You can specify: `teamId, redirectUrl, socialAccountType, logoUrl, userLogoUrl and userName.`
+
+That's how the hosted page looks:
+![Connect social account flow](/images/api-reference/connect-social-account/connect-social-account-hosted.png)
+
+## Hosted by you
+
+It enables you to connect social accounts directly through your app, but required more work to set up.
+
+### Connect social account flow
 ![Connect social account flow](/images/api-reference/connect-social-account/connect-social-account.png)
 
 For most of the platforms flow is pretty simple.
@@ -13,7 +29,7 @@ The only exception are Youtube, Facebook, Instagram and Linkedin where you need 
 - For Instagram it's an Instagram account.
 - For LinkedIn it's a LinkedIn page.
 
-## List of errors we can return in the query params:
+### List of errors we can return in the query params:
 - twitter-callback - Error connecting Twitter
 - twitter-not-enought-permissions - You didn't grant all the necessary permissions
 

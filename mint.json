@@ -174,7 +174,7 @@
       "group": "Social account",
       "pages": [
         "api-reference/client/socialaccount/create-portal-link",
-        "api-reference/client/socialaccount/generate-oauth-url",
+        "api-reference/client/socialaccount/connect-social-account-for-team",
         "api-reference/client/socialaccount/set-channel-for-social-account",
         "api-reference/client/socialaccount/disconnect-social-account-from-team",
         "api-reference/client/socialaccount/refresh-channels-for-social-account"
