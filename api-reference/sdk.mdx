@@ -53,12 +53,30 @@ const team = await bundlesocial.team.teamGetTeam({
 });
 ```
 
-### Manage social accounts (needed for product integration only)
-If you can connect social accounts directly through our web app, you can skip this step.
-
+### Manage social accounts
+You can either use our authenticated page hosted by us or implement the flow by yourself.
 [(Click here to learn more)](/api-reference/connect-social-accounts).
 
-#### Connect social account
+#### Connect social account - hosted by us
+It generated an authenticated user session on our portal to let your user connect their social accounts.
+
+```ts
+const response =
+  await bundlesocial.socialAccount.socialAccountCreatePortalLink({
+    requestBody: {
+      teamId: team.id,
+      socialAccountTypes: ['TIKTOK', 'FACEBOOK', 'INSTAGRAM'],
+      redirectUrl: 'https://your-redirect-url.com',
+      logoUrl: 'https://your-logo-url.com',
+      userLogoUrl: 'https://your-user-logo-url.com',
+      userName: 'Your User Name',
+    },
+  });
+```
+
+#### Connect social account - hosted by you
+It enables you to connect social accounts directly through your app, but required more work to set up.
+
 ```ts
 const response = await bundlesocial.socialAccount.socialAccountConnect({
   requestBody: {
@@ -72,7 +90,7 @@ const response = await bundlesocial.socialAccount.socialAccountConnect({
 // After the user has connected the account, the user will be redirected to the redirectUrl
 ```
 
-#### Select page, account or channel (required for FACEBOOK, INSTAGRAM, YOUTUBE and LINKEDIN)
+##### **Select page, account or channel (required for FACEBOOK, INSTAGRAM, YOUTUBE and LINKEDIN)**
 After the user has connected the account and was redirected to your page, you can let the user select the page, account or channel. We unified the data for all platforms. Each social account has a `channels` field, that is an array of their channels (pages, accounts, channels depending on the platform).
 
 ```ts
