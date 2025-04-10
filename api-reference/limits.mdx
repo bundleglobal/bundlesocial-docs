@@ -1,0 +1,57 @@
+---
+title: Limits
+description: Upload, posting and rate limits
+---
+
+## Upload limits
+### Images
+- Maximum size: 25 MB
+- Mime types: image/jpg, image/jpeg, image/png
+
+### Videos
+- Maximum size: 1 GB
+- Mime types: video/mp4
+
+## Posting limits
+- twitter
+  - text - 280 characters
+- pinterest
+  - text - 100 characters
+  - description - 800 characters
+  - link - 2048 characters
+  - altText - 500 characters
+  - note - 500 characters
+- facebook
+  - text - 2000 characters
+- instagram
+  - text - 2000 characters
+- threads
+  - text - 500 characters
+- tiktok
+  - text - 150 characters
+- linkedin
+  - text - 1300 characters
+- youtube
+  - text - 100 characters
+  - description - 5000 characters
+- reddit
+  - text - 300 characters
+  - description - 30000 characters
+- discord
+  - text - 2000 characters
+- slack
+  - text - 30000 characters
+  - username - 80 characters
+- mastodon
+  - text - 30000 characters
+
+## Rate limits
+<Note>
+  We don't use rate limits per endpoint, we use rate limits per user. This means that if you exceed the rate limit on one endpoint, you will be rate limited on all endpoints. You will receive a 429 status code if you exceed the rate limit.
+</Note>
+
+**Short term rate limit**: 5 requests per second
+
+**Medium term rate limit**: 20 requests per 10 seconds
+
+**Long term rate limit**: 100 requests per minute
