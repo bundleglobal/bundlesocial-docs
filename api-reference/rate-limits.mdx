@@ -1,0 +1,33 @@
+---
+title: Rate limits
+description: Internal and external rate limits
+---
+
+## Our rate limits
+<Note>
+  We don't use rate limits per endpoint, we use rate limits per user. This means that if you exceed the rate limit on one endpoint, you will be rate limited on all endpoints. You will receive a 429 status code if you exceed the rate limit.
+</Note>
+
+**Short term rate limit**: 5 requests per second
+
+**Medium term rate limit**: 20 requests per 10 seconds
+
+**Long term rate limit**: 100 requests per minute
+
+
+## External platforms rate limits
+### Posting daily limits per platform per tier
+| Platform | FREE | PRO | BUSINESS | 
+| -------- | ---- | --- | -------- |
+| TWITTER  | 1 | 15 | 15 |
+| FACEBOOK  | 1 | 24 | 36 |
+| INSTAGRAM  | 1 | 20 | 25 |
+| LINKEDIN  | 1 | 18 | 24 |
+| YOUTUBE  | 1 | 10 | 15 |
+| TIKTOK  | 1 | 20 | 25 |
+| THREADS  | 1 | 200 | 250 |
+| PINTEREST  | 1 | 24 | 36 |
+| REDDIT  | 1 | 24 | 36 |
+| DISCORD  | 1 | 100 | 200 |
+| SLACK  | 1 | 100 | 200 |
+| MASTODON  | 1 | 50 | 100 |

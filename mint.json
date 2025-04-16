@@ -150,7 +150,8 @@
         "api-reference/connect-social-accounts",
         "api-reference/webhooks",
         "api-reference/examples",
-        "api-reference/limits"
+        "api-reference/limits",
+        "api-reference/rate-limits"
       ]
     },
     {

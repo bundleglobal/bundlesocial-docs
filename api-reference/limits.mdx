@@ -1,6 +1,6 @@
 ---
-title: Limits
-description: Upload, posting and rate limits
+title: Post limits
+description: Upload and post data limits
 ---
 
 ## Upload limits
@@ -49,14 +49,3 @@ description: Upload, posting and rate limits
 - mastodon
   - text - 30000 characters
   - spoiler - 50 characters
-
-## Rate limits
-<Note>
-  We don't use rate limits per endpoint, we use rate limits per user. This means that if you exceed the rate limit on one endpoint, you will be rate limited on all endpoints. You will receive a 429 status code if you exceed the rate limit.
-</Note>
-
-**Short term rate limit**: 5 requests per second
-
-**Medium term rate limit**: 20 requests per 10 seconds
-
-**Long term rate limit**: 100 requests per minute
