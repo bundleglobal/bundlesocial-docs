@@ -200,6 +200,16 @@
         "api-reference/client/post/get-post-list",
         "api-reference/client/post/get-post"
       ]
+    },
+    {
+      "group": "Comment",
+      "pages": [
+        "api-reference/client/comment/create-comment",
+        "api-reference/client/comment/update-comment",
+        "api-reference/client/comment/delete-comment",
+        "api-reference/client/comment/get-comment-list",
+        "api-reference/client/comment/get-comment"
+      ]
     }
   ],
   "redirects": [
