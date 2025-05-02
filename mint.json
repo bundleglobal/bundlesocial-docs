@@ -210,6 +210,14 @@
         "api-reference/client/comment/get-comment-list",
         "api-reference/client/comment/get-comment"
       ]
+    },
+    {
+      "group": "Analytics",
+      "pages": [
+        "api-reference/client/analytics/get-profile-analytics",
+        "api-reference/client/analytics/get-profile-post",
+        "api-reference/client/analytics/get-profile-posts"
+      ]
     }
   ],
   "redirects": [
