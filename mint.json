@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "openapi": ["/api-reference/openapi.json"],
+  "openapi": ["https://api.bundle.social/swagger-json"],
   "name": "bundle.social",
   "logo": {
     "dark": "/favicon.svg",
