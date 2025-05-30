@@ -188,7 +188,9 @@
         "api-reference/client/upload/delete-upload",
         "api-reference/client/upload/delete-many-uploads",
         "api-reference/client/upload/get-upload-list",
-        "api-reference/client/upload/get-upload"
+        "api-reference/client/upload/get-upload",
+        "api-reference/client/upload/init-upload",
+        "api-reference/client/upload/finalize-upload"
       ]
     },
     {
