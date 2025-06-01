@@ -1,0 +1,198 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "bundle.social",
+  "colors": {
+    "primary": "#EB6700",
+    "light": "#EB6700",
+    "dark": "#EB6700"
+  },
+  "favicon": "/favicon.svg",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Introduction",
+            "pages": [
+              "welcome",
+              "demo",
+              "faq",
+              "changelog",
+              "glossary"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "API Reference",
+        "groups": [
+          {
+            "group": "API Documentation",
+            "pages": [
+              "api-reference/introduction",
+              "api-reference/openapi",
+              "api-reference/sdk",
+              "api-reference/connect-social-accounts",
+              "api-reference/webhooks",
+              "api-reference/examples",
+              "api-reference/limits",
+              "api-reference/rate-limits"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Knowledge",
+        "groups": [
+          {
+            "group": "Knowledge Base",
+            "pages": [
+              "knowledge/index"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Blog",
+        "groups": [
+          {
+            "group": "Blog",
+            "pages": [
+              "blog/index",
+              {
+                "group": "Posts",
+                "pages": [
+                  "blog/quick-guide-on-when-to-post",
+                  "blog/why-solanda-is-next-big-thing",
+                  "blog/ai-interview-are-here",
+                  "blog/dopamine-detox",
+                  "blog/ai-regulations",
+                  "blog/all-my-homies-hate-blizzard",
+                  "blog/books-can-change-you",
+                  "blog/cloud-seeding-is-funny",
+                  "blog/get-money-from-instagram",
+                  "blog/get-your-money-from-twitter",
+                  "blog/google-borrowed-chatgpt-data",
+                  "blog/grow-your-tiktok-audience",
+                  "blog/how-to-get-customer-insights",
+                  "blog/how-to-get-more-facebook-followers",
+                  "blog/is-data-science-dead",
+                  "blog/linkedin-is-cringe",
+                  "blog/marketing-in-the-future",
+                  "blog/mental-health-and-social-media",
+                  "blog/product-design-by-zalando",
+                  "blog/why-we-think-in-the-shower",
+                  "blog/real-cost-of-cloud",
+                  "blog/seo-and-ads-managment",
+                  "blog/social-media-trends-2024",
+                  "blog/stop-using-loops-now",
+                  "blog/you-are-an-addict",
+                  "blog/tiktok-banned",
+                  "blog/what-is-mojo",
+                  "blog/what-is-quantum-computing",
+                  "blog/working-burnout"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Comparison",
+        "groups": [
+          {
+            "group": "Comparison",
+            "pages": [
+              "comparison/index",
+              "comparison/buffer",
+              "comparison/ayrshare",
+              "comparison/later",
+              "comparison/publer",
+              "comparison/sproutsocial",
+              "comparison/hootsuite",
+              "comparison/socialpilot",
+              "comparison/socialbee",
+              "comparison/planoly",
+              "comparison/zohosocial"
+            ]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Dashboard",
+          "href": "https://bundle.social/dashboard",
+          "icon": "browser"
+        },
+        {
+          "anchor": "Community",
+          "href": "https://discord.gg/w3tZ2CQRrd",
+          "icon": "discord"
+        },
+        {
+          "anchor": "Github",
+          "href": "https://github.com/bundlesocial",
+          "icon": "github"
+        },
+        {
+          "anchor": "Status",
+          "href": "https://bundlesocial.betteruptime.com",
+          "icon": "wave-pulse"
+        },
+        {
+          "anchor": "Feedback",
+          "href": "https://bundle.social/dashboard/feedback",
+          "icon": "messages"
+        },
+        {
+          "anchor": "Help",
+          "href": "https://bundle.social/dashboard/help",
+          "icon": "life-ring"
+        }
+      ]
+    }
+  },
+  "logo": {
+    "light": "/favicon.svg",
+    "dark": "/favicon.svg"
+  },
+  "api": {
+    "openapi": [
+      "https://api.bundle.social/swagger-json"
+    ]
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Contact",
+        "href": "https://bundle.social/contact"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Dashboard",
+      "href": "https://bundle.social/dashboard"
+    }
+  },
+  "seo": {
+    "indexing": "navigable"
+  },
+  "footer": {
+    "socials": {
+      "twitter": "https://twitter.com/bundle_social",
+      "github": "https://www.github.com/bundlesocial",
+      "linkedin": "https://www.linkedin.com/company/bundlesocial"
+    }
+  },
+  "redirects": [
+    {
+      "source": "/api-reference",
+      "destination": "/api-reference/introduction",
+      "permanent": true
+    }
+  ]
+}
