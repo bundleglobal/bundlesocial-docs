@@ -40,6 +40,13 @@
               "api-reference/limits",
               "api-reference/rate-limits"
             ]
+          },
+          {
+            "group": "Endpoints",
+            "openapi": {
+              "source": "https://api.bundle.social/swagger-json",
+              "directory": "api-reference/client"
+            }
           }
         ]
       },
@@ -187,12 +194,5 @@
       "github": "https://www.github.com/bundlesocial",
       "linkedin": "https://www.linkedin.com/company/bundlesocial"
     }
-  },
-  "redirects": [
-    {
-      "source": "/api-reference",
-      "destination": "/api-reference/introduction",
-      "permanent": true
-    }
-  ]
+  }
 }
