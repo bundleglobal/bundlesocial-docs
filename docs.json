@@ -54,9 +54,29 @@
         "tab": "Knowledge",
         "groups": [
           {
-            "group": "Knowledge Base",
+            "group": "Getting Started",
             "pages": [
-              "knowledge/index"
+              "knowledge/index",
+              "knowledge/teams/what-are-teams",
+              "knowledge/posts/create-first-post",
+              "knowledge/posts/media-library",
+              "knowledge/posts/dc-slack-bots"
+            ]
+          },
+          {
+            "group": "Social Accounts",
+            "pages": [
+              "knowledge/social-accounts/index",
+              "knowledge/social-accounts/tiktok",
+              "knowledge/social-accounts/youtube",
+              "knowledge/social-accounts/instagram",
+              "knowledge/social-accounts/facebook",
+              "knowledge/social-accounts/x",
+              "knowledge/social-accounts/linkedin",
+              "knowledge/social-accounts/pinterest",
+              "knowledge/social-accounts/reddit",
+              "knowledge/social-accounts/discord",
+              "knowledge/social-accounts/slack"
             ]
           }
         ]
@@ -65,43 +85,68 @@
         "tab": "Blog",
         "groups": [
           {
-            "group": "Blog",
+            "group": "Overview",
             "pages": [
-              "blog/index",
-              {
-                "group": "Posts",
-                "pages": [
-                  "blog/quick-guide-on-when-to-post",
-                  "blog/why-solanda-is-next-big-thing",
-                  "blog/ai-interview-are-here",
-                  "blog/dopamine-detox",
-                  "blog/ai-regulations",
-                  "blog/all-my-homies-hate-blizzard",
-                  "blog/books-can-change-you",
-                  "blog/cloud-seeding-is-funny",
-                  "blog/get-money-from-instagram",
-                  "blog/get-your-money-from-twitter",
-                  "blog/google-borrowed-chatgpt-data",
-                  "blog/grow-your-tiktok-audience",
-                  "blog/how-to-get-customer-insights",
-                  "blog/how-to-get-more-facebook-followers",
-                  "blog/is-data-science-dead",
-                  "blog/linkedin-is-cringe",
-                  "blog/marketing-in-the-future",
-                  "blog/mental-health-and-social-media",
-                  "blog/product-design-by-zalando",
-                  "blog/why-we-think-in-the-shower",
-                  "blog/real-cost-of-cloud",
-                  "blog/seo-and-ads-managment",
-                  "blog/social-media-trends-2024",
-                  "blog/stop-using-loops-now",
-                  "blog/you-are-an-addict",
-                  "blog/tiktok-banned",
-                  "blog/what-is-mojo",
-                  "blog/what-is-quantum-computing",
-                  "blog/working-burnout"
-                ]
-              }
+              "blog/index"
+            ]
+          },
+          {
+            "group": "Social Media",
+            "pages": [
+              "blog/quick-guide-on-when-to-post",
+              "blog/grow-your-tiktok-audience",
+              "blog/how-to-get-more-facebook-followers",
+              "blog/linkedin-is-cringe",
+              "blog/social-media-trends-2024",
+              "blog/tiktok-banned"
+            ]
+          },
+          {
+            "group": "Monetization",
+            "pages": [
+              "blog/get-money-from-instagram",
+              "blog/get-your-money-from-twitter",
+              "blog/how-to-get-customer-insights"
+            ]
+          },
+          {
+            "group": "Technology",
+            "pages": [
+              "blog/ai-interview-are-here",
+              "blog/ai-regulations",
+              "blog/google-borrowed-chatgpt-data",
+              "blog/is-data-science-dead",
+              "blog/real-cost-of-cloud",
+              "blog/stop-using-loops-now",
+              "blog/what-is-mojo",
+              "blog/what-is-quantum-computing"
+            ]
+          },
+          {
+            "group": "Industry Insights",
+            "pages": [
+              "blog/why-solanda-is-next-big-thing",
+              "blog/marketing-in-the-future",
+              "blog/product-design-by-zalando",
+              "blog/seo-and-ads-managment"
+            ]
+          },
+          {
+            "group": "Personal Development",
+            "pages": [
+              "blog/dopamine-detox",
+              "blog/books-can-change-you",
+              "blog/mental-health-and-social-media",
+              "blog/why-we-think-in-the-shower",
+              "blog/you-are-an-addict",
+              "blog/working-burnout"
+            ]
+          },
+          {
+            "group": "Opinion",
+            "pages": [
+              "blog/all-my-homies-hate-blizzard",
+              "blog/cloud-seeding-is-funny"
             ]
           }
         ]
@@ -110,19 +155,34 @@
         "tab": "Comparison",
         "groups": [
           {
-            "group": "Comparison",
+            "group": "Overview",
             "pages": [
-              "comparison/index",
-              "comparison/buffer",
-              "comparison/ayrshare",
-              "comparison/later",
-              "comparison/publer",
+              "comparison/index"
+            ]
+          },
+          {
+            "group": "Enterprise Solutions",
+            "pages": [
               "comparison/sproutsocial",
               "comparison/hootsuite",
+              "comparison/zohosocial"
+            ]
+          },
+          {
+            "group": "Mid-Market Solutions",
+            "pages": [
+              "comparison/buffer",
+              "comparison/later",
+              "comparison/publer"
+            ]
+          },
+          {
+            "group": "SMB Solutions",
+            "pages": [
+              "comparison/ayrshare",
               "comparison/socialpilot",
               "comparison/socialbee",
-              "comparison/planoly",
-              "comparison/zohosocial"
+              "comparison/planoly"
             ]
           }
         ]
