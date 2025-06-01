@@ -196,11 +196,6 @@
           "icon": "browser"
         },
         {
-          "anchor": "Community",
-          "href": "https://discord.gg/w3tZ2CQRrd",
-          "icon": "discord"
-        },
-        {
           "anchor": "Github",
           "href": "https://github.com/bundlesocial",
           "icon": "github"
@@ -209,16 +204,6 @@
           "anchor": "Status",
           "href": "https://bundlesocial.betteruptime.com",
           "icon": "wave-pulse"
-        },
-        {
-          "anchor": "Feedback",
-          "href": "https://bundle.social/dashboard/feedback",
-          "icon": "messages"
-        },
-        {
-          "anchor": "Help",
-          "href": "https://bundle.social/dashboard/help",
-          "icon": "life-ring"
         }
       ]
     }
@@ -226,11 +211,6 @@
   "logo": {
     "light": "/favicon.svg",
     "dark": "/favicon.svg"
-  },
-  "api": {
-    "openapi": [
-      "https://api.bundle.social/swagger-json"
-    ]
   },
   "navbar": {
     "links": [
