@@ -9,7 +9,20 @@ We have an endpoint to create an authenicated user session on our portal to let 
 The endpoint is `/api/v1/social-account/create-portal-link`, you can test it out in the 
 [Swagger](https://api.bundle.social/swagger#/socialAccount/socialAccount.createPortalLink) or [API Reference Client](/api-reference/client/socialaccount/create-portal-link).
 
-You can specify: `teamId, redirectUrl, socialAccountType, logoUrl, userLogoUrl, userName and language.`
+You can specify [the following parameters](/api-reference/client/socialaccount/create-portal-link): 
+- `teamId` - (required) The team ID to connect the social accounts to.
+- `redirectUrl` - (required) The URL to redirect to after clicking on the back button.
+- `socialAccountTypes` - (required) The social account types to connect.
+- `logoUrl` - (optional) The URL of the logo to display on the top of the page.
+- `userLogoUrl` - (optional) The URL of the user logo/avatar to display.
+- `userName` - (optional) The name of the user to display.
+- `goBackButtonText` - (optional) The text of the back button.
+- `language` - (optional) The language of the page.
+- `hidePoweredBy` - (optional) Whether to hide the powered by text.
+- `hideGoBackButton` - (optional) Whether to hide the back button.
+- `hideUserLogo` - (optional) Whether to hide the user logo.
+- `hideUserName` - (optional) Whether to hide the user name.
+- `hideLanguageSwitcher` - (optional) Whether to hide the language switcher.
 
 That's how the hosted page looks:
 ![Connect social account flow](/images/api-reference/connect-social-account/connect-social-account-hosted.png)
