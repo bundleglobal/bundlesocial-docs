@@ -24,6 +24,7 @@ You can specify [the following parameters](/api-reference/client/socialaccount/c
 - `hideUserName` - (optional) Whether to hide the user name.
 - `hideLanguageSwitcher` - (optional) Whether to hide the language switcher.
 - `showModalOnConnectSuccess` - (optional) Whether to show a modal on connect success that asks what to do next - go back to the page provided in the `redirectUrl` parameter or just close the modal and let the user connect more accounts.
+- `maxSocialAccountsConnected` - (optional) The maximum number of social accounts that can be connected.
 
 That's how the hosted page looks:
 ![Connect social account flow](/images/api-reference/connect-social-account/connect-social-account-hosted.png)
@@ -81,8 +82,15 @@ The only exception are Youtube, Facebook, Instagram and Linkedin where you need 
 - youtube-not-enought-permissions - You didn't grant all the necessary permissions
 
 - threads-callback - Error connecting Threads
-- telegram-callback - Error connecting Telegram
+- threads-not-enought-permissions - You didn't grant all the necessary permissions
 
+- mastodon-callback - Error connecting Mastodon
+- mastodon-not-enought-permissions - You didn't grant all the necessary permissions
+
+- bluesky-callback - Error connecting Bluesky
+- bluesky-not-enought-permissions - You didn't grant all the necessary permissions
+
+- google-businnes-callback - Error connecting Google Business
 
 ## List of success messages we can return in the query params:
 - twitter-callback - Twitter connected successfully
@@ -96,4 +104,6 @@ The only exception are Youtube, Facebook, Instagram and Linkedin where you need 
 - slack-callback - Slack connected successfully
 - youtube-callback - Youtube connected successfully
 - threads-callback - Threads connected successfully
-- telegram-callback - Telegram connected successfully
+- mastodon-callback - Mastodon connected successfully
+- bluesky-callback - Bluesky connected successfully
+- google-businnes-callback - Google Business connected successfully
