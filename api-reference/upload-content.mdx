@@ -1,0 +1,201 @@
+---
+title: Upload Content
+description: Learn how to upload media files to bundle.social for use in your posts.
+---
+
+# How to upload your content
+
+bundle.social supports two methods for uploading media files. bundle.social provides a **three-step upload flow** for large files and an **alternative simple upload** for smaller files.
+
+---
+
+## Method 1: Three-Step Upload Flow (recommended for large files)
+
+This method uses a pre-signed URL and is ideal for large video files or when you need more control over the upload process.
+
+### Step 1 – Initialize
+
+**Endpoint:** `POST /upload/init`  
+
+**Swagger:** `upload.initLargeUpload`
+
+**Parameters**
+
+- `fileName` (**required**) — The name of the file you want to upload
+
+- `mimeType` (**required**) — The MIME type of your file. Supported values:
+
+  - **Images:** `image/jpg`, `image/jpeg`, `image/png`
+
+  - **Videos:** `video/mp4`
+
+- `teamId` (optional) — The team ID to associate this upload with. If not provided, the upload is visible org‑wide to all teams.
+
+**Response**
+
+```json
+{
+  "url": "<upload target – use PUT with the binary file>",
+  "path": "<internal reference to pass to finalize>"
+}
+```
+
+**Example using SDK**
+
+```ts
+const initResponse = await bundlesocial.upload.initLargeUpload({
+  requestBody: {
+    fileName: 'promo.mp4',
+    mimeType: 'video/mp4',
+    teamId: team.id, // optional
+  }
+});
+
+// Save these values for the next steps
+const { url, path } = initResponse;
+```
+
+---
+
+### Step 2 – Upload
+
+Send a **PUT** request with the **binary file as the raw body** to the provided `url` from Step 1.
+
+<Note>
+The PUT target `url` is a one-time upload location. Do **not** JSON‑encode the file. Send the file bytes directly as the raw body.
+</Note>
+
+**Example using cURL**
+
+```bash
+# Replace <URL_FROM_STEP_1> with the exact 'url' you received
+curl -X PUT "<URL_FROM_STEP_1>" \
+  --upload-file ./promo.mp4
+```
+
+**Example using fetch**
+
+```ts
+const fileBuffer = await fs.readFile('./promo.mp4');
+
+await fetch(url, {
+  method: 'PUT',
+  body: fileBuffer,
+  headers: {
+    'Content-Type': 'video/mp4',
+  },
+});
+```
+
+---
+
+### Step 3 – Finalize
+
+**Endpoint:** `POST /upload/finalize`  
+
+**Swagger:** `upload.finalizeLargeUpload`
+
+**Parameters**
+
+- `path` (**required**) — The `path` value returned in Step 1
+
+- `teamId` (optional) — The team ID (should match the one used in Step 1)
+
+**Response**
+
+Returns the **created upload entity** with an `id` that you can use when creating posts.
+
+**Example using SDK**
+
+```ts
+const finalizedUpload = await bundlesocial.upload.finalizeLargeUpload({
+  requestBody: {
+    path: path, // from Step 1
+    teamId: team.id, // optional
+  }
+});
+
+// Use finalizedUpload.id when creating posts
+const uploadId = finalizedUpload.id;
+```
+
+---
+
+## Method 2: Simple Upload (Alternative approach)
+
+This is a simpler, one-step upload method ideal for smaller files. It uses a standard multipart/form-data upload.
+
+**Endpoint:** `POST /upload/create`  
+
+**Swagger:** `upload.create`
+
+**Parameters**
+
+- `file` (**required**) — The file to upload (multipart form data)
+
+- `teamId` (optional) — The team ID to associate this upload with
+
+**Response**
+
+Returns the **created upload entity** with an `id` that you can use when creating posts.
+
+**Example using SDK**
+
+```ts
+const video = await fs.readFile('./video.mp4');
+const videoUpload = await bundlesocial.upload.uploadCreate({
+  formData: {
+    teamId: team.id,
+    file: new Blob([video], { type: 'video/mp4' }),
+  }
+});
+
+const jpgImage = await fs.readFile('./image.jpg');
+const jpgUpload = await bundlesocial.upload.uploadCreate({
+  formData: {
+    teamId: team.id,
+    file: new Blob([jpgImage], { type: 'image/jpeg' }),
+  }
+});
+
+// Use the upload IDs when creating posts
+console.log(videoUpload.id, jpgUpload.id);
+```
+
+**Example using cURL**
+
+```bash
+curl -X POST "https://api.bundle.social/upload/create" \
+  -H "Authorization: Bearer YOUR_API_KEY" \
+  -F "file=@./image.jpg" \
+  -F "teamId=YOUR_TEAM_ID"
+```
+
+<Note>
+The simple upload method is easier to implement but may have file size limitations. For large video files (>100MB), we recommend using the three-step upload flow.
+</Note>
+
+---
+
+## Supported file types
+
+| Media Type | MIME Type | Extension |
+| ---------- | --------- | --------- |
+| JPEG Image | `image/jpeg` or `image/jpg` | `.jpg`, `.jpeg` |
+| PNG Image | `image/png` | `.png` |
+| MP4 Video | `video/mp4` | `.mp4` |
+
+---
+
+## Which method should I use?
+
+- **Use the three-step flow** when:
+  - Uploading large video files (>100MB)
+  - You need more control over the upload process
+
+- **Use the simple upload** when:
+  - Uploading small to medium-sized files
+  - You want a simpler implementation
+  - File size is under 100MB
+  - You're prototyping or building a simple integration
+
