@@ -39,7 +39,9 @@
               "api-reference/examples",
               "api-reference/limits",
               "api-reference/rate-limits",
-              "api-reference/upload-content"
+              "api-reference/upload-content",
+              "api-reference/analytics",
+              "api-reference/errors"
             ]
           },
           {

@@ -1,15 +1,15 @@
 ---
-title: Upload Content
+title: Content Upload
 description: Learn how to upload media files to bundle.social for use in your posts.
 ---
 
 # How to upload your content
 
-bundle.social supports two methods for uploading media files. bundle.social provides a **three-step upload flow** for large files and an **alternative simple upload** for smaller files.
+bundle.social supports two methods for uploading media files. A **three-step upload flow** for large files and an **alternative simple upload** for smaller files.
 
 ---
 
-## Method 1: Three-Step Upload Flow (recommended for large files)
+## Method 1: Three-Step Upload Flow (recommended, please use it)
 
 This method uses a pre-signed URL and is ideal for large video files or when you need more control over the upload process.
 
@@ -172,7 +172,7 @@ curl -X POST "https://api.bundle.social/upload/create" \
 ```
 
 <Note>
-The simple upload method is easier to implement but may have file size limitations. For large video files (>100MB), we recommend using the three-step upload flow.
+The simple upload method is easier to implement but may have file size limitations. For large video files (>90MB), we recommend using the three-step upload flow.
 </Note>
 
 ---
@@ -185,17 +185,24 @@ The simple upload method is easier to implement but may have file size limitatio
 | PNG Image | `image/png` | `.png` |
 | MP4 Video | `video/mp4` | `.mp4` |
 
+<Note>
+**Maximum file sizes:**
+- Images: **25MB**
+- Videos: **1024MB** (1GB)
+</Note>
+
 ---
 
 ## Which method should I use?
 
 - **Use the three-step flow** when:
-  - Uploading large video files (>100MB)
+  - Uploading large video files (>90MB)
   - You need more control over the upload process
+  - You are uploading picture of your mom
 
 - **Use the simple upload** when:
   - Uploading small to medium-sized files
   - You want a simpler implementation
-  - File size is under 100MB
+  - File size is under 90MB
   - You're prototyping or building a simple integration
 
