@@ -1,0 +1,146 @@
+---
+title: Errors
+description: Learn about error handling and the standardized error format in bundle.social.
+---
+
+## Standardized Error Format
+
+bundle.social now also uses a standardized error format across all social platforms, finally. When an error occurs during post creation, scheduling, or publishing, you'll receive detailed error information in the `errorsVerbose` field.
+
+The `errorsVerbose` field is an object where each key is a platform name (e.g., `INSTAGRAM`, `TIKTOK`, `FACEBOOK`) and each value is a standardized error object (or `null` if no error occurred for that platform).
+
+```typescript
+{
+  errorsVerbose: {
+    INSTAGRAM: { /* error object */ } | null,
+    TIKTOK: { /* error object */ } | null,
+    FACEBOOK: { /* error object */ } | null,
+    // ... other platforms
+  }
+}
+```
+
+### Error Schema
+
+Each platform's standardized error object contains the following fields:
+
+```typescript
+{
+  code: string | null; // Stable error code (e.g., "IG:190", "HTTP:429", "TT:40001")
+  errorMessage: string | null; // Developer-facing error message from the platform
+  isTransient: boolean | null; // Whether the error is temporary and retry is recommended
+  httpStatus: number | null; // HTTP status code if applicable
+  meta: any | null; // Additional debugging information (trace IDs, subcodes, etc.)
+  userFacingMessage: string | null; // User-friendly error message for display
+}
+```
+
+### Field Descriptions
+
+- **`code`**: A stable, stringified error code that identifies the specific error type. The code follows a pattern of `PLATFORM:ERROR_CODE` (e.g., `IG:190` for Instagram error 190, `HTTP:429` for rate limit). This code remains consistent and can be used programmatically to handle specific error cases.
+
+- **`errorMessage`**: The raw error message returned by the social media platform's API. This is intended for developers and may contain technical details about what went wrong.
+
+- **`isTransient`**: A boolean flag indicating whether the error is temporary. If `true`, the operation can be retried after a delay (often indicated in the `meta` field). If `false`, the error requires manual intervention or configuration changes.
+
+- **`httpStatus`**: The HTTP status code from the platform's API response, if available. Common codes include `429` (rate limit), `401` (authentication error), `403` (permission denied), and `5xx` (server errors).
+
+- **`meta`**: Additional metadata and debugging information specific to each platform. This may include:
+
+  - Trace IDs for support requests
+  - Rate limit reset timestamps
+  - Error subcodes
+  - Validation details
+  - Retry-after headers
+  - Platform-specific error context
+
+- **`userFacingMessage`**: A user-friendly error message suitable for displaying to end users. This message is crafted to be understandable without technical knowledge and provides actionable guidance when possible.
+
+---
+
+## How Error Handling Works
+
+bundle.social automatically captures and processes errors from all supported social media platforms. When an error occurs:
+
+1. **Error Capture**: The raw error from the platform API is intercepted
+2. **Error Parsing**: The error is parsed and normalized into our standardized format
+3. **Error Classification**: The error is classified as transient or non-transient
+4. **Error Enrichment**: Additional context and debugging information is added
+5. **Error Return**: The standardized error is returned in the `errorsVerbose` field
+
+This process ensures that you receive consistent, actionable error information regardless of which social platform generated the error.
+
+### Platform-Specific Error Codes
+
+Each platform has its own error code prefix:
+
+| Platform        | Prefix | Example           |
+| --------------- | ------ | ----------------- |
+| Instagram       | `META` | `META:190`        |
+| Threads         | `META` | `META:190`        |
+| Facebook        | `META` | `META:190:463`    |
+| TikTok          | `TT`   | `TT:40001`        |
+| Twitter/X       | `TW`   | `TW:429`          |
+| LinkedIn        | `LI`   | `LI:401`          |
+| YouTube         | `YT`   | `YT:403`          |
+| Google Business | `GB`   | `GB:403`          |
+| Pinterest       | `PIN`  | `PIN:429`         |
+| Reddit          | `RD`   | `RD:RATELIMIT`    |
+| Discord         | `DI`   | `DI:DAPI_50035`   |
+| Slack           | `SL`   | `SL:rate_limited` |
+| Bluesky         | `BSKY` | `BSKY:429`        |
+| Mastodon        | `MST`  | `MST:429`         |
+| HTTP            | `HTTP` | `HTTP:502`        |
+| Network         | `NET`  | `NET:ETIMEDOUT`   |
+
+---
+
+## Error Types
+
+### Transient Errors
+
+Transient errors are temporary and can usually be resolved by retrying the operation after a delay. Common transient errors include:
+
+- **Rate Limits** (`isTransient: true`): The platform's rate limit has been exceeded. Check the `meta` field for `retry_after` information.
+- **Server Errors** (`isTransient: true`): The platform's API is experiencing temporary issues (HTTP 5xx errors).
+- **Network Errors** (`isTransient: true`): Connection timeouts or network-related issues.
+
+For transient errors, we recommend implementing exponential backoff retry logic.
+
+### Non-Transient Errors
+
+Non-transient errors require manual intervention and cannot be resolved by retrying. Common non-transient errors include:
+
+- **Authentication Errors** (`isTransient: false`): Invalid or expired access tokens. The user needs to reconnect their social account.
+- **Permission Errors** (`isTransient: false`): Insufficient permissions to perform the operation. The user needs to grant additional permissions.
+- **Validation Errors** (`isTransient: false`): Invalid post content (e.g., text too long, unsupported media format). The post needs to be modified.
+- **Quota Exceeded** (`isTransient: false`): Platform-specific quotas have been reached (e.g., daily post limit).
+
+---
+
+## Best Practices
+
+1. **Check `isTransient`**: Always check the `isTransient` flag to determine if retrying is appropriate.
+
+2. **Use Error Codes**: Use the `code` field to programmatically handle specific error types rather than parsing error messages.
+
+3. **Display User Messages**: Show `userFacingMessage` to end users and log `errorMessage` for debugging.
+
+4. **Handle Rate Limits**: When encountering rate limits, respect the `retry_after` value in the `meta` field.
+
+5. **Log Metadata**: Include the `meta` field in your logs to help with debugging and support requests.
+
+6. **Monitor Error Patterns**: Track error codes and types to identify recurring issues with specific platforms or accounts.
+
+---
+
+## Support
+
+If you encounter errors that are not clearly documented or need assistance with error handling, please contact us. When reporting issues, include:
+
+- The error `code`
+- The `errorMessage`
+- The `meta` field contents
+- The platform and post ID
+
+There was nothing funny here I know but we really care about this.

@@ -38,7 +38,10 @@
               "api-reference/webhooks",
               "api-reference/examples",
               "api-reference/limits",
-              "api-reference/rate-limits"
+              "api-reference/rate-limits",
+              "api-reference/upload-content",
+              "api-reference/analytics",
+              "api-reference/errors"
             ]
           },
           {
@@ -98,7 +101,25 @@
               "blog/how-to-get-more-facebook-followers",
               "blog/linkedin-is-cringe",
               "blog/social-media-trends-2024",
-              "blog/tiktok-banned"
+              "blog/tiktok-banned",
+              "blog/most-popular-social-media",
+              "blog/best-times-to-post-on-instagram",
+              "blog/best-times-to-post-on-linkedin",
+              "blog/find-best-lenght-for-tiktok",
+              "blog/more-tips-for-growing-instagram",
+              "blog/best-times-to-post-on-tiktok",
+              "blog/tips-for-growing-instagram",
+              "blog/instagram-reels-ideas",
+              "blog/tiktok-seo-checklist",
+              "blog/posting-consistently-beats-perfection",
+              "blog/social-media-analytics-for-beginners",
+              "blog/cross-platform-content-strategy",
+              "blog/repurpose-content-across-platforms",
+              "blog/manage-multiple-social-accounts",
+              "blog/how-to-schedule-posts-multiple-platforms",
+              "blog/social-media-content-calendar-2026",
+              "blog/social-media-holiday-calendar-2026",
+              "blog/api-automation-for-content-creators"
             ]
           },
           {
