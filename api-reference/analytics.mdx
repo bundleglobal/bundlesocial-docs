@@ -1,5 +1,6 @@
 ---
 title: Analytics
+
 description: Learn how analytics work for each platform, including data availability, time periods, and platform-specific limitations.
 ---
 
@@ -7,10 +8,13 @@ description: Learn how analytics work for each platform, including data availabi
 
 ### Force Refresh
 
-You can request analytics to be refreshed immediately by calling the analytics endpoint with a force parameter. 
-However, force refresh requests are rate limited to amout of teams * 5 to prevent excessive API calls to social platforms.
+You can request analytics to be refreshed immediately by calling the analytics endpoint with a force parameter.
+
+However, force refresh requests are rate limited to amount of teams \* 5 to prevent excessive API calls to social platforms.
+
 You may ask why?
-To protect US from our greatest and brightest vibe code engineers doing: 
+
+To protect US from our greatest and brightest vibe code engineers doing:
 
 ```typescript
 while (true) {
@@ -19,32 +23,37 @@ while (true) {
   });
 }
 ```
+
 we had such cases...
 
 <Note>
 **Rate Limit Formula**: Maximum force refresh requests = `number of teams × 5`
 
 For example, if you have 10 teams, you can make up to 50 force refresh requests.
+
 </Note>
 
 ### Custom Refresh Periods
 
 By default, analytics are automatically refreshed every **24 hours**. However, we can configure custom refresh periods based on your organization's needs.
 
-**Important**: If you require a higher refresh rate (e.g., every 15 minutes for large organizations), there may be additional charges due to increased data costs. 
-We will discuss these costs with you directly to determine the best solution for your use case. Nothing expensive/outlandish etc..., we are not evil. 
+**Important**: If you require a higher refresh rate (e.g., every 15 minutes for large organizations), there may be additional charges due to increased data costs.
+
+We will discuss these costs with you directly to determine the best solution for your use case. Nothing expensive/outlandish etc..., we are not evil.
+
 Maybe you will need to skip on OF subscription but you know, economy...
 
 ---
 
 ## Data Retention
 
-We retain analytics data for 40 days from the date of creation. If your team needs yearly or long-term history, we recommend fetching and storing the data daily on your end. 
+We retain analytics data for 40 days from the date of creation. If your team needs yearly or long-term history, we recommend fetching and storing the data daily on your end.
+
 This retention period is fixed and will not be extended. Maybe we are evil?
 
 ---
 
-## Important Note: Data Differences
+## Important Note: Data Differences & Zeros
 
 <Note>
 **Data shown in our platform may differ from what you see on the social media platform itself.** This can happen for several reasons:
@@ -56,7 +65,9 @@ This retention period is fixed and will not be extended. Maybe we are evil?
 - **Data Availability**: Some metrics may be available in the platform's native interface but not through their API, or vice versa.
 
 - **Update Frequency**: Analytics are updated based on when we fetch data from each platform, which may not match the real-time updates you see in the platform's own interface.
-</Note>
+
+- **Zero Values**: **Some metrics return `0` when the platform API doesn't provide that specific data point.** This doesn't mean you have zero engagement - it means the data is not available through the API. Below we clearly mark which fields return 0 due to API limitations.
+  </Note>
 
 ---
 
@@ -67,7 +78,10 @@ This is what we return to you in aggregated form, it ain't much but it's honest 
 - **Rolling Window**: Analytics show aggregated data over a fixed time period (e.g., last 30 days) that updates as time progresses. Each time you view analytics, you see data for the most recent period.
 
 - **Lifetime**: Analytics show a snapshot of cumulative totals from when the post or profile was created up to the current moment. These values represent the current state and will continue to grow over time.
-Nothing new. 
+
+Nothing new.
+
+---
 
 ## Instagram
 
@@ -78,6 +92,7 @@ Nothing new.
   - Impressions
   - Impressions (Unique)
   - Views (profile views)
+  - **Views (Unique)** - Returns 0 (not provided by Instagram API)
   - Likes
   - Comments
   - Post Count
@@ -91,6 +106,7 @@ Nothing new.
   - Impressions (called "views" in Instagram API)
   - Impressions (Unique) (called "reach" in Instagram API)
   - Views (video plays for videos/reels)
+  - **Views (Unique)** - Returns 0 (not provided by Instagram API)
   - Likes
   - Comments
   - Shares (for Reels only)
@@ -107,11 +123,12 @@ Nothing new.
   - Impressions
   - Impressions (Unique) - uses 28-day period to avoid overcounting
   - Views (page views)
-  - Likes
-  - Comments
-  - Post Count
+  - **Views (Unique)** - Returns 0 (not provided by Facebook API)
+  - **Likes** - Returns 0 (disabled to avoid rate limits)
+  - **Comments** - Returns 0 (disabled to avoid rate limits)
+  - **Post Count** - Returns 0 (disabled to avoid rate limits)
+  - **Following** - Returns 0 (not applicable to Facebook pages)
   - Followers
-  - Following
 
 ### Post Analytics
 
@@ -129,6 +146,7 @@ Nothing new.
 ### Quirks
 
 - Likes include all reaction types combined (like, love, wow, haha, anger)
+- Profile-level likes, comments, and post count are disabled to avoid hitting Facebook rate limits, we would have to pull everything on your page and count each thing manually X times a day.
 
 ---
 
@@ -142,12 +160,13 @@ Nothing new.
 - **Available Metrics**:
   - Impressions
   - Impressions (Unique)
-  - **Views: Not available** (LinkedIn doesn't provide views for personal accounts)
+  - **Views** - Returns 0 (LinkedIn doesn't provide views for personal accounts)
+  - **Views (Unique)** - Returns 0
   - Likes
   - Comments
-  - Post Count
+  - **Post Count** - Returns 0 (not provided by LinkedIn API)
   - Followers
-  - Following
+  - **Following** - Returns 0 (not provided by LinkedIn API)
 
 #### Organization (Company) Accounts
 
@@ -156,11 +175,12 @@ Nothing new.
   - Impressions
   - Impressions (Unique)
   - Views (page views - available for organizations only)
+  - Views (Unique)
   - Likes
   - Comments
-  - Post Count
+  - **Post Count** - Returns 0 (not provided by LinkedIn API)
   - Followers
-  - Following
+  - **Following** - Returns 0 (not provided by LinkedIn API)
 
 ### Post Analytics
 
@@ -182,17 +202,20 @@ Nothing new.
 - **Available Metrics**:
   - Impressions
   - Impressions (Unique)
-  - **Views: Not available** (LinkedIn doesn't provide views for organization posts)
+  - **Views** - Returns 0 (LinkedIn doesn't provide views for organization posts)
+  - **Views (Unique)** - Returns 0
   - Likes
   - Comments
   - Shares
+  - **Saves** - Returns 0 (not provided by LinkedIn API)
 
 ### Quirks
 
-- **Important**: Personal (member) accounts do NOT have views analytics for profiles or posts (except video views for video posts)
+- **Important**: Personal (member) accounts do NOT have views analytics for profiles
 - **Important**: Organization accounts have views (page views) for profile analytics but NOT for individual posts
 - Organization post analytics only include posts published within the last 30 days
 - Posts authored by members (not the organization/brand) are excluded from organization analytics
+- Post count and following count are not provided through the LinkedIn API for either account type
 
 ---
 
@@ -229,12 +252,13 @@ Nothing new.
 - **Period**: Lifetime (snapshot of current totals)
 - **Available Metrics**:
   - Impressions (video views)
-  - Impressions (Unique) (unique video views)
+  - Impressions (Unique) (same as impressions - TikTok doesn't distinguish)
   - Views (same as impressions)
-  - Views (Unique) (same as unique impressions)
+  - Views (Unique) (same as impressions)
   - Likes
   - Comments
   - Shares
+  - **Saves** - Returns 0 (not provided by TikTok API)
 
 ### Quirks
 
@@ -251,13 +275,14 @@ Nothing new.
 - **Period**: Lifetime (snapshot of current totals)
 - **Available Metrics**:
   - Impressions (total channel views)
-  - Impressions (Unique) (same as impressions - YouTube doesn't provide unique)
+  - Impressions (Unique) (same as impressions - YouTube doesn't distinguish)
   - Views (total channel views)
   - Views (Unique) (same as views)
+  - **Likes** - Returns 0 (not available at channel level via YouTube API)
   - Comments (total comments across all videos)
   - Post Count (video count)
   - Followers (subscribers)
-  - Following
+  - **Following** - Returns 0 (not applicable to YouTube channels)
 
 ### Post Analytics
 
@@ -270,13 +295,15 @@ Nothing new.
   - Likes
   - Dislikes
   - Comments
+  - **Shares** - Returns 0 (not provided by YouTube API)
   - Saves (favorites)
 
 ### Quirks
 
 - All analytics are lifetime values (no rolling window)
 - YouTube doesn't distinguish between impressions and unique impressions
-- Dislikes are available (though YouTube no longer shows dislike counts publicly, the data may still be available)
+- Dislikes are available through the API (though YouTube no longer shows dislike counts publicly)
+- Channel-level likes and shares are not available through the YouTube API
 
 ---
 
@@ -286,16 +313,15 @@ Nothing new.
 
 - **Period**: Rolling window
 - **Available Metrics**:
-  - Impressions (views)
-  - Impressions (Unique) (same as impressions)
-  - Views (same as impressions)
+  - Impressions (contains quotes count from API)
+  - Impressions (Unique) (contains reposts count from API)
+  - Views
   - Views (Unique) (same as views)
   - Likes
   - Comments (replies)
-  - Shares (reposts)
   - Post Count
   - Followers
-  - Following
+  - **Following** - Returns 0 (not provided by Threads API)
 
 ### Post Analytics
 
@@ -314,6 +340,8 @@ Nothing new.
 - Views metric is used for both impressions and views (they are the same value)
 - Comments are called "replies" in Threads
 - Shares include both reposts and quotes
+- For profile analytics: impressions field contains quotes count and impressions unique contains reposts count
+- Following count is not available through the Threads API
 
 ---
 
@@ -325,10 +353,10 @@ Nothing new.
 - **Available Metrics**:
   - Impressions
   - Impressions (Unique) (same as impressions)
-  - Views (for video pins only, otherwise same as impressions)
+  - Views (for video pins; defaults to impressions if no video pins)
   - Views (Unique) (same as views)
   - Likes (saves)
-  - Comments
+  - **Comments** - Returns 0 (not provided by Pinterest API at profile level)
   - Post Count
   - Followers
   - Following
@@ -339,17 +367,19 @@ Nothing new.
 - **Available Metrics**:
   - Impressions (30-day window)
   - Impressions (Unique) (same as impressions)
-  - Views (30-day window, for video pins only)
+  - Views (30-day window, for video pins; defaults to impressions for static pins)
   - Views (Unique) (same as views)
   - Likes (lifetime total reactions)
   - Comments (lifetime total)
+  - **Shares** - Returns 0 (not tracked by Pinterest)
   - Saves (30-day window)
 
 ### Quirks
 
 - Profile analytics aggregate all pin analytics over the last 30 days
-- Views are only available for video pins
-- If a video pin has no views, views will show the same value as impressions
+- Views are only available for video pins; static pins show impressions in the views field
+- Comments are not available at the profile level through the Pinterest API
+- Shares are not tracked by Pinterest
 
 ---
 
@@ -357,53 +387,143 @@ Nothing new.
 
 ### Profile Analytics
 
-- **Status**: Limited availability
-- **Details**: Reddit does not provide traditional analytics. Only basic profile information is available:
-  - Post Count: Not available
-  - Followers: Not available
-  - Following: Not available
-  - Other metrics: Not available
+- **Status**: Not available
+- **Details**: Reddit does not provide profile-level analytics through their API. All profile metrics return 0:
+  - Impressions - Returns 0
+  - Impressions (Unique) - Returns 0
+  - Views - Returns 0
+  - Views (Unique) - Returns 0
+  - Likes - Returns 0
+  - Comments - Returns 0
+  - Post Count - Returns 0
+  - Followers - Returns 0
+  - Following - Returns 0
 
 ### Post Analytics
 
 - **Period**: Lifetime (snapshot of current totals)
 - **Available Metrics**:
-  - Impressions: Not available
-  - Impressions (Unique): Not available
+  - **Impressions** - Returns 0 (not available)
+  - **Impressions (Unique)** - Returns 0 (not available)
   - Views (may not be available for all posts)
+  - **Views (Unique)** - Returns 0 (not available)
   - Likes (upvotes)
   - Dislikes (downvotes)
   - Comments
   - Shares (crossposts)
+  - **Saves** - Returns 0 (not available)
 
 ### Quirks
 
 - **Important**: Reddit has very limited analytics compared to other platforms
-- No profile-level analytics (only basic account information)
+- No profile-level analytics (all profile metrics return 0)
 - View counts may not be available for all posts
 - No impressions or reach metrics available
 - Reddit uses upvotes/downvotes instead of likes
 
 ---
 
+## Mastodon
+
+### Profile Analytics
+
+- **Period**: Snapshot
+- **Available Metrics**:
+  - **Impressions** - Returns 0 (not available)
+  - **Impressions (Unique)** - Returns 0 (not available)
+  - **Views** - Returns 0 (not available)
+  - **Views (Unique)** - Returns 0 (not available)
+  - **Likes** - Returns 0 (not available at profile level)
+  - **Comments** - Returns 0 (not available at profile level)
+  - Post Count
+  - Followers
+  - Following
+
+### Post Analytics
+
+- **Period**: Lifetime (snapshot of current totals)
+- **Available Metrics**:
+  - **Impressions** - Returns 0 (not provided by Mastodon API)
+  - **Impressions (Unique)** - Returns 0 (not provided by Mastodon API)
+  - **Views** - Returns 0 (not provided by Mastodon API)
+  - **Views (Unique)** - Returns 0 (not provided by Mastodon API)
+  - Likes (favourites)
+  - Comments (replies)
+  - Shares (reblogs)
+  - **Saves** - Returns 0 (not available)
+
+### Quirks
+
+- Mastodon has very limited analytics capabilities
+- No impression or view metrics available
+- Only basic engagement metrics (likes, comments, shares) are tracked per post
+- Profile-level engagement metrics are not available
+
+---
+
+## Bluesky
+
+### Profile Analytics
+
+- **Period**: Snapshot
+- **Available Metrics**:
+  - **Impressions** - Returns 0 (not available)
+  - **Impressions (Unique)** - Returns 0 (not available)
+  - **Views** - Returns 0 (not available)
+  - **Views (Unique)** - Returns 0 (not available)
+  - **Likes** - Returns 0 (not available at profile level)
+  - **Comments** - Returns 0 (not available at profile level)
+  - Post Count
+  - Followers
+  - Following
+
+### Post Analytics
+
+- **Period**: Lifetime (snapshot of current totals)
+- **Available Metrics**:
+  - Impressions (calculated from engagement: likes + replies + reposts + quotes)
+  - **Impressions (Unique)** - Returns 0 (not provided by Bluesky API)
+  - Views (same as impressions)
+  - **Views (Unique)** - Returns 0 (not provided by Bluesky API)
+  - Likes
+  - Comments (replies)
+  - Shares (reposts + quotes)
+  - **Saves** - Returns 0 (not available)
+
+### Quirks
+
+- Bluesky has limited analytics capabilities
+- No true impression or view metrics from the platform; we calculate impressions from total engagement
+- Profile-level engagement metrics are not available
+- No unique impression or view tracking
+
+---
+
 ## Summary Table
 
-| Platform            | Profile Period | Post Period   | Key Limitations                      |
-| ------------------- | -------------- | ------------- | ------------------------------------ |
-| Instagram           | Rolling (30d)  | Lifetime      | -                                    |
-| Facebook            | Rolling (30d)  | Lifetime      | Unique impressions use 28-day period |
-| LinkedIn (Personal) | Rolling (30d)  | Rolling (30d) | **No views analytics**               |
-| LinkedIn (Org)      | Rolling (30d)  | Rolling (30d) | Views for profile only, not posts    |
-| Twitter/X           | N/A            | N/A           | Not available                        |
-| TikTok              | Rolling (30d)  | Lifetime      | -                                    |
-| YouTube             | Lifetime       | Lifetime      | No unique impressions                |
-| Threads             | Rolling        | Lifetime      | Historical data limitations          |
-| Pinterest           | Rolling (30d)  | Mixed         | Views only for video pins            |
-| Reddit              | N/A            | Lifetime      | Very limited analytics               |
+| Platform            | Profile Period | Post Period   | Key Limitations                                   |
+| ------------------- | -------------- | ------------- | ------------------------------------------------- |
+| Instagram           | Rolling (30d)  | Lifetime      | Views (Unique) returns 0                          |
+| Facebook            | Rolling (30d)  | Lifetime      | Profile: likes, comments, post count all return 0 |
+| LinkedIn (Personal) | Rolling (30d)  | Rolling (30d) | Views, post count, following return 0             |
+| LinkedIn (Org)      | Rolling (30d)  | Rolling (30d) | Post count, following, post views/saves return 0  |
+| Twitter/X           | N/A            | N/A           | Not available                                     |
+| TikTok              | Rolling (30d)  | Lifetime      | Post saves return 0                               |
+| YouTube             | Lifetime       | Lifetime      | Profile likes, following, post shares return 0    |
+| Threads             | Rolling        | Lifetime      | Following returns 0                               |
+| Pinterest           | Rolling (30d)  | Mixed         | Profile comments, post shares return 0            |
+| Reddit              | N/A            | Lifetime      | All profile analytics return 0                    |
+| Mastodon            | Snapshot       | Lifetime      | Most metrics return 0 - very limited              |
+| Bluesky             | Snapshot       | Lifetime      | Most metrics return 0 - very limited              |
 
 ---
 
 ## Available Metrics Reference
+
+### Understanding Return Values
+
+- **Available**: The metric is provided by the platform API and returns real data
+- **Returns 0**: The metric returns 0 because the platform API doesn't provide this data. This is explicitly noted in each platform's section above.
 
 ### Profile Analytics Metrics
 
@@ -434,6 +554,7 @@ Nothing new.
 
 - **Rolling Window**: Data refreshes to show the most recent period (e.g., last 30 days). Each time you check analytics, you see data for the current rolling period.
 - **Lifetime**: Data represents cumulative totals from creation to now. These values are snapshots of the current state and will continue to grow.
+- **Returns 0**: Many metrics return 0 when the platform API doesn't provide that specific data point. This is a limitation of the platform's API, not a bug. Each platform section above clearly indicates which fields return 0.
 - Some platforms have date restrictions due to API limitations (e.g., Threads requires posts after April 2024).
 - LinkedIn has significant differences between personal and organization account analytics capabilities.
 - Metrics may vary slightly between platforms due to how each platform defines and tracks engagement.
@@ -449,5 +570,5 @@ In addition to the parsed analytics data described above, raw analytics data is 
 - Detailed breakdowns (e.g., audience demographics, engagement by time period, etc.)
 
 Raw analytics can be useful for advanced analysis or when you need access to platform-specific metrics that aren't included in the standardized analytics format. Note that raw data structure and fields vary significantly between platforms.
-BTW, you are a nerd for reading all of this.
 
+BTW, you are a nerd for reading all of this.
