@@ -38,10 +38,18 @@
               "api-reference/webhooks",
               "api-reference/examples",
               "api-reference/limits",
+              "api-reference/platform-quirks",
               "api-reference/rate-limits",
+              "api-reference/import-posts",
               "api-reference/upload-content",
               "api-reference/analytics",
               "api-reference/errors"
+            ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "guides/building-scheduler"
             ]
           },
           {
