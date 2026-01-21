@@ -1,0 +1,52 @@
+---
+title: YouTube
+description: "Long-form, Shorts, and the legal requirement of 'Made for Kids'."
+icon: youtube
+---
+
+YouTube is a beast. It handles both traditional videos and Shorts (vertical video).
+
+## Quirks & Gotchas
+
+### "Made for Kids" (COPPA)
+This is not just a quirk, it's a **legal requirement**.
+*   You **must** flag content as `madeForKids: true` if it targets children.
+*   Failure to do so can result in penalties. We expose this field in the `data.YOUTUBE` object. Use it.
+
+### Shorts Detection
+There is no special "upload as Short" button. YouTube decides for you based on the file:
+*   **Duration:** Under 60 seconds.
+*   **Aspect Ratio:** Vertical (9:16) or Square (1:1).
+
+If your video meets these criteria, it becomes a Short. If it doesn't, it's a regular video. Simple.
+
+---
+
+## Analytics
+
+YouTube analytics are all **Lifetime** values. There is no rolling window.
+
+### Profile (Channel) Analytics
+**Period:** Lifetime.
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | Total channel views | |
+| `Views` | Total channel views | |
+| `Comments` | Total comments | Across all videos |
+| `Followers` | Subscribers | |
+| `Likes` | Returns `0` | Not available at channel level |
+| `Following` | Returns `0` | Not applicable |
+
+### Post (Video) Analytics
+**Period:** Lifetime.
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | Video views | |
+| `Views` | Video views | |
+| `Likes` | Likes | |
+| `Dislikes` | Dislikes | Available via API even if hidden on UI |
+| `Comments` | Comments | |
+| `Saves` | Favorites | |
+| `Shares` | Returns `0` | Not provided by API |

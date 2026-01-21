@@ -1,0 +1,38 @@
+---
+title: Bluesky
+description: "The AT Protocol. Calculated impressions and limited data."
+icon: cloud
+---
+
+Bluesky is the new decentralized challenger.
+
+## Quirks & Gotchas
+
+### "Calculated" Impressions
+Bluesky does not provide a native "Impression" or "View" count for posts via API.
+*   **Our Solution:** We calculate `Impressions` as the sum of engagement (Likes + Replies + Reposts + Quotes).
+*   **Reality:** The actual number of people who saw it is likely much higher, but we can't prove it.
+
+---
+
+## Analytics
+
+### Profile Analytics
+**Period:** Snapshot.
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Post Count` | Total posts | |
+| `Followers` | Followers | |
+| `Following` | Following | |
+| `Impressions` | Returns `0` | Not available |
+
+### Post Analytics
+**Period:** Lifetime.
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | Engagement Sum | Calculated (Likes+Replies+Shares) |
+| `Likes` | Likes | |
+| `Comments` | Replies | |
+| `Shares` | Reposts + Quotes | |

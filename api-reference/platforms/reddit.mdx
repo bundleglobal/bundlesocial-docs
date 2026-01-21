@@ -1,0 +1,34 @@
+---
+title: Reddit
+description: "The front page of the internet. Minimalist API."
+icon: reddit
+---
+
+Reddit is a collection of communities. The API is functional but stingy with data.
+
+## Quirks & Gotchas
+
+### Engagement
+*   **Likes** = **Upvotes**.
+*   **Dislikes** = **Downvotes**.
+*   Reddit does not track "Impressions" or "Reach" in the way marketers want.
+
+---
+
+## Analytics
+
+### Profile Analytics
+**Status:** Not available.
+
+Reddit does not provide profile-level analytics via API. Everything returns `0`.
+
+### Post Analytics
+**Period:** Lifetime.
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Likes` | Upvotes | |
+| `Dislikes` | Downvotes | |
+| `Comments` | Comments | |
+| `Shares` | Crossposts | |
+| `Impressions` | Returns `0` | Not available |

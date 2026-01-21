@@ -1,228 +1,83 @@
 ---
 title: SDK
-description: The bundle.social SDK is a set of tools that allows you to easily integrate bundle.social into your application.
+description: Don't reinvent the wheel. Use our libraries.
+icon: box-open
 ---
 
-# Node.js SDK
-NPM: https://www.npmjs.com/package/bundlesocial
+We have a TypeScript SDK. It's typed, it's pretty, and it handles the boring stuff like auth headers.
 
-Github: https://github.com/bundleglobal/bundlesocial-node
+## Node.js SDK
 
-## Installation
+*   **NPM:** [`bundlesocial`](https://www.npmjs.com/package/bundlesocial)
+*   **Github:** [`bundlesocial-node`](https://github.com/bundleglobal/bundlesocial-node)
+
+### Installation
+
 ```bash
-# for npm
 npm install bundlesocial
-# for pnpm
+# or
 pnpm add bundlesocial
-# for yarn
-yarn add bundlesocial
 ```
 
-<Note>
-Make sure you have generated an API key on bundle.social.
-</Note>
+### Quick Setup
 
-## Setup
-```ts
+```typescript
 import { BundleSocial } from 'bundlesocial';
 
-// Get the API key from the bundle.social dashboard
-const bundleSocial = new BundleSocial('YOUR_API_KEY');
+const bundle = new BundleSocial('pk_live_...');
 ```
 
-## Usage
-### Get the organization information
-```ts
-const organization = await bundlesocial.organization.organizationGetOrganization();
-```
+### Common Tasks
 
-### Create a team
-```ts
-const createdTeam = await bundlesocial.team.teamCreateTeam({
-  requestBody: {
-    name: 'Test Team',
-    tier: 'FREE',
-  },
-});
-```
-
-### Get the team information
-```ts
-const team = await bundlesocial.team.teamGetTeam({
-  id: createdTeam?.id,
-});
-```
-
-### Manage social accounts
-You can either use our authenticated page hosted by us or implement the flow by yourself.
-[(Click here to learn more)](/api-reference/connect-social-accounts).
-
-#### Connect social account - hosted by us
-It generated an authenticated user session on our portal to let your user connect their social accounts.
-
-```ts
-const response =
-  await bundlesocial.socialAccount.socialAccountCreatePortalLink({
-    requestBody: {
-      teamId: team.id,
-      socialAccountTypes: ['TIKTOK', 'FACEBOOK', 'INSTAGRAM'],
-      redirectUrl: 'https://your-redirect-url.com',
-      logoUrl: 'https://your-logo-url.com',
-      userLogoUrl: 'https://your-user-logo-url.com',
-      userName: 'Your User Name',
-    },
-  });
-```
-
-#### Connect social account - hosted by you
-It enables you to connect social accounts directly through your app, but required more work to set up.
-
-```ts
-const response = await bundlesocial.socialAccount.socialAccountConnect({
-  requestBody: {
-    type: 'TIKTOK',
-    teamId: team.id,
-    redirectUrl: 'https://your-redirect-url.com',
-  }
-});
-
-// Redirect the user to the response.url
-// After the user has connected the account, the user will be redirected to the redirectUrl
-```
-
-##### **Select page, account or channel (required for FACEBOOK, INSTAGRAM, YOUTUBE and LINKEDIN)**
-After the user has connected the account and was redirected to your page, you can let the user select the page, account or channel. We unified the data for all platforms. Each social account has a `channels` field, that is an array of their channels (pages, accounts, channels depending on the platform).
-
-```ts
-const team = await bundlesocial.team.teamGetTeam({
-  id: team.id,
-});
-
-const socialAccount = team?.socialAccounts?.find((account) => account.type === 'YOUTUBE');
-const socialAccountChannelId = socialAccount?.channels?.[0]?.id;
-
-if (socialAccountChannelId) {
-  await bundlesocial.socialAccount.socialAccountSetChannel({
-    requestBody: {
-      type,
-      teamId: team.id,
-      channelId: socialAccountChannelId,
-    }
-  });
-}
-```
-
-
-### Upload a file
-```ts
-const video = await fs.readFile('./video.mp4');
-const videoUpload = await bundlesocial.upload.uploadCreate({
+#### 1. Upload a Video
+```typescript
+const video = await fs.readFile('./cat_vibing.mp4');
+const upload = await bundle.upload.uploadCreate({
   formData: {
-    teamId: team.id,
+    teamId: 'team_123',
     file: new Blob([video], { type: 'video/mp4' }),
   }
 });
-
-const jpgImage = await fs.readFile('./image.jpg');
-const jpgUpload = await bundlesocial.upload.uploadCreate({
-  formData: {
-    teamId: team.id,
-    file: new Blob([jpgImage], { type: 'image/jpeg' }),
-  }
-});
 ```
 
-### Create a post
-```ts
-// Make sure you have uploaded the file before creating a post.
-// Make sure you have connected a social account to the team.
-const createdPost = await bundlesocial.post.postCreate({
+#### 2. Create a Post
+```typescript
+await bundle.post.postCreate({
   requestBody: {
-    teamId: team.id,
+    teamId: 'team_123',
+    socialAccountTypes: ['TIKTOK', 'YOUTUBE'],
     data: {
-      INSTAGRAM: {
-        text: 'Test Post',
-        type: 'REEL',
-        uploadIds: [
-          videoUpload?.id
-        ]
+      TIKTOK: {
+        text: "Vibing cat 🎵",
+        uploadIds: [upload.id],
+        privacy: 'PUBLIC_TO_EVERYONE'
       },
       YOUTUBE: {
-        text: 'Test Post',
+        text: "Shorts cat",
         type: 'SHORT',
         madeForKids: false,
-        uploadIds: [
-          videoUpload?.id
-        ],
-        privacyStatus: 'PUBLIC',
-      },
-      TIKTOK: {
-        text: 'Test Post',
-        uploadIds: [
-          videoUpload?.id
-        ],
-        privacy: 'PUBLIC_TO_EVERYONE',
-      },
-      REDDIT: {
-        sr: 'r/bundlesocial',
-        text: 'Test Post',
-        uploadIds: [
-          jpgUpload.id
-        ],
-      },
-    },
-    postDate: new Date().toISOString(),
-    socialAccountTypes: ['INSTAGRAM', 'YOUTUBE', 'TIKTOK', 'REDDIT'],
-    status: 'SCHEDULED',
-    title: 'Test Post',
+        uploadIds: [upload.id]
+      }
+    }
   }
 });
 ```
 
-### Get the post information
-```ts
-const post = await bundlesocial.post.postGet({
-  id: createdPost.id,
-});
-```
+#### 3. Handle Webhooks
+```typescript
+// Express handler
+const event = bundle.webhooks.constructEvent(
+  rawBody,
+  signature,
+  process.env.WEBHOOK_SECRET
+);
 
-## Handling errors
-```ts
-try {
-  const organization = await bundlesocial.organization.organizationGetOrganization();
-} catch (error) {
-  if (error instanceof ApiError) {
-    // Handle the error
-    console.log(error?.status, error?.statusText, error?.body);
-  } else {
-    throw error;
-  }
+if (event.type === 'post.published') {
+  console.log('We are live!');
 }
 ```
 
-## Handling webhook events
-```ts
-// this is a simple example using express
-app.post('/webhook', express.json({ type: 'application/json' }), (req, res) => {
-  const bundlesocial = new Bundlesocial(apiKey);
-  const signature = req.headers['x-signature'];
-
-  let event: WebhookEvent;
-
-  try {
-    // Verify the webhook signature and return a typed event
-    event = bundlesocial.webhooks.constructEvent(
-      req.body,
-      signature as string,
-      secret,
-    );
-    // Do something with the event
-  } catch (err) {
-    console.log(`Webhook signature verification failed.`, err);
-    return res.sendStatus(400);
-  }
-
-  return res.send();
-});
-```
-
+<Note>
+**Need Python or Go?**  
+We generate our SDKs from OpenAPI. If you need another language, just ask (or use the OpenAPI spec directly).
+</Note>

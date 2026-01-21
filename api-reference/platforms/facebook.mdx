@@ -1,0 +1,62 @@
+---
+title: Facebook
+description: "Pages, Reels, and the eternal struggle with token expiration."
+icon: facebook
+---
+
+The OG social network. It's robust, but it carries a lot of legacy baggage.
+
+## Supported Content Types
+
+*   **Page Posts:** Text, Link, Image, Video.
+*   **Reels:** Vertical video for Pages.
+
+## Quirks & Gotchas
+
+### Page Tokens Expire (Important!)
+Facebook Page Access Tokens typically expire after **60 days**. 
+
+<Note>
+**This is not a bug, it's a feature.** If a user changes their password or security settings, the token dies immediately. You need to build your app to handle re-connection flows gracefully. We handle automatic refreshing where possible, but we can't perform miracles.
+</Note>
+
+### Reels Limitations
+Facebook Reels via API are a bit stricter than mobile uploads:
+*   No "Remix" functionality available via API.
+
+---
+
+## Analytics
+
+### Profile Analytics
+**Period:** Rolling window (30 days).
+
+<Info>
+**Why so many zeros?** To avoid hitting Facebook's aggressive rate limits, we've disabled fetching profile-level likes, comments, and post counts. We'd have to scan every single post on your page to get these, and Facebook would block us (and you).
+</Info>
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | Total impressions | |
+| `Impressions (Unique)` | Unique users reached | Uses 28-day period |
+| `Views` | Page views | |
+| `Followers` | Page followers | |
+| `Likes` | Returns `0` | Disabled to save rate limits |
+| `Comments` | Returns `0` | Disabled to save rate limits |
+| `Post Count` | Returns `0` | Disabled to save rate limits |
+
+### Post Analytics
+**Period:** Lifetime (Snapshot).
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | Total impressions | |
+| `Impressions (Unique)` | Unique impressions | |
+| `Views` | Video views | Video posts only |
+| `Likes` | Total reactions | Aggregates Like, Love, Wow, Haha, Anger |
+| `Comments` | Total comments | |
+| `Shares` | Total shares | |
+| `Saves` | Total saves | |
+
+### Reaction Aggregation
+When we say "Likes" for Facebook, we mean **all reactions** combined. Whether someone Loved it, Hated it (Anger), or Laughed at it (Haha) — it counts as a "Like" in our simplified metric.

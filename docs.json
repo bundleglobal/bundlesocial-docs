@@ -38,12 +38,30 @@
               "api-reference/webhooks",
               "api-reference/examples",
               "api-reference/limits",
-              "api-reference/platform-quirks",
               "api-reference/rate-limits",
               "api-reference/import-posts",
               "api-reference/upload-content",
-              "api-reference/analytics",
               "api-reference/errors"
+            ]
+          },
+          {
+            "group": "Platforms",
+            "pages": [
+              "api-reference/platforms/index",
+              "api-reference/platforms/instagram",
+              "api-reference/platforms/facebook",
+              "api-reference/platforms/linkedin",
+              "api-reference/platforms/tiktok",
+              "api-reference/platforms/youtube",
+              "api-reference/platforms/twitter",
+              "api-reference/platforms/threads",
+              "api-reference/platforms/pinterest",
+              "api-reference/platforms/reddit",
+              "api-reference/platforms/mastodon",
+              "api-reference/platforms/bluesky",
+              "api-reference/platforms/discord",
+              "api-reference/platforms/slack",
+              "api-reference/platforms/google-business"
             ]
           },
           {
@@ -96,19 +114,20 @@
         "tab": "Blog",
         "groups": [
           {
-            "group": "Overview",
+            "group": "Featured",
             "pages": [
-              "blog/index"
+              "blog/index",
+              "blog/api-automation-for-content-creators",
+              "blog/how-to-schedule-posts-multiple-platforms",
+              "blog/social-media-trends-2024"
             ]
           },
           {
-            "group": "Social Media",
+            "group": "Platform Guides",
             "pages": [
               "blog/quick-guide-on-when-to-post",
               "blog/grow-your-tiktok-audience",
               "blog/how-to-get-more-facebook-followers",
-              "blog/linkedin-is-cringe",
-              "blog/social-media-trends-2024",
               "blog/tiktok-banned",
               "blog/most-popular-social-media",
               "blog/best-times-to-post-on-instagram",
@@ -124,58 +143,42 @@
               "blog/cross-platform-content-strategy",
               "blog/repurpose-content-across-platforms",
               "blog/manage-multiple-social-accounts",
-              "blog/how-to-schedule-posts-multiple-platforms",
               "blog/social-media-content-calendar-2026",
-              "blog/social-media-holiday-calendar-2026",
-              "blog/api-automation-for-content-creators"
+              "blog/social-media-holiday-calendar-2026"
             ]
           },
           {
-            "group": "Monetization",
+            "group": "Monetization & Strategy",
             "pages": [
               "blog/get-money-from-instagram",
               "blog/get-your-money-from-twitter",
-              "blog/how-to-get-customer-insights"
+              "blog/how-to-get-customer-insights",
+              "blog/marketing-in-the-future",
+              "blog/seo-and-ads-managment",
+              "blog/product-design-by-zalando",
+              "blog/is-data-science-dead",
+              "blog/real-cost-of-cloud"
             ]
           },
           {
-            "group": "Technology",
+            "group": "Opinion & Culture",
             "pages": [
+              "blog/linkedin-is-cringe",
+              "blog/all-my-homies-hate-blizzard",
+              "blog/cloud-seeding-is-funny",
               "blog/ai-interview-are-here",
               "blog/ai-regulations",
               "blog/google-borrowed-chatgpt-data",
-              "blog/is-data-science-dead",
-              "blog/real-cost-of-cloud",
               "blog/stop-using-loops-now",
               "blog/what-is-mojo",
-              "blog/what-is-quantum-computing"
-            ]
-          },
-          {
-            "group": "Industry Insights",
-            "pages": [
-              "blog/why-solanda-is-next-big-thing",
-              "blog/marketing-in-the-future",
-              "blog/product-design-by-zalando",
-              "blog/seo-and-ads-managment"
-            ]
-          },
-          {
-            "group": "Personal Development",
-            "pages": [
+              "blog/what-is-quantum-computing",
               "blog/dopamine-detox",
               "blog/books-can-change-you",
               "blog/mental-health-and-social-media",
               "blog/why-we-think-in-the-shower",
               "blog/you-are-an-addict",
-              "blog/working-burnout"
-            ]
-          },
-          {
-            "group": "Opinion",
-            "pages": [
-              "blog/all-my-homies-hate-blizzard",
-              "blog/cloud-seeding-is-funny"
+              "blog/working-burnout",
+              "blog/why-solanda-is-next-big-thing"
             ]
           }
         ]

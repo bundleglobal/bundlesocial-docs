@@ -3,6 +3,12 @@ title: Rate limits
 description: Internal and external rate limits
 ---
 
+## No Account Limits
+
+bundle.social is a unified social media API built for scale. Unlike other social media management APIs, we don't charge per connected account or punish you for growing. Connect 1 account or 10,000 accounts—same flat pricing. Our API supports Instagram, TikTok, YouTube, Facebook, LinkedIn, Twitter/X, Pinterest, Reddit, Threads, Mastodon, Bluesky, Discord, Slack, and Google Business Profile. Perfect for SaaS platforms, agencies, and enterprise applications that need unlimited social media integrations.
+
+---
+
 ## Our rate limits
 <Note>
   We don't use rate limits per endpoint, we use rate limits per user. This means that if you exceed the rate limit on one endpoint, you will be rate limited on all endpoints. You will receive a 429 status code if you exceed the rate limit.
@@ -12,6 +18,9 @@ description: Internal and external rate limits
 
 
 ## External platforms rate limits
+
+These are **daily limits per social account** within a team. Each connected social account has its own independent quota that resets every 24 hours.
+
 ### Posting daily limits per platform per tier
 | Platform | FREE | PRO | BUSINESS | 
 | -------- | ---- | --- | -------- |

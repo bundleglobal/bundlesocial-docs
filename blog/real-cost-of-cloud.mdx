@@ -1,96 +1,32 @@
 ---
-title: The real cost of cloud computing. What to watch for when deciding between cloud vs on-premises
+title: The Hidden Cost of Video Infrastructure
+description: Bandwidth, Transcoding, and Storage. Why building your own video pipeline is a money pit.
+date: '2026-01-21'
+
 ---
 
-<h2>Understanding Cloud vs. On-Premises Costs</h2>
+When you build a social media tool, you assume the main cost will be the API calls.
+Then you add video support.
 
-Introduction to Cloud Infrastructure and Its Costs
+## The Invoice Shock
 
-Cost reduction is a primary motivator for organizations shifting from on-premises IT systems to cloud-based environments. Cloud computing offers potential financial benefits, but it's crucial to fully grasp the implications of cloud versus on-premises costs in IT infrastructure pricing.
+Video is expensive.
+1.  **Ingress/Egress:** Users upload 4K raw files. AWS charges you to receive them (time) and serve them (bandwidth).
+2.  **Storage:** You need to store that 2GB file while it processes.
+3.  **Compute:** You need to validate the file. Is it actually MP4? Is the codec supported by [Instagram](/api-reference/platforms/instagram)? You spin up FFMPEG instances. CPU usage spikes.
 
-This article explores the differences in costs between cloud and on-premises servers and examines how these differences impact business workloads. We will also assess the pros and cons of each approach.
+## The Complexity Tax
 
-<h2>Key Differences Between Cloud and On-Premises Servers</h2>
+It's not just money. It's code.
+*   Handling resumable uploads (because connections drop).
+*   Validating aspect ratios (Instagram Reels vs [YouTube](/api-reference/platforms/youtube) Shorts).
+*   Managing async processing queues.
 
-The core distinction between on-premises and cloud servers lies in the location of the IT infrastructure. Cloud servers, also known as virtual servers, are centralized resources provided by cloud service providers (CSPs) over the internet on an on-demand basis. These virtual servers perform similar functions to traditional physical servers by offering necessary processing and storage capabilities.
+## Our Solution
 
-Virtualization is carried out through a hypervisor, which abstracts and allocates the physical server’s resources to create virtual servers. In contrast, on-premises servers are physical servers hosted within an organization's premises, managed by internal IT teams.
+We handle the heavy lifting.
+*   You send us the file via our **Resumable Upload API**.
+*   We validate it, check platform compliance, and store it temporarily.
+*   We push it to the network.
 
-Historically, servers were predominantly on-premises; however, the rise of cloud computing and accessible internet connectivity has led to a shift towards cloud-based servers. This transition enables remote access to corporate resources, enhancing operational flexibility.
-
-<h2>Factors Influencing Cloud vs. On-Premises Costs</h2>
-
-Several factors determine the cost-effectiveness of cloud versus on-premises infrastructures:
-
-- Upfront Costs: Cloud servers reduce the need for large initial investments in hardware, allowing organizations, especially startups, to allocate funds to other critical areas like marketing and development. Additionally, cloud services often utilize a subscription-based model for server software, avoiding the hefty upfront costs of software licenses required in on-premises setups.
-
-- Hardware Replacement Costs: Cloud infrastructures mitigate the need for periodic hardware replacement. Technological advancements and the natural aging of hardware necessitate regular updates and replacements in on-premises setups, which can be costly.
-
-- Pricing Models: Cloud infrastructures benefit from pay-as-you-go pricing models, offering flexibility to scale resources according to demand. In contrast, on-premises infrastructures require significant capital outlay for capacity expansion, leading to potential underutilization or overextension.
-
-- Operational Costs: Managing on-premises servers incurs costs related to space, electricity for power and cooling, and maintenance. Cloud services eliminate these expenses as the CSP manages the physical infrastructure.
-
-<h2>Workload Considerations for Cloud vs. On-Premises</h2>
-
-Choosing between cloud and on-premises options should be based on specific business needs and workload requirements:
-
-<Steps>
-  <Step title='Storage Needs'>
-    Predicting the exact storage needs can be challenging with on-premises
-    infrastructures, often leading to over or underestimation. Cloud services
-    offer scalability that adjusts to storage demands as they evolve.
-  </Step>
-  <Step title='Workload Resiliency'>
-    On-premises environments require duplication of everything for disaster
-    recovery, which can be expensive. Cloud environments naturally provide high
-    resiliency by distributing data across multiple data centers.
-  </Step>
-  <Step title='Computational Performance'>
-    High-performance requirements can lead to costly overprovisioning in
-    on-premises setups. Cloud services allow for precise configuration of
-    computing resources to match workload demands.
-  </Step>
-  <Step title='Data Utilization'>
-    For workloads like big data analytics, the cloud provides rapid scalability
-    and deployment capabilities that are difficult to match with on-premises
-    infrastructure due to the high volume and velocity of data involved.
-  </Step>
-</Steps>
-
-<h2>Pros and Cons of Cloud vs. On-Premises Solutions</h2>
-
-<h2>Cloud Pros:</h2>
-
-- Lower upfront costs and reduced maintenance.
-
-- Enhanced scalability and flexibility.
-
-- Improved disaster recovery capabilities and security measures.
-
-<h2>Cloud Cons:</h2>
-
-- Higher ongoing operational costs.
-
-- Potential data sovereignty and control issues.
-
-- Dependence on reliable internet connectivity.
-
-<h2>On-Premises Pros:</h2>
-
-- Complete control over data and security.
-
-- Independence from internet connectivity for accessing resources.
-
-- Fixed costs without variable expense fluctuations.
-
-<h2>On-Premises Cons:</h2>
-
-- High initial capital investment and ongoing maintenance costs.
-
-- Complexity in scaling and upgrading infrastructure.
-
-- Significant space and energy requirements.
-
-<h2>Conclusion</h2>
-
-The choice between cloud and on-premises IT solutions involves a detailed analysis of costs, operational needs, and strategic goals. While cloud solutions offer flexibility and scalability, on-premises solutions provide control and fixed costs. Each organization must weigh these factors based on its specific circumstances to determine the most cost-effective and efficient IT infrastructure approach.
+You pay for the API call, not the FFMPEG cluster.

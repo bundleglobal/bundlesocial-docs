@@ -1,0 +1,67 @@
+---
+title: Slack
+description: "Workspace messaging via webhooks. Automate internal communications."
+icon: slack
+---
+
+Like Discord, Slack uses a webhook-based approach for posting messages.
+
+## Quirks & Gotchas
+
+### Webhook-Based Posting
+Slack requires you to connect a workspace and select channels. We use incoming webhooks to post messages.
+*   You must be a workspace admin to connect.
+*   Posts appear as a bot message in the selected channel.
+
+### Channel Selection Required
+You must specify a `channelId` in your post data. Available channels are in `socialAccount.channels`.
+
+### Generous Character Limit
+Slack allows up to **30,000 characters** per message—much more than most platforms.
+
+### Custom Bot Identity
+Like Discord, you can customize the bot appearance:
+*   `username`: Up to 80 characters.
+*   `avatarUrl`: A URL to an image for the bot's avatar.
+
+---
+
+## Post Options
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `channelId` | `string` | **Required.** The channel to post to. Found in `socialAccount.channels`. |
+| `text` | `string` | Message content. Max 30,000 characters. |
+| `uploadIds` | `string[]` | Media attachments. |
+| `username` | `string` | Custom display name. Max 80 characters. |
+| `avatarUrl` | `string` | Custom avatar URL. Max 2048 characters. |
+
+---
+
+## Analytics
+
+Slack does not provide analytics via its API. All metrics return `0`.
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | Returns `0` | Not available |
+| `Views` | Returns `0` | Not available |
+| `Likes` | Returns `0` | Not available |
+| `Comments` | Returns `0` | Not available |
+
+---
+
+## Example
+
+```javascript
+await bundle.post.create({
+  socialAccountTypes: ["SLACK"],
+  data: {
+    SLACK: {
+      channelId: "C0123456789",
+      text: "New product launch! Check it out.",
+      username: "Marketing Bot"
+    }
+  }
+});
+```

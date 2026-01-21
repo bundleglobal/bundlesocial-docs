@@ -1,37 +1,31 @@
 ---
 title: Introduction
-# icon: terminal
-description: API reference documentation for the bundle.social API.
+description: Get started with the bundle.social API.
+icon: key
 ---
-
-<Note>
-  Watch our [API Demo](/demo#api-demo)
-</Note>
-
-<Note>
-  If you don't yet have a bundle.social account you can sign up for a free account at [https://bundle.social](https://bundle.social).
-  Then create a new API key.
-</Note>
-
-<Accordion
-  title="How to create a new API key"
->
-Go to [API keys page](https://bundle.social/dashboard/organization/api-keys).
-
-Click create a new key
-![Click create a new key](/images/api-reference/create-api-key/step1.png)
-
-Name your key to know what it is used for
-![Name your key to know what it is used for](/images/api-reference/create-api-key/step2.png)
-
-Copy your key and store it in a safe place
-![Copy your key and store it in a safe place](/images/api-reference/create-api-key/step3.png)
-</Accordion>
-
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+We use standard Bearer Token authentication. Simple, secure, boring.
+
+<Note>
+  **Don't have an API Key?**  
+  [Sign up here](https://bundle.social) and grab one from the **API Keys** section in your dashboard.
+</Note>
+
+### The Header
+
+To make a request, add the `x-api-key` header with your key.
+
+```json
+{
+  "x-api-key": "pk_live_..."
+}
+```
+
+### Authorization Scheme
+
+All endpoints are protected. If you don't send the key, you get a `401 Unauthorized`. If you send a bad key, you get a `403 Forbidden`.
 
 ```json
 "security": [
@@ -41,9 +35,18 @@ All API endpoints are authenticated using Bearer tokens and picked up from the s
 ]
 ```
 
-To authorize with the API, you need to provide an API key in the `x-api-key` header.
-```json
-{
-  "x-api-key": "YOUR_API_KEY",
-}
+## Base URL
+
+```bash
+https://api.bundle.social
 ```
+
+Everything is prefixed with `/api/v1` usually, but check the specific endpoint reference.
+
+## Rate Limits
+
+We have sensible rate limits to protect the system. If you hit them, you'll get a `429 Too Many Requests`.
+*   **Standard:** 600 requests / minute per IP.
+*   **Platform Specific:** Posting limits depend on the social network (e.g. you can't post 100 TikToks in an hour).
+
+Check the [Rate Limits](/api-reference/rate-limits) page for the nitty-gritty details.

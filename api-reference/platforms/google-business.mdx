@@ -1,0 +1,136 @@
+---
+title: Google Business
+description: "Local SEO posts, events, offers, and updates for your business profile."
+icon: google
+---
+
+Google Business Profile (formerly Google My Business) lets you post updates that appear in Google Search and Maps.
+
+## Quirks & Gotchas
+
+### Location Selection Required
+After connecting your Google account, you must select a business location. This is similar to selecting a Facebook Page or LinkedIn Company Page.
+
+### Post Types
+Google Business supports different post types via the `topicType` field:
+*   `STANDARD`: Regular updates (default).
+*   `EVENT`: Time-bound events with a title and date range.
+*   `OFFER`: Promotional offers with coupon codes and terms.
+*   `ALERT`: Special alerts (currently only `COVID_19`).
+
+### Call to Action
+You can add a CTA button to your posts:
+*   `BOOK`, `ORDER`, `SHOP`, `LEARN_MORE`, `SIGN_UP`, `CALL`
+*   Requires a `callToActionUrl` for most types.
+
+### Character Limit
+Posts are limited to **1,500 characters**.
+
+---
+
+## Post Options
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `text` | `string` | Post content. Max 1,500 characters. |
+| `uploadIds` | `string[]` | Media attachments (images). |
+| `topicType` | `enum` | Post type: `STANDARD`, `EVENT`, `OFFER`, `ALERT`. Default: `STANDARD`. |
+| `languageCode` | `string` | Language code (e.g., `en`, `en-US`). Default: `en`. |
+| `callToActionType` | `enum` | CTA button: `BOOK`, `ORDER`, `SHOP`, `LEARN_MORE`, `SIGN_UP`, `CALL`. |
+| `callToActionUrl` | `string` | URL for the CTA button. |
+
+### Event-Specific Fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `eventTitle` | `string` | Event title. Max 58 characters. |
+| `eventStartDate` | `date` | Event start date. |
+| `eventEndDate` | `date` | Event end date. |
+
+### Offer-Specific Fields
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `offerCouponCode` | `string` | Coupon code. Max 58 characters. |
+| `offerRedeemOnlineUrl` | `string` | URL to redeem the offer online. |
+| `offerTermsConditions` | `string` | Terms and conditions. Max 1,500 characters. |
+
+---
+
+## Analytics
+
+Google Business provides analytics for your business location.
+
+### Profile Analytics
+**Period:** Rolling window.
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | Profile views | How many times your profile was viewed |
+| `Views` | Profile views | |
+| `Followers` | Returns `0` | Not applicable |
+
+### Post Analytics
+**Period:** Lifetime.
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | Post views | |
+| `Views` | Post views | |
+| `Likes` | Returns `0` | Not tracked by Google |
+| `Comments` | Returns `0` | Not tracked by Google |
+
+---
+
+## Example
+
+### Standard Post
+
+```javascript
+await bundle.post.create({
+  socialAccountTypes: ["GOOGLE_BUSINESS"],
+  data: {
+    GOOGLE_BUSINESS: {
+      text: "We're open for the holidays! Visit us today.",
+      callToActionType: "LEARN_MORE",
+      callToActionUrl: "https://example.com/holiday-hours"
+    }
+  }
+});
+```
+
+### Event Post
+
+```javascript
+await bundle.post.create({
+  socialAccountTypes: ["GOOGLE_BUSINESS"],
+  data: {
+    GOOGLE_BUSINESS: {
+      topicType: "EVENT",
+      text: "Join us for our grand opening celebration!",
+      eventTitle: "Grand Opening",
+      eventStartDate: "2026-02-01T10:00:00Z",
+      eventEndDate: "2026-02-01T18:00:00Z",
+      callToActionType: "BOOK",
+      callToActionUrl: "https://example.com/rsvp"
+    }
+  }
+});
+```
+
+### Offer Post
+
+```javascript
+await bundle.post.create({
+  socialAccountTypes: ["GOOGLE_BUSINESS"],
+  data: {
+    GOOGLE_BUSINESS: {
+      topicType: "OFFER",
+      text: "Get 20% off your first order!",
+      offerCouponCode: "WELCOME20",
+      offerRedeemOnlineUrl: "https://example.com/shop",
+      offerTermsConditions: "Valid for new customers only. Expires Feb 28, 2026."
+    }
+  }
+});
+```

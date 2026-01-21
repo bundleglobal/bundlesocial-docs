@@ -1,31 +1,41 @@
 ---
-title: Are You Prepared to Be Interviewed by an AI?
+title: Building AI Social Agents (How to automate without spamming)
+description: A technical guide to using LLMs and APIs to build authentic social media bots.
+date: '2026-01-21'
+
 ---
 
-The transition to remote work during the pandemic has significantly changed the landscape of job interviews, with virtual or pre-recorded interviews increasingly being guided by artificial intelligence (AI). This development has particularly affected younger job seekers who are often meeting a bot instead of a human interviewer in their first job interviews.
+The era of manual posting is ending. AI agents—software that can perceive, reason, and act—are taking over social media management. But there is a fine line between a helpful agent and a spambot.
 
-<h2>What Are Automated Video Interviews (AVIs)?</h2>
+## The Architecture of a Social Agent
 
-Automated Video Interviews (AVIs) are a form of interview that can vary greatly in their reliance on AI. They range from simple video recordings reviewed later by human hiring managers to sophisticated AI-driven systems that analyze visual, verbal, and vocal data to assess candidates. These systems might measure aspects like facial expressions, tone of voice, choice of words, and other subtleties to infer qualities about the candidates. If you are preparing for an interview and notice terms like "machine learning", "predictive analytics", "decision algorithms", "recommendation engines", or "data-driven decisions" associated with your interview process, it is likely that AI is involved.
+To build a social agent that actually provides value, you need three layers:
 
-<h2>Understanding AI in Interviews</h2>
+1.  **The Brain (LLM):** OpenAI, Anthropic, or Llama. This generates the content.
+2.  **The Context (RAG):** Your database of past posts, brand guidelines, and audience data.
+3.  **The Hands (API):** Tools like **bundle.social** that execute the actions (post, comment, like).
 
-Despite the allure of advanced technology, AI-led interviews are not yet perfect. They often lack the nuanced judgment required to accurately assess personality traits and other soft skills from recorded videos. This can result in decisions that may not accurately reflect a candidate's true suitability for a role. Recognizing the limitations of this technology can help candidates approach these interviews with more confidence and realistic expectations.
+### 1. The Context Layer (Don't hallucinate)
 
-<h2>How to Make a Good Impression in AVIs</h2>
+Don't just ask GPT-4 to "write a tweet." It will sound like a corporate robot.
 
-Success in an AI-led interview isn't just about answering questions correctly. It's about presenting yourself in a way that is both authentic and optimized for the AI's assessment criteria. Here are detailed steps to help you prepare effectively:
+Instead, inject context:
+```json
+{
+  "role": "system",
+  "content": "You are a senior engineer. Use the user's past 50 tweets (provided below) to mimic their tone. Be cynical but helpful."
+}
+```
 
-- Practice with Technology: Familiarize yourself with speaking to a digital interface. Initially, practice with a friend over video calls with both cameras on. This setup helps simulate a more traditional interview environment. Next, turn off the camera to get comfortable with less feedback, mirroring the AI interview setting more closely. Finally, practice alone by recording yourself answering typical interview questions. Analyze these recordings to see how you might improve your delivery and demeanor.
+### 2. The Execution Layer (Safety First)
 
-- Create a Professional Environment: Just as you would for an in-person interview, ensure your environment during the interview is professional. Choose a quiet, well-lit space with a neutral background. Test your internet connection and any equipment like microphones or webcams to avoid technical glitches that could distract from your performance or interrupt the session.
+An autonomous agent needs guardrails.
 
-- Stay Human: One of the paradoxes of AI interviews is that while you are interacting with a machine, your goal is to come across as comfortably human. Maintain natural body language, make "eye contact" with the camera, and allow your personality to come through in your responses. Even though AI is analyzing your responses, human hiring managers will likely review the recordings or AI assessments, so genuine enthusiasm and authenticity remain crucial.
+*   **Rate Limits:** Don't let your bot post 100 times an hour. The platform will ban you. Use `bundle.social`'s built-in queue to smooth out the bursts.
+*   **Human-in-the-Loop:** For the first 100 posts, have a human approve them via a dashboard.
+*   **Feedback Loop:** Use webhooks (`post.published`, `post.failed`) to retrain your agent. If a post failed validation, tell the LLM *why* so it learns.
 
-- Understand the AI’s Limitations: Keep in mind that the AI is not infallible. It operates on algorithms that may not fully capture all the nuances of human interaction and personality. Approach the interview understanding that the AI's evaluation is just one part of the hiring process and may not perfectly reflect your capabilities or potential fit with the company.
+## Conclusion
 
-- Prepare Content Wisely: Since AI can parse and evaluate the content of your speech, pay attention to including relevant keywords and phrases that align with the job description and the company’s values. However, balance this with natural speech to avoid sounding rehearsed or artificial.
+Building an AI agent is easy. Building one that doesn't get banned is hard. Use robust APIs to handle the execution layer so you can focus on the intelligence.
 
-- Emotional Preparedness: Recognize that speaking to a machine can feel impersonal and even disconcerting. Prepare yourself mentally for this experience so that it does not throw you off during the interview. Practicing mindfulness or stress-relief techniques before the interview can help manage anxiety and maintain focus.
-
-Automated Video Interviews, while daunting, are becoming an increasingly common initial filter in the hiring process, bringing both challenges and opportunities for job seekers. By understanding the nature of these interviews and preparing adequately, you can navigate them successfully. Ultimately, remember that technology may be an integral part of the hiring process now, but it is your unique human qualities that will make you stand out as a candidate.
