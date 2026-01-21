@@ -1,167 +1,84 @@
 ---
 title: Import Post History
-description: Learn how to import historical posts from your connected social accounts.
+description: Pull past posts and analytics. Populate your dashboard instantly.
+icon: file-import
 ---
 
-The Post History Import API allows you to retrieve past posts from your connected social media accounts with analytics snapshot.
+Empty dashboards are sad. Use the History Import API to fetch existing content from connected accounts.
 
-The import process is **asynchronous**:
-1. You request an import for a specific social account.
-2. The system queues the job and processes it in the background.
-3. You can poll the status of the import.
-4. Once completed, you can retrieve the imported posts and their analytics.
+## How it works
+This is an **asynchronous** job. You don't get the posts instantly.
+1.  **Start:** You trigger a job ("Go fetch 50 posts from Instagram").
+2.  **Wait:** We queue it, talk to the platform, and crunch the data.
+3.  **Poll:** You check if we're done.
+4.  **Fetch:** You download the results.
+
+---
+
+## Step 1: Start the Job
+**Endpoint:** `POST /api/v1/post-history-import`
+
+```json
+{
+  "teamId": "team_123",
+  "socialAccountType": "INSTAGRAM",
+  "count": 50, // Max 100 per batch
+  "withAnalytics": true
+}
+```
+
+**Limits:**
+*   **Free:** 5 posts / month (Demo mode)
+*   **Pro:** 100 posts / month
+*   **Business:** 250 posts / month
 
 <Note>
-  **Limits:** There is a monthly limit on the number of posts you can import per social account, depending on your subscription tier.
-  - Free: 5 posts / month
-  - Pro: 100 posts / month
-  - Business: 250 posts / month
-  - We can set custom limits depending on your needs
-
-  
-  The maximum number of posts you can request in a single API call is **100**.
+**Why limits?** Historical imports are expensive on API tokens. We have to be stingy here to keep the service cheap for everyone.
 </Note>
 
 ---
 
-## Step 1: Start an Import
+## Step 2: Check Status
+**Endpoint:** `GET /api/v1/post-history-import?teamId=...`
 
-Initiate a new import job. You must specify the team ID and the social account type.
-
-**Endpoint:** `POST /api/v1/post-history-import`
-
-**Parameters**
-
-- `teamId` (**required**) — The ID of the team where the social account is connected.
-- `socialAccountType` (**required**) — The platform to import from. Supported values: `FACEBOOK`, `INSTAGRAM`, `THREADS`, `TIKTOK`, `YOUTUBE`, `LINKEDIN`, `PINTEREST`, `REDDIT`, `MASTODON`, `BLUESKY`.
-- `count` (**required**) — Number of posts to import (max 100 in one import).
-- `withAnalytics` (optional) — Whether to fetch analytics data for the posts (default: `true`).
-
-**Response**
-
-Returns the created import object with a `PENDING` status.
-
-```json
-{
-  "id": "import_12345",
-  "teamId": "team_abc123",
-  "socialAccountId": "social_xyz789",
-  "requestedCount": 50,
-  "withAnalytics": true,
-  "status": "PENDING",
-  "postsImported": 0,
-  "analyticsImported": 0,
-  "createdAt": "2024-01-01T12:00:00Z"
-}
-```
-
-**Example**
-
-```ts
-const importJob = await bundlesocial.postImport.create({
-  requestBody: {
-    teamId: 'team_abc123',
-    socialAccountType: 'INSTAGRAM',
-    count: 50,
-    withAnalytics: true
-  }
-});
-```
+You'll see a list of jobs with statuses:
+*   `PENDING`: In queue.
+*   `FETCHING_POSTS`: Talking to Instagram...
+*   `COMPLETED`: Done!
+*   `FAILED`: Something exploded.
+*   `RATE_LIMITED`: Platform said "slow down". We paused it for you.
 
 ---
 
-## Step 2: Check Import Status
-
-You can check the progress of your imports. The status can be `PENDING`, `FETCHING_POSTS`, `FETCHING_ANALYTICS`, `COMPLETED`, `FAILED`, or `RATE_LIMITED`.
-
-**Endpoint:** `GET /api/v1/post-history-import`
-
-**Query Parameters**
-
-- `teamId` (**required**)
-- `socialAccountType` (optional) — Filter by platform.
-
-**Response**
-
-Returns a list of import jobs.
-
-```json
-{
-  "imports": [
-    {
-      "id": "import_12345",
-      "status": "COMPLETED",
-      "postsImported": 50,
-      "analyticsImported": 50,
-      "completedAt": "2024-01-01T12:05:00Z"
-      // ... other fields
-    }
-  ]
-}
-```
-
-**Get a specific import**
-
-**Endpoint:** `GET /api/v1/post-history-import/{importId}`
-
----
-
-## Step 3: Retrieve Imported Posts
-
-Once the import is `COMPLETED`, you can fetch the posts.
-
+## Step 3: Get the Loot
 **Endpoint:** `GET /api/v1/post-history-import/posts`
 
-**Query Parameters**
-
-- `teamId` (**required**)
-- `socialAccountType` (**required**)
-- `limit` (optional) — Max number of posts to return (default 50, max 100).
-- `offset` (optional) — Pagination offset (default 0).
-
-**Response**
-
-Returns the list of posts along with usage limits.
+Once status is `COMPLETED`, call this to get the actual data.
 
 ```json
 {
   "posts": [
     {
-      "externalId": "123456789",
-      "title": "My Post",
-      "description": "Post caption...",
-      "thumbnail": "https://...",
-      "permalink": "https://instagram.com/p/...",
-      "publishedAt": "2023-12-25T10:00:00Z",
+      "title": "My Cat Video",
       "analytics": {
-        "likes": 150,
-        "comments": 10,
-        "impressions": 2000
+        "likes": 1337,
+        "impressions": 42000
       }
     }
-    // ... more posts
-  ],
-  "total": 50,
-  "limit": 100,
-  "remainingCapacity": 50
+  ]
 }
 ```
 
 ---
 
-## Step 4: Retry (If needed)
-
-If an import fails (e.g., due to temporary network issues), you can retry it.
-
-**Endpoint:** `POST /api/v1/post-history-import/{importId}/retry`
-
-**Body**
-
-- `teamId` (**required**)
+## Handling Rate Limits
+If a job hits `RATE_LIMITED`, don't panic. It means we hit the platform's cap (e.g. LinkedIn API limits).
+*   We automatically pause the job.
+*   We set a `rateLimitResetAt` timestamp.
+*   You can retry it after that time.
 
 ---
 
-## Handling Rate Limits
+## Need More?
 
-If an import enters the `RATE_LIMITED` status, it means the social platform's API rate limits have been hit. The system will automatically pause and may retry later, or you can manually retry after the `rateLimitResetAt` time passed.
-
+We're flexible with import requirements. If you have a specific use case—bulk historical imports, custom date ranges, or higher volume needs-[contact us](https://bundle.social/contact). We'll work with you to find a solution.

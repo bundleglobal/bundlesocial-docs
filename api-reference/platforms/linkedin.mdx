@@ -1,0 +1,79 @@
+---
+title: LinkedIn
+description: "The professional network. Where URNs are king and Personal profiles are limited."
+icon: linkedin
+---
+
+LinkedIn is unique because it strictly separates **Personal Profiles** (Members) from **Organization Pages** (Companies). The API treats them very differently.
+
+## Quirks & Gotchas
+
+### Personal vs. Organization
+This is the biggest source of confusion.
+
+*   **Personal Profile (Member):** Limited API. **Cannot import post history.** Limited analytics.
+*   **Organization (Company Page):** Full API power. Richer analytics. Supports historical import.
+
+### The URN Nightmre
+LinkedIn uses "URNs" (Uniform Resource Names) to identify everything.
+*   Organization: `urn:li:organization:12345`
+*   Person: `urn:li:person:abcde`
+
+If you are constructing raw text mentions, you need to use this format. Our API handles basic text automatically, but if you're getting fancy, keep this in mind.
+
+---
+
+## Analytics
+
+### Profile Analytics
+
+#### Personal (Member)
+**Period:** Rolling window (30 days).
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | Total views | |
+| `Impressions (Unique)` | Unique views | |
+| `Likes` | Total likes | |
+| `Comments` | Total comments | |
+| `Followers` | Connections/Followers | |
+| `Views` | Returns `0` | Not provided for personal profiles |
+
+#### Organization (Company)
+**Period:** Rolling window (30 days).
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | Total views | |
+| `Impressions (Unique)` | Unique views | |
+| `Views` | **Page Views** | Available for Orgs! |
+| `Likes` | Total likes | |
+| `Comments` | Total comments | |
+| `Followers` | Followers | |
+
+### Post Analytics
+
+#### Personal Posts
+**Period:** Rolling window (30 days).
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | View count | |
+| `Likes` | Reactions | |
+| `Comments` | Comments | |
+| `Shares` | Reposts | |
+
+#### Organization Posts
+**Period:** Rolling window (30 days).
+
+<Warning>
+**Only recent posts.** Organization analytics only cover posts published within the last 30 days.
+</Warning>
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | View count | |
+| `Likes` | Reactions | |
+| `Comments` | Comments | |
+| `Shares` | Reposts | |
+| `Views` | Returns `0` | Not provided for individual posts |

@@ -1,0 +1,54 @@
+---
+title: TikTok
+description: "The viral machine. Watch out for music copyright and privacy settings."
+icon: tiktok
+---
+
+TikTok is the place for short-form video. The API is powerful but comes with some specific restrictions around music and privacy.
+
+## Quirks & Gotchas
+
+### Privacy Levels & Permalinks
+If you set a video's privacy to `SELF_ONLY` (Private), the API **cannot** return a public permalink immediately.
+*   The `permalink` field will be null or internal-only.
+*   We can't give you a link to something that doesn't publicly exist.
+
+### Music & Copyright
+TikTok is extremely strict about music rights.
+*   **Trending Audio:** You generally **cannot** use TikTok's "trending audio" library directly via API.
+*   **Royalty-Free:** You can use the `auto_add_music` flag to let TikTok assign royalty-free music, but you lose control over the specific track.
+*   **Best Practice:** Burn your audio into the video file before uploading.
+
+### Image Format (Photo Mode)
+TikTok only accepts **JPG** and **JPEG** files for Photo Mode posts. PNG and other formats will be rejected.
+
+---
+
+## Analytics
+
+TikTok provides some of the richest data among all platforms.
+
+### Profile Analytics
+**Period:** Rolling window (30 days).
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | Video views | |
+| `Impressions (Unique)` | Unique video views | |
+| `Views` | Profile views | |
+| `Likes` | Total likes | Aggregated across all videos |
+| `Comments` | Total comments | |
+| `Post Count` | Total videos | |
+| `Followers` | Followers | |
+
+### Post Analytics
+**Period:** Lifetime (Snapshot).
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | Video views | |
+| `Impressions (Unique)` | Unique views | Usually same as impressions |
+| `Likes` | Likes | |
+| `Comments` | Comments | |
+| `Shares` | Shares | |
+| `Saves` | Returns `0` | Not provided by API |

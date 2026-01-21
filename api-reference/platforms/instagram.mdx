@@ -1,0 +1,65 @@
+---
+title: Instagram
+description: "Reels, Stories, Posts, and the strict laws of aspect ratios."
+icon: instagram
+---
+
+Instagram is visually demanding. The API reflects that. If you don't follow their rules on aspect ratios and media types, they will reject your content without mercy.
+
+## Supported Content Types
+
+*   **Posts:** Single image, single video, or carousel (mixed).
+*   **Reels:** Video only. Must be 9:16.
+*   **Stories:** Image or video. Expire after 24 hours.
+
+## Quirks & Gotchas
+
+### Aspect Ratios are Law
+Instagram is very strict here. 
+*   **Stories/Reels:** Must be **9:16** (vertical).
+*   **Feed Posts:** Generally **4:5** (vertical) or **1:1** (square).
+
+<Warning>
+**Don't try to cheat.** If you upload a 16:9 (landscape) video as a Reel, it might technically "work" but it will look terrible (awkwardly cropped) or be rejected entirely. Your marketing team will not be happy.
+</Warning>
+
+### Stories vs. Reels vs. Posts
+*   **Stories** are ephemeral. They disappear.
+*   **Reels** are for growth. They are public videos.
+*   **Posts** are for your feed grid.
+
+---
+
+## Analytics
+
+We pull data directly from the Instagram Graph API.
+
+### Refresh Rate & Limits
+*   **Default Refresh:** Every 24 hours.
+*   **Force Refresh:** Available (max `Teams * 5` times).
+
+### Profile Analytics
+**Period:** Rolling window (30 days).
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | Total times profile content was shown | |
+| `Impressions (Unique)` | Unique accounts that saw content | Called "Reach" in API |
+| `Views` | Profile views | |
+| `Likes` | Total likes | |
+| `Comments` | Total comments | |
+| `Followers` | Total followers | |
+| `Views (Unique)` | Returns `0` | Not provided by API |
+
+### Post Analytics
+**Period:** Lifetime (Snapshot).
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | Total views | Called "views" for videos |
+| `Impressions (Unique)` | Unique accounts reached | Called "reach" |
+| `Views` | Video plays | Videos/Reels only |
+| `Likes` | Total likes | |
+| `Comments` | Total comments | |
+| `Shares` | Total shares | Reels only |
+| `Saves` | Total saves | |

@@ -1,0 +1,41 @@
+---
+title: Threads
+description: "Meta's text app. It's like Twitter, but with Meta's infrastructure."
+icon: at
+---
+
+Threads is the new kid on the block, integrated tightly with Instagram's infrastructure.
+
+## Quirks & Gotchas
+
+### Terminology
+*   **Comments** are called **Replies**.
+*   **Shares** include both **Reposts** and **Quotes**.
+
+---
+
+## Analytics
+
+### Profile Analytics
+**Period:** Rolling window.
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | Views | Includes Quote count |
+| `Impressions (Unique)` | Unique views | Includes Repost count |
+| `Views` | Views | |
+| `Likes` | Likes | |
+| `Comments` | Replies | |
+| `Followers` | Followers | |
+| `Following` | Returns `0` | Not provided |
+
+### Post Analytics
+**Period:** Lifetime.
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | Views | |
+| `Views` | Views | Same as impressions |
+| `Likes` | Likes | |
+| `Comments` | Replies | |
+| `Shares` | Reposts + Quotes | |

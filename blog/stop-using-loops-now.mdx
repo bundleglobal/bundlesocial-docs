@@ -1,33 +1,30 @@
 ---
-title: Vectorization the new kid on the block. Stop using loops now
+title: Processing 10k Posts? Stop using loops.
+description: Why efficient data processing matters when building Social Analytics tools.
+date: '2026-01-21'
+
 ---
 
-If you’re working with Python and dealing with numerical data, particularly with libraries like NumPy or pandas, you'll often hear that vectorization is preferred over looping. Here’s why using vectorization instead of loops can drastically improve the efficiency and speed of your data processing tasks in Python.
+If you are building a social media dashboard, you will eventually hit the **N+1 problem**.
 
-What is Vectorization?
+You fetch a team. Then you loop through their accounts. Then you loop through their posts. Then you loop through the analytics for each post.
 
-Vectorization refers to the method of processing data that operates on entire arrays or major sections of data, instead of using loops to process data element by element. This technique is not only more concise but also leverages optimized, low-level implementations for numerical operations, typically written in C or Fortran, which are much faster than Python loops.
+```python
+# The Bad Way
+for post in posts:
+    analyze(post) # Slow. Painful. API limits will eat you.
+```
 
-<h2>Why Prefer Vectorization Over Loops?</h2>
+## Vectorization & Batching
 
-Performance Improvement:
+When dealing with data-heavy APIs like bundle.social (or underlying platforms), you need to think in batches.
 
-- Python loops can be slow, especially when dealing with large datasets. This slowness stems from Python’s dynamic nature, where type-checking happens at runtime. Vectorized operations utilize static typing and highly optimized compiled code from NumPy, which can lead to significant speedups.
+1.  **Batch Requests:** Don't ask for one post's analytics. Ask for 50.
+2.  **Vectorized Processing:** If you are calculating engagement rates in Python (pandas) or JS, process the whole array at once.
 
-Cleaner Code:
+## Why it matters for Social APIs
 
-- Vectorization helps simplify code. Operations that might take several lines with loops can often be done with a single line of vectorized code, making it more readable and maintainable.
+Social data is "bursty". A user connects an account and wants to see 3 years of history **now**. If you loop, your UI hangs. If you batch and vectorize, you look like a wizard.
 
-Leverage Underlying Optimizations:
+*See also: [Rate Limits](/api-reference/rate-limits) to understand why batching saves your wallet.*
 
-- Libraries like NumPy use highly optimized code written in lower-level languages that take advantage of modern CPU features, such as SIMD (Single Instruction, Multiple Data) instructions, which process data in parallel, speeding up computations.
-
-<h2>When to Use Vectorization</h2>
-
-Vectorization is ideal when you are performing operations across entire arrays or large subsets of data where the operation is uniform. It’s a common practice in data analysis, scientific computing, and anywhere else where performance is critical.
-
-However, there might be complex scenarios where vectorization is tricky or impossible to implement; in such cases, other optimizations like using Python’s built-in functions (like map()), list comprehensions, or using libraries like numba might help.
-
-<h2>Conclusion</h2>
-
-Vectorization is a powerful technique for speeding up data processing tasks in Python, particularly useful in numerical computations and data-intensive applications. By leveraging highly optimized library functions, you can achieve significant performance improvements and cleaner code. Always consider vectorization as your first approach when working with large datasets or performance-critical tasks in Python.

@@ -1,124 +1,71 @@
 ---
-title: Connect social accounts
-description: Learn how to connect social accounts to bundle.social via API.
+title: Connect Social Accounts
+description: How to get your users to connect their platforms.
+icon: plug
 ---
 
-## Hosted by us
+Connecting social accounts is the hardest part of any integration because OAuth flows are pain. We offer two ways to handle this.
 
-We have an endpoint to create an authenicated user session on our portal to let you user connect their social accounts.
-The endpoint is `/api/v1/social-account/create-portal-link`, you can test it out in the 
-[Swagger](https://api.bundle.social/swagger#/socialAccount/socialAccount.createPortalLink) or [API Reference Client](/api-reference/client/socialaccount/create-portal-link).
+## 1. The Easy Way (Hosted Flow)
+We host the UI. You just send the user to a link, they click buttons, and get redirected back to you.
 
-You can specify [the following parameters](/api-reference/client/socialaccount/create-portal-link): 
-- `teamId` - (required) The team ID to connect the social accounts to.
-- `redirectUrl` - (required) The URL to redirect to after clicking on the back button.
-- `socialAccountTypes` - (required) The social account types to connect.
-- `logoUrl` - (optional) The URL of the logo to display on the top of the page.
-- `userLogoUrl` - (optional) The URL of the user logo/avatar to display.
-- `userName` - (optional) The name of the user to display.
-- `goBackButtonText` - (optional) The text of the back button.
-- `language` - (optional) The language of the page.
-- `hidePoweredBy` - (optional) Whether to hide the powered by text.
-- `hideGoBackButton` - (optional) Whether to hide the back button.
-- `hideUserLogo` - (optional) Whether to hide the user logo.
-- `hideUserName` - (optional) Whether to hide the user name.
-- `hideLanguageSwitcher` - (optional) Whether to hide the language switcher.
-- `showModalOnConnectSuccess` - (optional) Whether to show a modal on connect success that asks what to do next - go back to the page provided in the `redirectUrl` parameter or just close the modal and let the user connect more accounts.
-- `maxSocialAccountsConnected` - (optional) The maximum number of social accounts that can be connected.
+**Endpoint:** `POST /api/v1/social-account/create-portal-link`
 
-**Supported languages:**
-- `en` - English
-- `pl` - Polish
-- `fr` - French
-- `hi` - Hindi
-- `sv` - Swedish
-- `de` - German
-- `es` - Spanish
-- `it` - Italian
-- `nl` - Dutch
-- `pt` - Portuguese
-- `ru` - Russian
-- `tr` - Turkish
-- `zh` - Chinese
+You provide:
+*   `teamId`: Where the account belongs.
+*   `redirectUrl`: Where to send them back (e.g. `https://yourapp.com/callback`).
+*   `socialAccountTypes`: What they should connect (e.g. `['INSTAGRAM', 'LINKEDIN']`).
 
-That's how the hosted page looks:
+**Result:**
+You get a URL. Redirect the user there. They see this beautiful page:
+
 ![Connect social account flow](/images/api-reference/connect-social-account/connect-social-account-hosted.png)
 
-## Hosted by you
+When they finish, we send them back to your `redirectUrl` with success (or error) flags.
 
-It enables you to connect social accounts directly through your app, but required more work to set up.
+---
 
-### Connect social account flow
+## 2. The Hard Way (Custom UI)
+You build the UI. You trigger the OAuth flows. You look like a hero.
+
+**The Flow:**
+1.  You call our API to get an authorization URL for a specific platform (e.g. LinkedIn).
+2.  You redirect the user there.
+3.  They accept permissions.
+4.  They are redirected back to your app.
+
+<Note>
+**Platform Specifics:**
+Some platforms (YouTube, Facebook, Instagram, LinkedIn) require a **second step**. After the user connects their "Account", they must select a specific "Page" or "Channel" to use. You need to build a UI for this selection.
+</Note>
+
 ![Connect social account flow](/images/api-reference/connect-social-account/connect-social-account.png)
 
-For most of the platforms flow is pretty simple.
-The only exception are Youtube, Facebook, Instagram and Linkedin where you need to select the channel after the initial connection. Channel in this context means different things for different platforms:
+---
 
-- For Youtube it's a Youtube channel.
-- For Facebook it's a Facebook page.
-- For Instagram it's an Instagram account.
-- For LinkedIn it's a LinkedIn page.
+## Handling Callbacks
 
-### List of errors we can return in the query params:
-- twitter-callback - Error connecting Twitter
-- twitter-not-enought-permissions - You didn't grant all the necessary permissions
+Whether you use Hosted or Custom, the user eventually comes back to your URL with query parameters.
 
-- pinterest-callback - Error connecting Pinterest
-- pinterest-not-enought-permissions - You didn't grant all the necessary permissions
+### Success Parameters
+We append flags like `?instagram-callback=success` to your URL.
 
-- tiktok-callback - Error connecting TikTok
-- tiktok-not-enought-permissions - You didn't grant all the necessary permissions
+*   `twitter-callback`
+*   `linkedin-callback`
+*   `instagram-callback`
+*   ...and so on.
 
-- facebook-callback - Error connecting Facebook
-- facebook-not-enough-pages - You don't have enough permissions in any of your Facebook pages
-- facebook-not-enought-permissions - You didn't grant all the necessary permissions
+### Error Parameters
+If things go wrong (and they will), we tell you why.
 
-- instagram-callback - Error connecting Instagram
-- instagram-not-enough-accounts - You don't have enough permissions in any of your Instagram accounts or none of your Facebook pages has an Instagram account connected
-- instagram-not-enought-permissions - You didn't grant all the necessary permissions
+**Common Errors:**
+*   `*-not-enough-permissions`: User clicked "Cancel" or uncheck required boxes.
+*   `*-not-enough-pages`: User connected Facebook but has no Pages.
+*   `*-callback`: Generic error (timeout, provider error).
 
-- linkedin-callback - Error connecting LinkedIn
-- linkedin-not-enough-channels - You don't have enough permissions in any of your LinkedIn organizations
-- linkedin-not-enought-permissions - You didn't grant all the necessary permissions
+**Example URL:**
+`https://yourapp.com/callback?facebook-callback=error&facebook-not-enough-pages=true`
 
-- reddit-callback - Error connecting Reddit
-- reddit-not-enought-permissions - You didn't grant all the necessary permissions
-
-- discord-callback - Error connecting Discord
-- discord-not-enough-servers - You don't have enough permissions in any of your Discord servers
-- discord-not-enought-permissions - You didn't grant all the necessary permissions
-
-- slack-callback - Error connecting Slack
-- slack-not-enough-workspaces - You don't have enough permissions in any of your Slack workspaces
-- slack-not-enought-permissions - You didn't grant all the necessary permissions
-
-- youtube-callback - Error connecting Youtube
-- youtube-not-enough-channels - You don't have enough permissions in any of your Youtube channels
-- youtube-not-enought-permissions - You didn't grant all the necessary permissions
-
-- threads-callback - Error connecting Threads
-- threads-not-enought-permissions - You didn't grant all the necessary permissions
-
-- mastodon-callback - Error connecting Mastodon
-- mastodon-not-enought-permissions - You didn't grant all the necessary permissions
-
-- bluesky-callback - Error connecting Bluesky
-- bluesky-not-enought-permissions - You didn't grant all the necessary permissions
-
-- google-businnes-callback - Error connecting Google Business
-
-## List of success messages we can return in the query params:
-- twitter-callback - Twitter connected successfully
-- pinterest-callback - Pinterest connected successfully
-- tiktok-callback - TikTok connected successfully
-- facebook-callback - Facebook connected successfully
-- instagram-callback - Instagram connected successfully
-- linkedin-callback - LinkedIn connected successfully
-- reddit-callback - Reddit connected successfully
-- discord-callback - Discord connected successfully
-- slack-callback - Slack connected successfully
-- youtube-callback - Youtube connected successfully
-- threads-callback - Threads connected successfully
-- mastodon-callback - Mastodon connected successfully
-- bluesky-callback - Bluesky connected successfully
-- google-businnes-callback - Google Business connected successfully
+<Tip>
+**Pro Tip:** Always handle the `not-enough-permissions` error gracefully. Tell the user: *"Hey, we need those permissions to actually post. Please try again and don't uncheck the boxes."*
+</Tip>

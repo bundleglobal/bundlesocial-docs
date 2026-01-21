@@ -1,37 +1,31 @@
 ---
-title: Mental Health and Social Media. Start touching the grass.
+title: "Automating Moderation: Filtering Toxicity via API"
+description: How to build tools that protect users from the worst of the internet.
+date: '2026-01-21'
+
 ---
 
-The escalation of mental health challenges in the USA, highlighted by increasing rates of depression, anxiety, and deaths of despair, underscores the urgent need for a holistic approach to mental well-being. Addressing these issues goes beyond enhancing access to clinical services; it requires an understanding of the intricate ties between mental health and broader social concerns, including economic disparity, social injustice, and environmental degradation.
+Social media is great. The comments section... not always.
+As a developer building social tools, you have a responsibility to protect your users.
 
-For those engaged in social change, the interplay between societal issues and mental health is a critical arena for impactful work. Integrating mental health support within social change initiatives not only tackles these challenges more effectively but also fosters communities that are resilient, empowered, and capable of sustained efforts towards a better future.
+## The Moderator's API Toolkit
 
-Drawing inspiration from global initiatives such as the Catalyst 2030 Mental Health Collaboration, we see the transformative potential of weaving mental health into the fabric of social change. These efforts demonstrate the feasibility and necessity of creating environments conducive to both human and planetary flourishing.
+Most platforms expose moderation endpoints that you can automate.
 
-To weave mental health into the tapestry of social change and personal wellness, consider the following steps and tips:
+### 1. Hide Comments Automatically
+You can use `bundle.social` or native APIs to fetch comments, analyze them with an LLM for sentiment/toxicity, and then hide them.
 
-<h2>How to improve your mental health?</h2>
+### 2. Disable Like Counts
+[Instagram](/api-reference/platforms/instagram) allows you to hide like counts on posts via API (`hide_likes` flag). This reduces performance anxiety for creators.
 
-View Mental Health as a Community Responsibility: Expand the mental health narrative to encompass community-based support models alongside professional care, inspired by global practices.
+### 3. Restrict Replies
+Twitter/X allows you to limit who can reply to a tweet (e.g., only people you mention).
 
-Facilitate Emotional Processing Spaces: Offer forums for open dialogue and support, acknowledging the profound role of emotions and trauma in our capacity for change.
+## Building "Humane" Tools
 
-Encourage Connections Over Shared Experiences: Foster networks that provide mutual support and inspiration, reinforcing the notion that no one is alone in their journey.
+Don't just build a tool that maximizes engagement. Build a tool that maximizes sanity.
+*   Add a "Zen Mode" that hides metrics.
+*   Add an "Auto-Block" feature for spam.
 
-Foster Empathy and Self-Care in All Spheres: Promote an understanding of mental health that emphasizes empathy and care, both for oneself and within communities and workplaces.
+The API gives you the power to change the interface. Use it.
 
-<h2>Enhancing Personal Mental Health Through Connection with Nature:</h2>
-
-Engage in Mindfulness and Self-Reflection: Incorporate practices like mindfulness and meditation, possibly in natural settings, to enhance self-awareness and emotional equilibrium.
-
-Maintain Physical Activity: Regular physical exercise, especially outdoors, can significantly reduce symptoms of depression and anxiety by fostering a deeper connection with nature.
-
-Cultivate Meaningful Relationships: Build and maintain supportive relationships, including those that encourage outdoor activities and appreciation of the natural world.
-
-Professional Guidance: Seek professional help when necessary, and consider therapy forms that include ecotherapy or other nature-based approaches.
-
-Limit Digital Overload: Manage social media and technology use to prevent overload, allowing more time for nature engagement and real-world connections.
-
-Connect with Nature: Make a conscious effort to spend time in natural environments. Research shows that regular contact with nature improves mental health, reduces stress, and enhances mood and cognitive function.
-
-Integrating these practices into daily life not only empowers individuals to tackle personal and societal challenges but also paves the way for a society where mental health is integrally linked to our collective actions and the health of our planet.

@@ -1,0 +1,40 @@
+---
+title: Pinterest
+description: "Pins, Boards, and a mixed bag of analytics periods."
+icon: pinterest
+---
+
+Pinterest is about discovery, not just a feed.
+
+## Quirks & Gotchas
+
+### Terminology
+*   **Likes** are often referred to as **Saves** or **Reactions** depending on the API version, but we standardize them.
+*   **Video Pins:** Only video pins have true "View" counts. Static pins just show impressions.
+
+---
+
+## Analytics
+
+### Profile Analytics
+**Period:** Rolling window (30 days).
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | Total impressions | |
+| `Views` | Video views | Defaults to impressions for static pins |
+| `Likes` | Saves | |
+| `Followers` | Followers | |
+| `Comments` | Returns `0` | Not provided |
+
+### Post Analytics
+**Period:** Mixed (30-day window for views, Lifetime for engagement).
+
+| Metric | Description | Note |
+| :--- | :--- | :--- |
+| `Impressions` | Impressions | 30-day window |
+| `Views` | Video views | 30-day window |
+| `Likes` | Total reactions | Lifetime |
+| `Comments` | Total comments | Lifetime |
+| `Saves` | Saves | 30-day window |
+| `Shares` | Returns `0` | Not tracked |

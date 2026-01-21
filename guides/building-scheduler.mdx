@@ -1,152 +1,83 @@
 ---
 title: Building a Scheduler
-description: Learn how to build a social media scheduling tool using bundle.social API.
+description: A practical guide to building a social media scheduling tool.
+icon: calendar-days
 ---
 
-One of the use cases for the bundle.social API is building a scheduling tool. This guide walks you through the process of uploading content, scheduling it for a future date, and handling the publishing lifecycle.
+So you want to build a scheduler? You want to be the next Buffer or Hootsuite? 
 
-Our infrastructure is designed to scale with your needs, offering features critical for a robust scheduler:
-- **Unlimited Social Accounts:** Connect as many social accounts to an Organization as needed.
-- **Detailed Analytics:** Track performance for every post.
-- **History Import:** Populate your dashboard with past content.
-- **First Comment:** Automatically add a comment to posts upon publishing (great for hashtags or links).
+Here is how you do it with bundle.social.
 
-## Prerequisites
+## The Architecture
 
-- An active API Key
-- A connected social account (e.g., Instagram, LinkedIn)
+1.  **User connects account** (via [Connect Flow](/api-reference/connect-social-accounts)).
+2.  **User uploads content** (via [Media Upload](/api-reference/upload-content)).
+3.  **User picks a date** (UI).
+4.  **You send it to us** (API).
+5.  **We publish it** (Magic).
+6.  **We ping you back** (Webhooks).
 
 ---
 
 ## Step 1: Import History (Optional)
+Don't show an empty calendar. Import their last 10 posts so they feel at home.
+*See [Import Post History](/api-reference/import-posts).*
 
-If you are building a dashboard, you likely want to show users their past performance immediately. You can trigger a background job to import their post history.
+## Step 2: Upload Media
+**Crucial:** Do this *before* the user hits "Schedule".
+*   Use **Simple Upload** for images.
+*   Use **Resumable Upload** for videos.
 
-```typescript
-// Start the import job
-await fetch('https://api.bundle.social/api/v1/post-history-import', {
-  method: 'POST',
-  body: JSON.stringify({
-    teamId: 'your_team_id',
-    socialAccountType: 'INSTAGRAM',
-    count: 50,
-    withAnalytics: true
-  })
-});
-```
-*See [Import Post History](/api-reference/import-posts) for polling instructions.*
+Get the `uploadId` (e.g. `upload_123`). You need this.
 
----
-
-## Step 2: Upload Your Media
-
-Before you can schedule a post, you need to upload the image or video file.
-
-For small files (images under 25MB), use the **Simple Upload**:
+## Step 3: Create the Post
+Here is the payload to schedule a post for the future.
 
 ```typescript
-const formData = new FormData();
-formData.append('file', fileBlob);
-formData.append('teamId', 'your_team_id');
-
-const upload = await fetch('https://api.bundle.social/api/v1/upload/create', {
-  method: 'POST',
-  headers: { 'Authorization': 'Bearer YOUR_KEY' },
-  body: formData
-}).then(res => res.json());
-
-const uploadId = upload.id;
-```
-
-For large videos, use the **Resumable Upload** flow (see [Upload Documentation](/api-reference/upload-content)).
-
----
-
-## Step 3: Schedule the Post
-
-To schedule a post, you simply provide a `scheduledAt` timestamp in ISO 8601 format (UTC) when creating the post.
-
-**Pro Tip:** You can also add a **First Comment** to be published immediately after the post goes live. This is often used for hashtags to keep the caption clean.
-
-```typescript
-const post = await fetch('https://api.bundle.social/api/v1/post/create', {
-  method: 'POST',
-  headers: {
-    'Authorization': 'Bearer YOUR_KEY',
-    'Content-Type': 'application/json'
+const payload = {
+  teamId: 'team_abc',
+  socialAccountIds: ['instagram_123'],
+  text: "Scheduled for the future! 🚀",
+  uploadIds: ['upload_123'],
+  
+  // THE IMPORTANT PART
+  scheduledAt: "2026-12-25T10:00:00.000Z", // UTC ISO string
+  
+  // Platform specifics? We got you.
+  data: {
+    INSTAGRAM: {
+      type: "REEL" // Force it to be a Reel
+    }
   },
-  body: JSON.stringify({
-    teamId: 'your_team_id',
-    socialAccountIds: ['instagram_account_id'],
-    text: "Hello world! This post was scheduled via API. 🚀",
-    uploadIds: [uploadId], // ID from Step 1
-    scheduledAt: "2024-12-25T10:00:00.000Z", // Future date in UTC
-    
-    // Platform-specific options
-    data: {
-      INSTAGRAM: {
-        type: "POST" // or REEL, STORY
-      }
-    },
-    
-    // Add a first comment (supported on Instagram, LinkedIn, TikTok, etc.)
-    comments: [
-      {
-        text: "#scheduled #api #developer",
-        socialAccountIds: ['instagram_account_id']
-      }
-    ]
-  })
-}).then(res => res.json());
+  
+  // First comment for hashtags
+  comments: [
+    {
+      text: "#growth #mindset #grind",
+      socialAccountIds: ['instagram_123']
+    }
+  ]
+};
 ```
 
-### Timezone Handling
-
-Always send dates in **UTC**. If your user selects "10:00 AM New York Time", convert that to UTC before sending it to the API.
-
----
+<Warning>
+**Timezones matter.** Always send `scheduledAt` in **UTC**. If your user is in Tokyo, convert their "10:00 AM" to UTC before sending it to us. If you don't, they will be posting at 3 AM and blaming you.
+</Warning>
 
 ## Step 4: Listen for Webhooks
+Scheduling is async. We might succeed, or Instagram might reject the video encoding at the last second.
 
-Since scheduling is asynchronous, you should listen for webhooks to know when the post actually goes live or if it fails.
-
-1.  **`post.published`**: Sent when the post is successfully published to the social platform.
-2.  **`post.failed`**: Sent if publishing fails (e.g., expired token, platform error).
-3.  **`comment.published`**: Sent when the first comment is successfully added.
-
-```json
-// Example Webhook Payload
-{
-  "event": "post.published",
-  "data": {
-    "postId": "post_123",
-    "socialAccountId": "acc_456",
-    "permalink": "https://instagram.com/p/xyz...",
-    "publishedAt": "2024-12-25T10:00:05.000Z"
-  }
-}
-```
-
----
-
-## Step 5: Analyze Performance
-
-After the post is live, you can track its performance. Our system automatically collects analytics like impressions, reach, likes, and saves.
-
-```typescript
-const analytics = await fetch(`https://api.bundle.social/api/v1/analytics/post/${postId}`, {
-  headers: { 'Authorization': 'Bearer YOUR_KEY' }
-}).then(res => res.json());
-
-console.log(`Impressions: ${analytics.impressions}, Likes: ${analytics.likes}`);
-```
-
----
+Listen for:
+*   `post.published`: 🟢 Success. Update your UI to "Published".
+*   `post.failed`: 🔴 Failure. Tell the user (and maybe why).
 
 ## Best Practices
 
-### 1. Validation Before Scheduling
-Check our [Platform Limits](/api-reference/limits) page. If you try to schedule a 5-minute video for an Instagram Story, it will fail at publishing time. Validate constraints in your UI *before* sending the request.
+### 1. Validate First
+Don't let a user schedule a 10-minute video for an Instagram Story. It will fail. Check our [Platform Limits](/api-reference/limits) and block it in your UI.
 
-### 3. Handling "Rate Limited" Imports
-If you are also using the Post History Import feature, remember that it runs on a separate queue. Heavy importing does not affect your ability to schedule new posts, as they use different rate limit quotas on most platforms.
+### 2. Handle Rate Limits
+If you are building a bulk uploader, respect the rate limits. If you blast 50 posts at once, we might queue them or reject them.
+
+### 3. First Comment Strategy
+Use the `comments` array to put hashtags in the first comment. It keeps the caption clean and looks more professional.
