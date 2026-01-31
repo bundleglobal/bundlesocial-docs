@@ -117,6 +117,11 @@
             "group": "Featured",
             "pages": [
               "blog/index",
+              "blog/social-media-api-integration-guide",
+              "blog/social-media-api-use-cases",
+              "blog/social-media-analytics-api-guide",
+              "blog/ayrshare-alternative",
+              "blog/white-label-social-media-posting",
               "blog/api-automation-for-content-creators",
               "blog/how-to-schedule-posts-multiple-platforms",
               "blog/social-media-trends-2026"
@@ -126,6 +131,8 @@
             "group": "Platform Guides",
             "pages": [
               "blog/quick-guide-on-when-to-post",
+              "blog/tiktok-api-upload-video",
+              "blog/youtube-shorts-multiple-channels",
               "blog/grow-your-tiktok-audience",
               "blog/how-to-get-more-facebook-followers",
               "blog/tiktok-banned",
@@ -144,7 +151,8 @@
               "blog/repurpose-content-across-platforms",
               "blog/manage-multiple-social-accounts",
               "blog/social-media-content-calendar-2026",
-              "blog/social-media-holiday-calendar-2026"
+              "blog/social-media-holiday-calendar-2026",
+              "blog/links-in-first-comment"
             ]
           },
           {

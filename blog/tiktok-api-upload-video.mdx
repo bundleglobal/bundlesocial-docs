@@ -1,0 +1,348 @@
+---
+title: 'TikTok API Upload Video: The Complete Guide to Automating TikTok Posts (2026)'
+description: Learn how to upload videos to TikTok via API. Complete guide with Node.js and Python examples. Skip the OAuth complexity with a unified API.
+keywords: ["tiktok api upload video", "tiktok api", "auto upload video tiktok", "tiktok automation", "tiktok api python", "tiktok api nodejs", "social media automation"]
+date: '2026-01-31'
+---
+
+*By Marcel Czuryszkiewicz, Founder @ [bundle.social](https://bundle.social)*
+
+*Building & shipping social tools since 2024. I've integrated every major platform's API so you don't have to fight their docs alone.*
+
+## TL;DR
+
+- **What is it?** The TikTok API lets you programmatically upload videos and images to TikTok—but it's painful to implement yourself.
+- **The Problem:** OAuth flows, token refreshing, polling for status, [rate limits](/api-reference/rate-limits), and a weeks-long approval process.
+- **The Solution:** Use a unified API like [bundle.social](https://bundle.social) that handles all the complexity with one endpoint.
+- **Result:** Upload to TikTok (+ 13 other platforms) with a single API call.
+
+## Why TikTok Video Upload Automation is Hard
+
+If you've searched for "tiktok api upload video" or "auto upload video tiktok," you've probably discovered that TikTok doesn't make it easy:
+
+1. **App Approval Hell** – TikTok requires a video walkthrough of your app. Expect 1-4 weeks.
+2. **OAuth Complexity** – Managing tokens, refresh flows, and scopes for each user.
+3. **Polling Required** – TikTok doesn't return the post ID immediately. You have to poll.
+4. **Rate Limits** – Hit them too hard and you're in timeout.
+5. **Business Accounts Only** – Personal accounts can't use the API.
+
+**The reality:** Most developers spend 40-80 hours building a TikTok integration. Then they have to maintain it.
+
+![TikTok API Documentation - Quirks and Gotchas](/images/blog/tiktok-api-docs-preview.png)
+
+## The Smarter Way: One API for TikTok + 13 Other Platforms
+
+At [bundle.social](https://bundle.social), we've already done the hard work. Our unified API lets you upload videos to TikTok with a single request—no OAuth handling, no polling, no rate limit juggling.
+
+**One API. 14+ Platforms.** [Twitter](/api-reference/platforms/twitter), [Instagram](/api-reference/platforms/instagram), [Facebook](/api-reference/platforms/facebook), [LinkedIn](/api-reference/platforms/linkedin), [TikTok](/api-reference/platforms/tiktok), [Pinterest](/api-reference/platforms/pinterest), [Reddit](/api-reference/platforms/reddit), [Discord](/api-reference/platforms/discord), [Slack](/api-reference/platforms/slack), [YouTube](/api-reference/platforms/youtube), [Mastodon](/api-reference/platforms/mastodon), [Bluesky](/api-reference/platforms/bluesky), [Threads](/api-reference/platforms/threads), and [Google Business](/api-reference/platforms/google-business).
+
+## How to Upload TikTok Videos with bundle.social API
+
+Here's the complete flow using our API:
+
+### Step 1: Upload Your Video
+
+First, [upload your video file](/api-reference/upload-content) to get an `uploadId`:
+
+```bash
+curl -X POST https://api.bundle.social/api/v1/upload \
+  -H "x-api-key: YOUR_API_KEY" \
+  -F "file=@video.mp4" \
+  -F "teamId=YOUR_TEAM_ID"
+```
+
+Response:
+
+```json
+{
+  "id": "upload_abc123",
+  "url": "https://cdn.bundle.social/uploads/video.mp4",
+  "mimeType": "video/mp4",
+  "status": "READY"
+}
+```
+
+### Step 2: Create the Post
+
+Now create the TikTok post with a single request:
+
+```bash
+curl -X POST https://api.bundle.social/api/v1/post \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "teamId": "YOUR_TEAM_ID",
+    "title": "My TikTok Video",
+    "postDate": "2026-01-30T15:00:00Z",
+    "status": "SCHEDULED",
+    "socialAccountTypes": ["TIKTOK"],
+    "data": {
+      "TIKTOK": {
+        "type": "VIDEO",
+        "text": "Check out this video! #automation #tiktok",
+        "uploadIds": ["upload_abc123"],
+        "privacy": "PUBLIC_TO_EVERYONE",
+        "disableComments": false,
+        "disableDuet": false,
+        "disableStitch": false
+      }
+    }
+  }'
+```
+
+That's it. We handle the OAuth, the polling, the status checking, everything.
+
+## TikTok API Upload Video: Node.js Example
+
+For developers searching "tiktok api upload video" in JavaScript/TypeScript, here's how to use our [SDK](/api-reference/sdk):
+
+```typescript
+import BundleSocial from 'bundlesocial';
+import fs from 'fs';
+
+const client = new BundleSocial({ apiKey: 'YOUR_API_KEY' });
+
+async function uploadToTikTok() {
+  // Step 1: Upload the video
+  const upload = await client.upload.create({
+    teamId: 'YOUR_TEAM_ID',
+    file: fs.createReadStream('./video.mp4')
+  });
+
+  // Step 2: Create the post
+  const post = await client.post.create({
+    teamId: 'YOUR_TEAM_ID',
+    title: 'Automated TikTok Post',
+    postDate: new Date().toISOString(),
+    status: 'SCHEDULED',
+    socialAccountTypes: ['TIKTOK'],
+    data: {
+      TIKTOK: {
+        type: 'VIDEO',
+        text: 'Posted via bundle.social API! 🚀 #automation',
+        uploadIds: [upload.id],
+        privacy: 'PUBLIC_TO_EVERYONE',
+        disableComments: false,
+        disableDuet: false,
+        disableStitch: false,
+        isAiGenerated: false,
+      }
+    }
+  });
+
+  console.log('Post created:', post.id);
+}
+```
+
+## TikTok API Upload Video: Python Example
+
+For those searching "tiktok api upload video python":
+
+```python
+import requests
+
+API_KEY = "YOUR_API_KEY"
+BASE_URL = "https://api.bundle.social/api/v1"
+HEADERS = {"x-api-key": API_KEY}
+
+def upload_video(file_path: str, team_id: str):
+    """Upload video to bundle.social"""
+    with open(file_path, "rb") as f:
+        response = requests.post(
+            f"{BASE_URL}/upload",
+            headers=HEADERS,
+            files={"file": f},
+            data={"teamId": team_id}
+        )
+    return response.json()
+
+def create_tiktok_post(team_id: str, upload_id: str, caption: str):
+    """Create TikTok post via bundle.social API"""
+    payload = {
+        "teamId": team_id,
+        "title": "My TikTok Video",
+        "postDate": "2026-01-30T15:00:00Z",
+        "status": "SCHEDULED",
+        "socialAccountTypes": ["TIKTOK"],
+        "data": {
+            "TIKTOK": {
+                "type": "VIDEO",
+                "text": caption,
+                "uploadIds": [upload_id],
+                "privacy": "PUBLIC_TO_EVERYONE",
+                "disableComments": False,
+                "disableDuet": False,
+                "disableStitch": False,
+            }
+        }
+    }
+    
+    response = requests.post(
+        f"{BASE_URL}/post",
+        headers={**HEADERS, "Content-Type": "application/json"},
+        json=payload
+    )
+    return response.json()
+
+
+# Usage
+upload = upload_video("./video.mp4", "YOUR_TEAM_ID")
+post = create_tiktok_post(
+    team_id="YOUR_TEAM_ID",
+    upload_id=upload["id"],
+    caption="Automated via bundle.social! #python #tiktok"
+)
+print(f"Post created: {post['id']}")
+```
+
+## Post to Multiple Platforms at Once
+
+The real power of a unified API: post to TikTok AND other platforms simultaneously:
+
+```typescript
+const post = await client.post.create({
+  teamId: 'YOUR_TEAM_ID',
+  title: 'Cross-platform video',
+  postDate: new Date().toISOString(),
+  status: 'SCHEDULED',
+  socialAccountTypes: ['TIKTOK', 'INSTAGRAM', 'YOUTUBE'],
+  data: {
+    TIKTOK: {
+      type: 'VIDEO',
+      text: 'Check this out on TikTok! #viral',
+      uploadIds: [uploadId],
+      privacy: 'PUBLIC_TO_EVERYONE',
+    },
+    INSTAGRAM: {
+      type: 'REELS',
+      text: 'Watch this Reel! #instagram',
+      uploadIds: [uploadId],
+    },
+    YOUTUBE: {
+      type: 'SHORT',
+      title: 'New YouTube Short',
+      description: 'Check out this short!',
+      uploadIds: [uploadId],
+      privacy: 'public',
+    }
+  }
+});
+```
+
+**One request. Three platforms. Zero headache.**
+
+## TikTok-Specific Options
+
+Here are all the TikTok options you can configure:
+
+| Option | Type | Description |
+| :--- | :--- | :--- |
+| `type` | `"VIDEO"` \| `"IMAGE"` | Video or photo carousel |
+| `text` | `string` | Caption (max 2200 characters) |
+| `uploadIds` | `string[]` | Your uploaded media IDs |
+| `privacy` | `enum` | `PUBLIC_TO_EVERYONE`, `FOLLOWER_OF_CREATOR`, `MUTUAL_FOLLOW_FRIENDS`, `SELF_ONLY` |
+| `disableComments` | `boolean` | Disable comments on post |
+| `disableDuet` | `boolean` | Disable duets |
+| `disableStitch` | `boolean` | Disable stitches |
+| `isBrandContent` | `boolean` | Mark as paid partnership |
+| `isOrganicBrandContent` | `boolean` | Mark as organic brand content |
+| `isAiGenerated` | `boolean` | Mark as AI-generated content |
+| `autoAddMusic` | `boolean` | Auto-add music (image posts only) |
+| `thumbnailOffset` | `number` | Frame offset for thumbnail (ms) |
+
+## TikTok Image/Photo Posts
+
+TikTok now supports photo carousels. Here's how:
+
+```typescript
+const post = await client.post.create({
+  teamId: 'YOUR_TEAM_ID',
+  title: 'Photo carousel',
+  postDate: new Date().toISOString(),
+  status: 'SCHEDULED',
+  socialAccountTypes: ['TIKTOK'],
+  data: {
+    TIKTOK: {
+      type: 'IMAGE',  // Use IMAGE for photo posts
+      text: 'Check out these photos! #photocarousel',
+      uploadIds: [imageId1, imageId2, imageId3],  // 2-35 images
+      privacy: 'PUBLIC_TO_EVERYONE',
+      autoAddMusic: true,  // TikTok adds trending audio
+    }
+  }
+});
+```
+
+## n8n / Make / Zapier Integration
+
+Searching for "tiktok api upload video n8n" or automation tool integration?
+
+bundle.social's REST API works with any HTTP-capable automation tool:
+
+### n8n
+
+1. Use an HTTP Request node
+2. Set method to `POST`
+3. URL: `https://api.bundle.social/api/v1/post`
+4. Add header: `x-api-key: YOUR_API_KEY`
+5. Send the JSON body as shown above
+
+### Make (Integromat)
+
+Check our [GitHub examples](/api-reference/examples) for ready-made Make blueprints for TikTok posting.
+
+## TikTok API Price: What Does It Cost?
+
+**TikTok's API:** Free, but you spend 40-80 hours building it and weeks getting approved.
+
+**bundle.social API:**
+- Free tier available for testing
+- Paid plans for production use
+- No approval process—start posting immediately
+
+**ROI:** Skip the weeks of development and maintenance. Focus on your product.
+
+## Why Use bundle.social Instead of Direct TikTok API?
+
+| Challenge | Direct TikTok API | bundle.social API |
+| :--- | :--- | :--- |
+| Setup Time | 40-80 hours | 5 minutes |
+| App Approval | 1-4 weeks | Not required |
+| OAuth Management | You build it | We handle it |
+| Token Refresh | You maintain it | Automatic |
+| Status Polling | You implement it | We do it |
+| Rate Limits | You handle them | Built-in protection |
+| Multi-platform | Separate integrations | One API for 14+ platforms |
+
+## Getting Started
+
+1. Sign up at [bundle.social](https://bundle.social)
+2. Get your API key from the dashboard
+3. [Connect your TikTok account](/api-reference/connect-social-accounts) (one-click OAuth)
+4. Start posting with our API
+
+<Card title="API Documentation" icon="book" href="/api-reference/introduction">
+  Full API reference with interactive examples
+</Card>
+
+<Card title="GitHub Examples" icon="github" href="/api-reference/examples">
+  Ready-to-use code samples
+</Card>
+
+<Card title="Node.js SDK" icon="box-open" href="/api-reference/sdk">
+  TypeScript SDK for faster development
+</Card>
+
+## Summary
+
+| Topic | Key Takeaway |
+| :--- | :--- |
+| The Problem | TikTok's API requires OAuth, polling, approval, and maintenance |
+| The Solution | Use bundle.social's unified API |
+| Upload Flow | Upload file → Create post → Done |
+| Multi-platform | Post to TikTok + 13 other platforms with one request |
+| Time Saved | Skip 40-80 hours of integration work |
+
+---
+
+Questions about TikTok API automation? Check our [TikTok platform docs](/api-reference/platforms/tiktok) or DM us. We're here to help.
