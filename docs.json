@@ -119,7 +119,7 @@
               "blog/index",
               "blog/api-automation-for-content-creators",
               "blog/how-to-schedule-posts-multiple-platforms",
-              "blog/social-media-trends-2024"
+              "blog/social-media-trends-2026"
             ]
           },
           {
@@ -258,7 +258,13 @@
     }
   },
   "seo": {
-    "indexing": "navigable"
+    "indexing": "navigable",
+    "metatags": {
+      "og:image": "https://bundle.social/og-image.png",
+      "og:site_name": "bundle.social Documentation",
+      "twitter:site": "@bundle_social",
+      "twitter:card": "summary_large_image"
+    }
   },
   "footer": {
     "socials": {
