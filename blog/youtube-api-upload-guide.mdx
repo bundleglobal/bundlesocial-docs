@@ -1,0 +1,344 @@
+---
+title: 'YouTube Data API v3: Complete Guide to Programmatic Video Uploads'
+description: Technical guide to YouTube Data API v3 - OAuth authentication, resumable uploads, quota management, and multi-channel architecture for developers building video upload systems.
+keywords: ["youtube data api", "youtube api upload", "youtube api v3", "youtube oauth", "youtube resumable upload", "youtube api quota", "programmatic video upload", "youtube developer"]
+date: '2026-02-01'
+---
+
+*By Marcel Czuryszkiewicz, Founder @ [bundle.social](https://bundle.social)*
+
+*Building & shipping social tools since 2024. I've implemented YouTube uploads at scale so you don't have to fight Google's documentation.*
+
+## TL;DR
+
+- **The API:** YouTube Data API v3 supports programmatic video uploads, but the implementation is more complex than typical REST APIs.
+- **The Challenges:** OAuth token management, resumable uploads, quota limits (1,600 units per upload, 10,000/day default), and processing delays.
+- **The Architecture:** For multi-channel systems, each channel needs its own OAuth credentials with proper token refresh handling.
+- **The Shortcut:** Use a unified API to skip the complexity entirely.
+
+## Why Build YouTube Upload Automation?
+
+If you're a developer building tools for content creators, agencies, or media companies, video upload automation is probably on your roadmap.
+
+The use cases are everywhere:
+- **Social media schedulers** that post to YouTube alongside other platforms
+- **Content management systems** with built-in publishing
+- **AI video generators** that need to distribute output
+- **Agency tools** managing multiple client channels
+
+YouTube's API supports all of this - but the implementation has quirks that trip up even experienced developers. This guide covers everything you need to know.
+
+## Understanding the YouTube Data API
+
+Before we write any code, let's understand what we're working with.
+
+[YouTube's Data API v3](https://developers.google.com/youtube/v3) is the interface for programmatic access to YouTube. It handles everything from uploading videos to managing playlists to pulling analytics. For Shorts specifically, you're using the same upload endpoints as regular videos - YouTube determines whether something is a "Short" based on the video properties (vertical aspect ratio, under 60 seconds).
+
+The API uses OAuth 2.0 for authentication, which means each YouTube channel needs to go through an authorization flow to grant your application access. This is where multi-channel management gets interesting. You're not storing one set of credentials - you're managing tokens for every channel in your system, each with their own refresh cycles and permission scopes.
+
+The key scopes you'll need:
+- `youtube.upload` - for pushing videos
+- `youtube.readonly` - if you want to pull analytics or list existing content
+
+Most upload-focused applications request both.
+
+## The Multi-Channel Architecture
+
+Here's how we structure multi-channel YouTube management at [bundle.social](https://bundle.social), and how you can replicate this pattern.
+
+At the top level, you have an **Organization**. This represents a single customer - whether that's an individual creator with multiple channels or an agency managing client accounts. The Organization holds the billing relationship and the API access credentials.
+
+Under each Organization, you have **Teams**. Each Team represents one YouTube channel. When a user [connects their YouTube account](/api-reference/connect-social-accounts) through OAuth, that connection lives at the Team level. This means a creator with five channels has five Teams, each with its own YouTube token and its own content queue.
+
+The beauty of this structure is isolation with unified control. Content scheduled for Team A (the fitness channel) never accidentally posts to Team B (the recipes channel). But the creator can see all their channels in one dashboard, schedule content across all of them in one session, and manage everything through a single login.
+
+Here's what the data model looks like:
+
+```javascript
+// Organization: The top-level tenant
+const organization = {
+  id: 'org_creator_123',
+  name: 'Fitness Media Network',
+  subscription: 'pro',
+  apiKey: 'bundle_api_key_xyz'
+};
+
+// Teams: One per YouTube channel
+const teams = [
+  {
+    id: 'team_fitness_main',
+    organizationId: 'org_creator_123',
+    name: 'Main Fitness Channel',
+    youtubeChannelId: 'UC_xxxxx1',
+    youtubeAccessToken: 'encrypted_token_1'
+  },
+  {
+    id: 'team_recipes',
+    organizationId: 'org_creator_123',
+    name: 'Healthy Recipes',
+    youtubeChannelId: 'UC_xxxxx2',
+    youtubeAccessToken: 'encrypted_token_2'
+  },
+  {
+    id: 'team_motivation',
+    organizationId: 'org_creator_123',
+    name: 'Daily Motivation Clips',
+    youtubeChannelId: 'UC_xxxxx3',
+    youtubeAccessToken: 'encrypted_token_3'
+  }
+];
+```
+
+When a user wants to upload a Short, they specify which Team (channel) it should go to. Your backend uses that Team's stored credentials to authenticate the upload request.
+
+## Implementing the Upload Flow
+
+YouTube video uploads are more complex than typical API calls because you're dealing with large file transfers. The API uses **resumable uploads**, which means you initiate an upload session, get a special upload URL, and then push the video bytes to that URL. If the upload fails midway, you can resume from where you left off rather than starting over.
+
+Here's the flow:
+
+```javascript
+const uploadShortToYouTube = async (teamId, videoFile, metadata) => {
+  // Step 1: Get the team's YouTube credentials
+  const team = await db.teams.findById(teamId);
+  const accessToken = await refreshTokenIfNeeded(team.youtubeRefreshToken);
+  
+  // Step 2: Initialize the resumable upload
+  const initResponse = await fetch(
+    'https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status',
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+        'X-Upload-Content-Type': 'video/mp4',
+        'X-Upload-Content-Length': videoFile.size
+      },
+      body: JSON.stringify({
+        snippet: {
+          title: metadata.title,
+          description: metadata.description,
+          tags: metadata.tags,
+          categoryId: '22' // People & Blogs
+        },
+        status: {
+          privacyStatus: 'public',
+          selfDeclaredMadeForKids: false
+        }
+      })
+    }
+  );
+  
+  // Step 3: Get the resumable upload URL
+  const uploadUrl = initResponse.headers.get('location');
+  
+  // Step 4: Upload the actual video bytes
+  const uploadResponse = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'video/mp4',
+      'Content-Length': videoFile.size
+    },
+    body: videoFile
+  });
+  
+  const video = await uploadResponse.json();
+  return video; // Contains video ID and processing status
+};
+```
+
+<Note>
+The video isn't immediately available after upload - YouTube needs to process it, which can take anywhere from a few seconds to several minutes depending on length and server load.
+</Note>
+
+For Shorts specifically, you don't need to explicitly tag the video as a Short. If the video is vertical (9:16 aspect ratio) and under 60 seconds, YouTube automatically categorizes it as a Short. Some developers add "#Shorts" to the title or description as an extra signal, though this isn't strictly required anymore.
+
+## The Quota Problem
+
+When you're managing uploads for multiple channels, you need to think about **quota management**.
+
+> YouTube's API uses a quota system where different operations cost different amounts. Uploading a video costs 1,600 quota units, and you get 10,000 units per day by default. - [YouTube API Quota Documentation](https://developers.google.com/youtube/v3/getting-started#quota)
+
+That's about 6 uploads per day per project - not per channel, **per project**.
+
+If you're building a tool that serves multiple users, each uploading to their own channels, you'll quickly hit quota limits. The solution is to apply for higher quota limits through Google Cloud Console. This requires a review process where you explain your use case, but for legitimate applications it's usually approved within a few weeks.
+
+In your code, track quota usage and implement backoff:
+
+```javascript
+const uploadWithQuotaTracking = async (teamId, videoFile, metadata) => {
+  const today = new Date().toISOString().split('T')[0];
+  const quotaUsed = await db.quotaTracking.getForDate(today);
+  
+  const UPLOAD_COST = 1600;
+  const DAILY_LIMIT = 10000; // Or your approved limit
+  
+  if (quotaUsed + UPLOAD_COST > DAILY_LIMIT) {
+    throw new Error('Daily quota limit reached. Upload queued for tomorrow.');
+  }
+  
+  const result = await uploadShortToYouTube(teamId, videoFile, metadata);
+  
+  await db.quotaTracking.increment(today, UPLOAD_COST);
+  
+  return result;
+};
+```
+
+<Warning>
+For multi-channel operations, stagger uploads rather than firing them all simultaneously. This helps avoid rate limiting and spreads your quota usage throughout the day.
+</Warning>
+
+## The Netflix Lesson
+
+From what I've seen, even large companies underestimate the complexity here.
+
+When I was at Netflix, I saw teams struggle with similar multi-tenant media upload challenges. The pattern that worked was exactly what I described above - isolate credentials per tenant (or channel), abstract the upload complexity behind a simple interface, and build robust retry logic. The teams that tried to share credentials or cut corners on error handling spent more time debugging than building features.
+
+YouTube's API is particularly quirky. The resumable upload system is powerful but has edge cases around session expiration. Tokens expire mid-upload. Rate limits hit without warning. You need a system that handles all of this gracefully.
+
+## Scheduling for Multiple Channels
+
+The real power of multi-channel management is scheduling. Your users want to batch-create content and schedule it across their channels for the week ahead.
+
+Here's how scheduling fits into the architecture:
+
+```javascript
+const scheduleShort = async (organizationId, scheduleData) => {
+  // Store the scheduled post
+  const scheduledPost = await db.scheduledPosts.create({
+    organizationId,
+    teamId: scheduleData.teamId,
+    videoPath: await storeVideoTemporarily(scheduleData.videoFile),
+    metadata: scheduleData.metadata,
+    scheduledFor: scheduleData.scheduledFor,
+    status: 'pending'
+  });
+  
+  // Queue a job to run at the scheduled time
+  await jobQueue.schedule(scheduledPost.id, scheduleData.scheduledFor);
+  
+  return scheduledPost;
+};
+
+// Job processor that runs at scheduled time
+const processScheduledUpload = async (postId) => {
+  const post = await db.scheduledPosts.findById(postId);
+  
+  try {
+    const videoFile = await retrieveStoredVideo(post.videoPath);
+    const result = await uploadShortToYouTube(post.teamId, videoFile, post.metadata);
+    
+    await db.scheduledPosts.update(postId, {
+      status: 'published',
+      youtubeVideoId: result.id,
+      publishedAt: new Date()
+    });
+  } catch (error) {
+    await db.scheduledPosts.update(postId, {
+      status: 'failed',
+      error: error.message
+    });
+    // Notify user of failure
+  }
+};
+```
+
+The key insight: scheduled content and immediate uploads use the same underlying upload logic - scheduling just adds a time-delay layer.
+
+## Skip the Implementation: Use bundle.social
+
+When you build on top of a unified API like [bundle.social](/api-reference/introduction), you don't have to implement all of this YouTube-specific logic yourself.
+
+The multi-channel architecture is already in place. You [connect YouTube channels](/api-reference/connect-social-accounts) to Teams, schedule posts through our API, and we handle the token management, quota tracking, and upload reliability.
+
+```python
+import requests
+
+API_KEY = "YOUR_API_KEY"
+
+# Upload once
+upload = requests.post(
+    "https://api.bundle.social/api/v1/upload",
+    headers={"x-api-key": API_KEY},
+    files={"file": open("short.mp4", "rb")},
+    data={"teamId": "team_fitness_main"}
+).json()
+
+# Post to YouTube Shorts
+post = requests.post(
+    "https://api.bundle.social/api/v1/post",
+    headers={"x-api-key": API_KEY, "Content-Type": "application/json"},
+    json={
+        "teamId": "team_fitness_main",
+        "title": "Morning workout tip",
+        "postDate": "2026-02-03T09:00:00Z",
+        "status": "SCHEDULED",
+        "socialAccountTypes": ["YOUTUBE"],
+        "data": {
+            "YOUTUBE": {
+                "type": "SHORT",
+                "title": "This 30-second stretch changed my mornings",
+                "description": "Quick mobility tip for busy people #Shorts",
+                "uploadIds": [upload["id"]],
+                "privacy": "public",
+                "madeForKids": False
+            }
+        }
+    }
+).json()
+
+print(f"Scheduled! Post ID: {post['id']}")
+```
+
+Two API calls. No OAuth to manage. No quota tracking. No resumable upload implementation.
+
+## Cross-Platform Bonus
+
+The same Shorts content can go to [TikTok](/api-reference/platforms/tiktok), [Instagram Reels](/api-reference/platforms/instagram), and [Facebook Reels](/api-reference/platforms/facebook). One upload, multiple platforms, same scheduling workflow.
+
+```json
+{
+  "socialAccountTypes": ["YOUTUBE", "TIKTOK", "INSTAGRAM"],
+  "data": {
+    "YOUTUBE": {
+      "type": "SHORT",
+      "title": "Morning motivation",
+      "description": "Start your day right #Shorts",
+      "uploadIds": ["upload_abc123"],
+      "privacy": "public"
+    },
+    "TIKTOK": {
+      "type": "VIDEO",
+      "text": "Morning motivation #fyp #motivation",
+      "uploadIds": ["upload_abc123"],
+      "privacy": "PUBLIC_TO_EVERYONE"
+    },
+    "INSTAGRAM": {
+      "type": "REELS",
+      "text": "Morning motivation ☀️ #reels #motivation",
+      "uploadIds": ["upload_abc123"]
+    }
+  }
+}
+```
+
+One request. Three platforms. Your content is everywhere.
+
+## Getting Started
+
+Check out the [YouTube platform documentation](/api-reference/platforms/youtube) for all available options. The patterns translate directly to [TikTok](/api-reference/platforms/tiktok), [Instagram Reels](/api-reference/platforms/instagram), and other short-form platforms - same architecture, same scheduling flow, different underlying API.
+
+The creators building content empires on Shorts aren't doing it manually. They're using systems like this. Now you can build those systems too.
+
+<Card title="YouTube Platform Docs" icon="youtube" href="/api-reference/platforms/youtube">
+  Full YouTube API options including Shorts
+</Card>
+
+<Card title="API Examples" icon="github" href="/api-reference/examples">
+  Working code samples for multi-channel workflows
+</Card>
+
+<Card title="SDK Documentation" icon="box-open" href="/api-reference/sdk">
+  TypeScript SDK for faster development
+</Card>

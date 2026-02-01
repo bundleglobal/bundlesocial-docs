@@ -1,0 +1,446 @@
+---
+title: 'Instagram API Upload Video: Complete Guide to Automating Instagram Posts (2026)'
+description: Complete guide to Instagram Graph API - upload Reels, Stories, and Carousels programmatically. Learn container-based publishing, media requirements, and how to skip the complexity with a unified API.
+keywords: ["instagram api upload video", "instagram api", "instagram graph api", "instagram automation", "instagram reels api", "instagram api python", "instagram api nodejs", "social media api"]
+date: '2026-02-01'
+---
+
+*By Marcel Czuryszkiewicz, Founder @ [bundle.social](https://bundle.social)*
+
+*Building & shipping social tools since 2024. I've integrated every major platform's API so you don't have to fight their docs alone.*
+
+## TL;DR
+
+- **What is it?** The Instagram Graph API lets you programmatically publish Posts, Reels, Stories, and Carousels.
+- **The Problem:** Two different OAuth methods, container-based publishing, processing wait times, and strict media requirements.
+- **The Solution:** Use a unified API that handles all the complexity with one endpoint.
+- **Result:** Upload to [Instagram](/api-reference/platforms/instagram) (+ 13 other platforms) with a single API call.
+
+## Why Instagram API Automation is Harder Than You Think
+
+If you've searched for "instagram api upload video" or "instagram api post automation," here's the thing - Meta doesn't make this simple.
+
+Here's what you're actually signing up for:
+
+1. **Two Different OAuth Paths** - Instagram via Facebook, or Instagram Direct. Different scopes, different flows, different headaches.
+2. **Container-Based Publishing** - You don't just "post." You create a container, wait for it to process, then publish it.
+3. **Strict Media Requirements** - Wrong aspect ratio? Wrong resolution? Wrong bitrate? Rejected.
+4. **App Review** - Meta requires detailed app review with screen recordings and explanations.
+5. **Professional/Business Accounts Only** - Personal accounts can't use the API.
+
+The reality: Most developers spend 60+ hours building a proper Instagram integration. Then they discover the edge cases.
+
+## The Instagram Publishing Flow (What Actually Happens)
+
+Unlike simpler APIs, Instagram uses a two-step container system.
+
+### Step 1: Create a Container
+
+You upload your media and create a "container" - a draft that Instagram processes:
+
+```
+POST /v23.0/{ig-user-id}/media
+```
+
+Instagram returns a `creation_id`. Your media is now processing.
+
+### Step 2: Wait for Processing
+
+Here's the fun part. You can't publish immediately. You have to poll:
+
+```
+GET /v23.0/{creation_id}?fields=status_code
+```
+
+Possible statuses:
+- `IN_PROGRESS` - Still processing. Wait.
+- `FINISHED` - Ready to publish.
+- `ERROR` - Something failed. Check status field for why.
+
+For Reels and longer videos, this can take minutes.
+
+### Step 3: Publish the Container
+
+Only after status is `FINISHED`:
+
+```
+POST /v23.0/{ig-user-id}/media_publish
+```
+
+Now you have a live post.
+
+<Warning>
+Three API calls minimum. Plus polling. Plus error handling for each step. And that's just for a single post.
+</Warning>
+
+## My Experience
+
+From what I've seen, even enterprise teams underestimate Instagram's complexity.
+
+When I was at [redacted], our marketing tools team thought Instagram integration would be a quick project - they'd already done [Twitter](/api-reference/platforms/twitter) and [LinkedIn](/api-reference/platforms/linkedin). Two weeks in, they were still debugging the container flow. The polling logic was flaky. Videos that worked fine locally would fail with cryptic errors. The app review took three attempts because Meta kept asking for more documentation.
+
+Real talk - Instagram's API is one of the most frustrating to implement correctly. The container system makes sense from Meta's perspective (async processing), but it adds significant complexity for developers.
+
+## The Media Requirements Maze
+
+Instagram is notoriously strict about media specs. Here's what you're dealing with:
+
+### Reels Requirements
+
+| Requirement | Specification |
+| :--- | :--- |
+| Format | MP4, MOV |
+| Duration | 3 seconds - 15 minutes |
+| Resolution | Max 1920px width |
+| Aspect Ratio | 0.01:1 to 10:1 (9:16 recommended) |
+| Bitrate | Max 45 Mbps |
+| Frame Rate | 23-60 fps |
+
+### Stories Requirements
+
+| Requirement | Specification |
+| :--- | :--- |
+| Format | MP4, MOV, JPG, PNG |
+| Duration | 3 - 60 seconds (video) |
+| File Size | Max 100MB (video), 8MB (image) |
+| Resolution | Max 1920px width |
+| Aspect Ratio | 0.01:1 to 10:6 (9:16 recommended) |
+| Bitrate | Max 25 Mbps |
+
+### Feed Posts Requirements
+
+| Requirement | Specification |
+| :--- | :--- |
+| Image Aspect Ratio | 4:5 to 1.91:1 |
+| Video Aspect Ratio | 0.01:1 to 10:1 |
+| Video Duration | 3 seconds - 15 minutes |
+| Image File Size | Max 8MB |
+| Carousel Limit | 2-10 items |
+
+Upload a 1080x1080 video as a Reel? Works. Upload a 4:3 video as a Story? Might get cropped or rejected.
+
+You need validation logic for every format.
+
+## Skip the Complexity: One API for Instagram + 13 Other Platforms
+
+At [bundle.social](https://bundle.social), we've already done the hard work. Our unified API handles:
+
+- Container creation and status polling
+- Media validation and preprocessing
+- Token refresh and OAuth management
+- Retry logic for transient failures
+- All three post types (Posts, Reels, Stories)
+
+**One API. 14+ Platforms.** [Instagram](/api-reference/platforms/instagram), [TikTok](/api-reference/platforms/tiktok), [YouTube](/api-reference/platforms/youtube), [Twitter/X](/api-reference/platforms/twitter), [LinkedIn](/api-reference/platforms/linkedin), [Facebook](/api-reference/platforms/facebook), [Pinterest](/api-reference/platforms/pinterest), [Reddit](/api-reference/platforms/reddit), [Discord](/api-reference/platforms/discord), [Slack](/api-reference/platforms/slack), [Mastodon](/api-reference/platforms/mastodon), [Bluesky](/api-reference/platforms/bluesky), [Threads](/api-reference/platforms/threads), and [Google Business](/api-reference/platforms/google-business).
+
+## How to Upload Instagram Content with bundle.social API
+
+### Upload a Reel
+
+```bash
+# Step 1: Upload your video
+curl -X POST https://api.bundle.social/api/v1/upload \
+  -H "x-api-key: YOUR_API_KEY" \
+  -F "file=@reel.mp4" \
+  -F "teamId=YOUR_TEAM_ID"
+
+# Step 2: Create the post
+curl -X POST https://api.bundle.social/api/v1/post \
+  -H "x-api-key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "teamId": "YOUR_TEAM_ID",
+    "title": "My Instagram Reel",
+    "postDate": "2026-02-01T15:00:00Z",
+    "status": "SCHEDULED",
+    "socialAccountTypes": ["INSTAGRAM"],
+    "data": {
+      "INSTAGRAM": {
+        "type": "REEL",
+        "text": "Check out this Reel! #reels #instagram",
+        "uploadIds": ["upload_abc123"],
+        "shareToFeed": true
+      }
+    }
+  }'
+```
+
+That's it. We handle the container creation, the polling, everything.
+
+### Upload a Carousel Post
+
+Instagram Carousels (up to 10 images/videos) are notoriously complex via the direct API. With bundle.social:
+
+```typescript
+const post = await client.post.create({
+  teamId: 'YOUR_TEAM_ID',
+  title: 'Carousel Post',
+  postDate: new Date().toISOString(),
+  status: 'SCHEDULED',
+  socialAccountTypes: ['INSTAGRAM'],
+  data: {
+    INSTAGRAM: {
+      type: 'POST',
+      text: 'Swipe through! #carousel',
+      uploadIds: [imageId1, imageId2, imageId3, videoId1],  // Mix of images and videos
+    }
+  }
+});
+```
+
+We automatically detect it's a carousel and handle the multi-container flow.
+
+### Upload a Story
+
+```typescript
+const post = await client.post.create({
+  teamId: 'YOUR_TEAM_ID',
+  title: 'Story',
+  postDate: new Date().toISOString(),
+  status: 'SCHEDULED',
+  socialAccountTypes: ['INSTAGRAM'],
+  data: {
+    INSTAGRAM: {
+      type: 'STORY',
+      uploadIds: [mediaId],
+    }
+  }
+});
+```
+
+<Note>
+Stories don't support captions via API - that's an Instagram limitation, not ours.
+</Note>
+
+## Instagram API: Node.js Full Example
+
+```typescript
+import BundleSocial from '@bundlesocial/sdk';
+import fs from 'fs';
+
+const client = new BundleSocial({ apiKey: 'YOUR_API_KEY' });
+
+async function postToInstagram() {
+  // Step 1: Upload the video
+  const upload = await client.upload.create({
+    teamId: 'YOUR_TEAM_ID',
+    file: fs.createReadStream('./reel.mp4')
+  });
+
+  // Step 2: Create the post
+  const post = await client.post.create({
+    teamId: 'YOUR_TEAM_ID',
+    title: 'My Automated Reel',
+    postDate: new Date().toISOString(),
+    status: 'SCHEDULED',
+    socialAccountTypes: ['INSTAGRAM'],
+    data: {
+      INSTAGRAM: {
+        type: 'REEL',
+        text: 'Posted via bundle.social! #automation #reels',
+        uploadIds: [upload.id],
+        shareToFeed: true,
+        thumbnailOffset: 3000,  // Use frame at 3 seconds as cover
+      }
+    }
+  });
+
+  console.log('Reel scheduled:', post.id);
+}
+```
+
+## Instagram API: Python Full Example
+
+```python
+import requests
+from datetime import datetime, timezone
+
+API_KEY = "YOUR_API_KEY"
+BASE_URL = "https://api.bundle.social/api/v1"
+HEADERS = {"x-api-key": API_KEY}
+
+def upload_media(file_path: str, team_id: str):
+    """Upload media to bundle.social"""
+    with open(file_path, "rb") as f:
+        response = requests.post(
+            f"{BASE_URL}/upload",
+            headers=HEADERS,
+            files={"file": f},
+            data={"teamId": team_id}
+        )
+    return response.json()
+
+def create_instagram_reel(team_id: str, upload_id: str, caption: str):
+    """Create Instagram Reel via bundle.social API"""
+    payload = {
+        "teamId": team_id,
+        "title": "My Instagram Reel",
+        "postDate": datetime.now(timezone.utc).isoformat(),
+        "status": "SCHEDULED",
+        "socialAccountTypes": ["INSTAGRAM"],
+        "data": {
+            "INSTAGRAM": {
+                "type": "REEL",
+                "text": caption,
+                "uploadIds": [upload_id],
+                "shareToFeed": True,
+            }
+        }
+    }
+    
+    response = requests.post(
+        f"{BASE_URL}/post",
+        headers={**HEADERS, "Content-Type": "application/json"},
+        json=payload
+    )
+    return response.json()
+
+
+# Usage
+upload = upload_media("./video.mp4", "YOUR_TEAM_ID")
+post = create_instagram_reel(
+    team_id="YOUR_TEAM_ID",
+    upload_id=upload["id"],
+    caption="Automated Reel! #python #instagram"
+)
+print(f"Reel created: {post['id']}")
+```
+
+## Instagram-Specific Options
+
+Here are all the Instagram options you can configure:
+
+| Option | Type | Description |
+| :--- | :--- | :--- |
+| `type` | `"POST"` \| `"REEL"` \| `"STORY"` | Content type |
+| `text` | `string` | Caption (max 2000 characters) |
+| `uploadIds` | `string[]` | Your uploaded media IDs |
+| `shareToFeed` | `boolean` | Show Reel in feed (Reels only, default: true) |
+| `thumbnail` | `string` | Cover image URL (Reels only) |
+| `thumbnailOffset` | `number` | Frame position in ms for video cover |
+| `collaborators` | `string[]` | Instagram usernames for Collab (max 3) |
+| `tagged` | `array` | User tags with x/y coordinates (max 20) |
+
+## Advanced: Collaborators and Tagged Users
+
+### Collab Posts
+
+Invite up to 3 collaborators:
+
+```javascript
+data: {
+  INSTAGRAM: {
+    type: 'POST',
+    text: 'Collab post with friends!',
+    uploadIds: [imageId],
+    collaborators: ['friend1', 'friend2', 'friend3']
+  }
+}
+```
+
+### Tag Users in Photos
+
+```javascript
+data: {
+  INSTAGRAM: {
+    type: 'POST',
+    text: 'Team photo!',
+    uploadIds: [imageId],
+    tagged: [
+      { username: 'user1', x: 0.3, y: 0.5 },  // 30% from left, 50% from top
+      { username: 'user2', x: 0.7, y: 0.5 },
+    ]
+  }
+}
+```
+
+Coordinates are normalized (0-1), where (0,0) is top-left.
+
+## Post to Multiple Platforms at Once
+
+The real power of a unified API - post to Instagram AND other platforms simultaneously:
+
+```typescript
+const post = await client.post.create({
+  teamId: 'YOUR_TEAM_ID',
+  title: 'Cross-platform video',
+  postDate: new Date().toISOString(),
+  status: 'SCHEDULED',
+  socialAccountTypes: ['INSTAGRAM', 'TIKTOK', 'YOUTUBE'],
+  data: {
+    INSTAGRAM: {
+      type: 'REEL',
+      text: 'New Reel! #reels',
+      uploadIds: [uploadId],
+      shareToFeed: true,
+    },
+    TIKTOK: {
+      type: 'VIDEO',
+      text: 'Check this on TikTok! #fyp',
+      uploadIds: [uploadId],
+      privacy: 'PUBLIC_TO_EVERYONE',
+    },
+    YOUTUBE: {
+      type: 'SHORT',
+      title: 'New Short',
+      description: 'Watch this!',
+      uploadIds: [uploadId],
+      privacy: 'public',
+    }
+  }
+});
+```
+
+**One request. Three platforms. Zero additional complexity.**
+
+## Why Use bundle.social Instead of Direct Instagram API?
+
+| Challenge | Direct Instagram API | bundle.social API |
+| :--- | :--- | :--- |
+| Setup Time | 60+ hours | 5 minutes |
+| App Review | Weeks (with screen recordings) | Not required |
+| Container Polling | You implement it | We handle it |
+| Media Validation | You build it | Automatic |
+| Token Refresh | You maintain it | Automatic |
+| Carousel Handling | Complex multi-container flow | Just pass multiple uploadIds |
+| Multi-platform | Separate integrations | One API for 14+ platforms |
+| Account Limits | N/A | None - connect unlimited accounts |
+
+## Error Handling We've Solved
+
+Instagram's API has... quirks. Here's what we handle automatically:
+
+- **"Media not ready" errors** - Retry with exponential backoff
+- **Activity restrictions** - Graceful handling of temporary blocks
+- **Transient 500/503 errors** - Automatic retries
+- **[Rate limits](/api-reference/rate-limits)** - Built-in throttling
+- **Token expiration** - Automatic refresh
+
+You just get success or a clear error message.
+
+## Getting Started
+
+Ready to skip the Instagram API headaches?
+
+1. Sign up at [bundle.social](https://bundle.social)
+2. Get your API key from the dashboard
+3. [Connect your Instagram account](/api-reference/connect-social-accounts) (via Facebook or Instagram Direct)
+4. Start posting with our API
+
+No account limits. No approval process on your end. Start posting in minutes.
+
+<Card title="Instagram Platform Docs" icon="instagram" href="/api-reference/platforms/instagram">
+  Full Instagram API options and examples
+</Card>
+
+<Card title="API Documentation" icon="book" href="/api-reference/introduction">
+  Complete API reference
+</Card>
+
+<Card title="GitHub Examples" icon="github" href="/api-reference/examples">
+  Ready-to-use code samples
+</Card>
+
+<Card title="Node.js SDK" icon="box-open" href="/api-reference/sdk">
+  TypeScript SDK for faster development
+</Card>
