@@ -1,0 +1,210 @@
+---
+title: How to Create an AI Brand Voice XML (Stop Sounding Like a Robot)
+description: Learn how to use a structured XML file to define your brand voice, tone, and formatting rules for AI tools like ChatGPT, Claude, and n8n.
+keywords: ["ai brand voice", "chatgpt system prompt", "xml prompt guide", "n8n ai agent", "automate content creation", "content automation", "ai cheat sheet"]
+date: '2026-02-02'
+---
+
+## TL;DR / Key Takeaways
+
+- Generic AI prompts produce generic "AI-sounding" content (words like "delve", "tapestry", "landscape").
+- XML is the best format for System Prompts because LLMs parse tags strictly.
+- A single "Brand Voice XML" file can control tone, formatting, and banned words across all your automations.
+- We provide a free, copy-paste XML template you can adapt today.
+
+If I read one more LinkedIn post that starts with "In the rapidly evolving landscape of..." I'm going to scream.
+
+We all know the problem. You ask ChatGPT or Claude to write a social media post, and it gives you something that is technically correct but completely soulless. It uses words nobody uses in real life. It uses emojis like a 14-year-old in 2012.
+
+The solution isn't "better prompt engineering" in the sense of writing longer paragraphs of text. The solution is **structured data**. Specifically, XML.
+
+## Why XML?
+
+Large Language Models (LLMs) are trained on code. They understand structure. When you write a paragraph of text describing your tone, the model has to "guess" which parts are rules and which parts are just suggestions.
+
+When you use XML tags like `<tone>`, `<banned_words>`, and `<formatting>`, you are speaking the model's native language. You are creating strict boundaries that the model is much less likely to ignore.
+
+## The "Brand Voice XML" Template
+
+Here is a stripped-down, anonymized version of the actual XML file we use at bundle.social to generate content. Copy this, save it as `brand_voice.xml`, and fill in your details.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<brand_profile>
+  <meta>
+    <company_name>Acme Corp</company_name>
+    <industry>SaaS / Developer Tools</industry>
+    <target_audience>Senior Developers and CTOs</target_audience>
+  </meta>
+
+  <!-- SEO CONFIGURATION -->
+  <seo>
+    <keyword_placement>
+      <location priority="1">Page title</location>
+      <location priority="2">First sentence</location>
+      <location priority="3">H2 headers</location>
+    </keyword_placement>
+    <internal_linking>
+      <rule>Link to relevant docs pages when technical terms are mentioned.</rule>
+      <rule>Max 3 internal links per post.</rule>
+    </internal_linking>
+  </seo>
+
+  <!-- CONTENT STRUCTURE -->
+  <structure>
+    <opening>
+      <rule>TL;DR list at the very top.</rule>
+      <rule>Hook in the first sentence.</rule>
+      <rule>No fluff or "In this article we will..." intros.</rule>
+    </opening>
+    <body>
+      <rule>H2 for main sections.</rule>
+      <rule>H3 for subsections.</rule>
+      <rule>Callout boxes for warnings or tips.</rule>
+    </body>
+  </structure>
+
+  <!-- VOICE & TONE -->
+  <voice>
+    <primary>Technical, direct, pragmatic</primary>
+    <secondary>Helpful, slightly witty</secondary>
+    <avoid>Salesy, corporate jargon, overly enthusiastic</avoid>
+    <rule>Write like a senior engineer talking to a peer.</rule>
+    <rule>Use "I've seen this..." to add personal credibility.</rule>
+  </voice>
+
+  <!-- AUTHORITY & CREDIBILITY -->
+  <authority>
+    <rule>Don't preach. Show, don't just tell.</rule>
+    <rule>Use specific numbers and data points whenever possible.</rule>
+    <rule>Reference real-world engineering constraints (latency, cost, maintenance).</rule>
+  </authority>
+
+  <!-- LANGUAGE RULES -->
+  <language>
+    <style>
+      <jargon_level>Medium-High (assume the reader is technical)</jargon_level>
+      <swearing>Rare, mild only (e.g., "s**t happens"), never directed at the reader.</swearing>
+      <emojis>0-2 per post max. Never use "rocket" or "gem" emojis.</emojis>
+    </style>
+    <abbreviations>
+      <allowed>API, SaaS, CTO, CI/CD, ROI, tbh, imo</allowed>
+      <rule>Use commonly understood tech abbreviations freely.</rule>
+    </abbreviations>
+  </language>
+
+  <!-- CREDIBILITY INDICATORS -->
+  <credibility>
+    <source_linking>
+      <rule>Link to primary documentation, not third-party tutorials.</rule>
+      <rule>Always date-check sources (avoid anything older than 2024 for AI/Social).</rule>
+    </source_linking>
+    <personal_experience>
+      <rule>Mention "production" environments or "scaling" issues.</rule>
+      <rule>Share specific outcomes (e.g., "saved 10 hours", "cut costs by 40%").</rule>
+    </personal_experience>
+  </credibility>
+
+  <!-- FORMATTING RULES -->
+  <formatting>
+    <structure>
+      <rule>Short paragraphs (1-3 sentences).</rule>
+      <rule>Use bullet points for lists.</rule>
+      <rule>No hashtags in the middle of sentences.</rule>
+    </structure>
+    <syntax>
+      <rule>Use "we" instead of "I" for company announcements.</rule>
+      <rule>No exclamation marks unless absolutely necessary.</rule>
+    </syntax>
+  </formatting>
+
+  <!-- AI READABILITY & HUMANITY -->
+  <llm_readability>
+    <filler_filter>
+      <rule>Delete vague transitions ("so now", "you might be wondering").</rule>
+      <rule>No "inspiration strikes" language.</rule>
+    </filler_filter>
+    <questions>
+      <rule>Rhetorical questions allowed only if answered immediately.</rule>
+    </questions>
+  </llm_readability>
+
+  <!-- CALL TO ACTION -->
+  <call_to_action>
+    <style>Soft, helpful, non-pushy</style>
+    <rule>Questions? Hit me up on Twitter.</rule>
+    <rule>Try it out and let me know how it goes.</rule>
+    <avoid>Click here, Sign up now, Limited time offer</avoid>
+  </call_to_action>
+
+  <!-- BANNED WORDS (The AI Filter) -->
+  <banned_words>
+    <word>delve</word>
+    <word>landscape</word>
+    <word>tapestry</word>
+    <word>transformative</word>
+    <word>game-changer</word>
+    <word>cutting-edge</word>
+    <word>unleash</word>
+    <word>unlock</word>
+    <word>elevate</word>
+    <word>supercharge</word>
+    <word>robust</word>
+    <word>seamless</word>
+    <word>paradigm</word>
+    <word>holistic</word>
+  </banned_words>
+
+  <!-- CONTENT EXAMPLES (Few-Shot Prompting) -->
+  <examples>
+    <bad_example>
+      "Unlock the power of our cutting-edge API to supercharge your workflow!"
+    </bad_example>
+    <good_example>
+      "Our API handles rate limits automatically so you don't have to write retry logic."
+    </good_example>
+  </examples>
+</brand_profile>
+```
+
+## How to use this XML
+
+### Option 1: In ChatGPT / Claude (Projects)
+If you use the "Projects" feature in Claude or ChatGPT, simply upload this `brand_voice.xml` file to your project knowledge.
+
+Then, your prompt can be as simple as:
+> "Write a LinkedIn post about our new feature based on the guidelines in brand_voice.xml"
+
+The model will read the file and apply every rule strictly.
+
+### Option 2: In n8n (Automated Workflows)
+If you are building the [social media automation workflow](/blog/automate-social-media-n8n) we discussed previously, this is a game changer.
+
+1.  Upload your XML file to a URL (e.g., your website or a GitHub Gist) or store it in a Google Doc.
+2.  In n8n, use an **HTTP Request** node (or Google Drive node) to fetch the file content.
+3.  Pass the content into the **System Message** of your AI Agent node.
+
+**System Prompt Example:**
+```text
+You are a social media manager for Acme Corp.
+Strictly follow the brand guidelines provided in the XML context below.
+Focus especially on the <banned_words> list.
+
+<xml_context>
+{{ $json.xml_content }}
+</xml_context>
+```
+
+## Why this works better than "Custom Instructions"
+
+Custom instructions are great, but they are limited in length and hard to version control. An XML file is a living document.
+
+*   **Version Control:** You can commit it to Git.
+*   **Scalability:** You can add new sections (e.g., `<product_specs>`) without breaking the existing structure.
+*   **Portability:** You can use the same file across ChatGPT, n8n, Make, and your custom code.
+
+## Summary
+
+Stop letting AI define your voice. Define it yourself in code.
+
+By treating your brand voice as a dataset rather than a "vibe," you regain control over your content quality. And you'll never have to read the word "tapestry" in your own posts again.
