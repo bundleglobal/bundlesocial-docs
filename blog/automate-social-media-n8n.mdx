@@ -1,0 +1,158 @@
+---
+title: How to Automate Social Media Posting with n8n (Free Workflow)
+description: Learn how to build a free social media automation workflow using n8n and the Bundle Social API to post to Instagram, TikTok, and LinkedIn automatically.
+keywords: ["n8n automation", "social media api", "n8n http request", "automate instagram", "free social media scheduler", "n8n workflow templates"]
+"og:title": "How to Automate Social Media Posting with n8n (Free Workflow)"
+"og:description": "Learn how to build a free social media automation workflow using n8n and the Bundle Social API to post to Instagram, TikTok, and LinkedIn automatically."
+date: '2026-02-02'
+---
+
+## TL;DR / Key Takeaways
+
+- n8n is a powerful, cost-effective alternative to Zapier for complex workflows.
+- You can build a fully automated social media scheduler using n8n and the Bundle Social API.
+- The core of this workflow uses the HTTP Request node to send content to multiple platforms.
+- Self-hosting n8n makes this entire setup virtually free.
+
+If you've ever looked at your Zapier bill after scaling your content operations, you know the pain. "Wait, I'm paying *how much* just to move text from a spreadsheet to Twitter?"
+
+n8n is the answer to that problem. It's a workflow automation tool that's fair, powerful, and importantly, can be self-hosted. I've seen teams at startups switch to n8n and cut their automation costs by 90% while actually gaining more control over their logic.
+
+In this guide, I'm going to show you how to build a social media auto-poster using n8n and [Bundle Social](/). We'll take content from a simple Google Sheet and blast it out to [Instagram](/api-reference/platforms/instagram), [TikTok](/api-reference/platforms/tiktok), and [LinkedIn](/api-reference/platforms/linkedin) without you lifting a finger.
+
+## Why n8n instead of Zapier or Make?
+
+n8n (nodemation) sits in a sweet spot between no-code simplicity and developer flexibility.
+
+Here's the thing: Zapier charges you per "task." If you post 10 times a day to 5 platforms, that's 50 tasks. Over a month, that burns through a starter plan fast. n8n, especially if self-hosted, doesn't care how many executions you run.
+
+Plus, n8n's visual builder is top-tier. You can see the data flowing through every single node, which makes debugging API calls way less frustrating than staring at a generic "Error 400" message.
+
+## The Workflow Blueprint
+
+We are going to build a linear automation that runs once a day.
+
+1.  **Trigger:** Check the calendar (Google Sheets).
+2.  **Logic:** Is there a post scheduled for "Today" that hasn't been posted yet?
+3.  **Action:** Send the media and caption to the Bundle Social API.
+4.  **Update:** Mark the row in Google Sheets as "Posted."
+
+<Warning>
+  **Heads up:** You'll need a running instance of n8n (Cloud or Self-hosted), a Google account, and a Bundle Social API key (available in your dashboard).
+</Warning>
+
+## Step 1: Set up your "Content Database"
+
+You don't need a fancy CMS. A Google Sheet works perfectly for this. Create a new sheet with these headers:
+
+*   `Date` (YYYY-MM-DD)
+*   `Caption`
+*   `Media URL` (Direct link to your video or image)
+*   `Platforms` (Comma separated, e.g., "instagram,linkedin")
+*   `Status` (Pending/Posted)
+
+Fill in a row with today's date and a test image. Set the status to `Pending`.
+
+## Step 2: Configure the n8n Trigger
+
+Open your n8n editor.
+
+1.  Add a **Schedule Trigger** node.
+2.  Set it to run every day at a specific time (e.g., 9:00 AM).
+3.  Add a **Google Sheets** node.
+4.  Connect your Google account and select your sheet.
+5.  Operation: **Get Many Rows**.
+6.  Filter: content where `Status` is equal to `Pending`.
+
+**Pro tip:** In the Google Sheets node, adding a second filter for `Date` equals `{{ $today.format('yyyy-MM-dd') }}` ensures you only pick up posts meant for today.
+
+## Step 3: The HTTP Request (The Magic Part)
+
+This is where n8n shines. Instead of looking for a specific "Instagram" node that might be limited, we'll use the **HTTP Request** node to talk directly to the Bundle Social API.
+
+### Authentication
+
+First, ensure you have your API Key from the Bundle Social dashboard and your `Team ID` (found in the URL when you are logged in, e.g., `/dashboard/[TEAM_ID]`).
+
+In your HTTP Request nodes, use **Header Auth**:
+*   **Header Name:** `Authorization`
+*   **Value:** `Bearer YOUR_API_KEY`
+
+### Handling Media (The Upload Step)
+
+Bundle Social API requires a 2-step process for media: first upload the file, then create the post using the returned `id`.
+
+1.  Add an **HTTP Request** node to fetch the file from your `Media URL` in Google Sheets (Response Format: File).
+2.  Add another **HTTP Request** node to upload this file to Bundle Social:
+    *   **Method:** POST
+    *   **URL:** `https://api.bundle.social/api/v1/upload`
+    *   **Body Content Type:** Multipart-form-data
+    *   **Parameter Name:** `file` (map the binary data here).
+
+This node will return an `id` (e.g., `upload_123`). We will use this in the next step.
+
+### Creating the Post
+
+Add the final **HTTP Request** node to create the post.
+
+*   **Method:** POST
+*   **URL:** `https://api.bundle.social/api/v1/post`
+*   **Body Content Type:** JSON
+
+Construct the payload matching the API schema:
+
+```json
+{
+  "teamId": "YOUR_TEAM_ID",
+  "title": "{{ $json.Caption }}",
+  "postDate": "{{ $json.Date }}",
+  "status": "SCHEDULED",
+  "socialAccountTypes": [
+    "INSTAGRAM",
+    "LINKEDIN"
+  ],
+  "data": {
+    "INSTAGRAM": {
+      "text": "{{ $json.Caption }}",
+      "uploadIds": ["{{ $('Upload Node Name').item.json.id }}"]
+    },
+    "LINKEDIN": {
+      "text": "{{ $json.Caption }}",
+      "uploadIds": ["{{ $('Upload Node Name').item.json.id }}"]
+    }
+  }
+}
+```
+
+<Note>
+  **Note:** Replace `YOUR_TEAM_ID` with your actual Team ID. If you are posting text-only (e.g., to LinkedIn/Twitter), you can skip the upload step and omit `uploadIds` in the JSON.
+</Note>
+
+## Step 4: Handle the Response
+
+When you execute this node, Bundle Social will accept the post and queue it for publishing. The API returns a `success: true` response.
+
+Real talk: APIs fail sometimes. Maybe your image URL was broken, or the file size was too big.
+
+Add an **If** node after your HTTP request.
+*   **Condition:** If HTTP Request status code is `200` (or `201`).
+*   **True Path:** Add another Google Sheets node to update the row. Set `Status` to `Posted`.
+*   **False Path:** Add a Slack or Email node to alert you. "Hey, the post failed!"
+
+## Taking it Further
+
+Once you have this base, you can get creative.
+
+I've used n8n to build workflows that scrape industry news using an RSS node, summarize it with an AI node, and draft a LinkedIn post automatically. The draft goes into my Google Sheet as `Pending`, so I just review it in the morning and flip the status to `Approved`.
+
+<Tip>
+  **Pro Tip:** Don't let the AI go rogue. [Create a simple XML file that defines your "brand voice"](/blog/how-to-create-ai-brand-voice-xml) (e.g., "Use casual tone," "Avoid these buzzwords," "Structure posts like this"). Feed this file content to your OpenAI node as a system prompt. This ensures the AI drafts content that actually sounds like you, saving you from rewriting every post.
+</Tip>
+
+This "Human-in-the-loop" approach is the best way to use AI. Automation handles the gathering and drafting; you handle the quality control.
+
+## Conclusion
+
+Building your own social media scheduler might seem like overkill, but it gives you complete ownership. You aren't limited by a tool's integrations or pricing tiers. If Bundle Social adds a new platform, you just add a line to your JSON body.
+
+Give this workflow a shot. Even if you start with just automating one platform, the time you save adds up fast. And honestly, watching that green "Success" checkmark light up in n8n is incredibly satisfying.
