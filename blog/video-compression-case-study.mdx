@@ -1,0 +1,171 @@
+---
+title: How We Fixed a Customer's Failed Video Uploads (And What You Can Learn From It)
+description: Learn how bundle.social solved video upload failures across Instagram, TikTok, and Facebook using smart H.264 compression that reduces file sizes by 80% with zero visible quality loss.
+keywords: ["video compression", "social media api", "video upload failed", "h264 compression", "ffmpeg compression", "instagram video upload", "tiktok video upload", "facebook video api", "bundle.social api", "video optimization", "social media automation"]
+date: '2026-02-03'
+---
+
+## TL;DR / Key Takeaways
+
+- Social media APIs reject large video files even when they're technically within documented limits
+- bundle.social gives you the choice: compress automatically or keep original quality via organization settings
+- Smart H.264 compression reduces file sizes by 70-80% with zero visible quality loss - your content looks exactly as intended
+- When things go wrong, we build custom solutions - not just point you to docs
+- Real support means getting your scheduled posts back on track, not ticket ping-pong
+
+---
+
+## The Problem: Platform APIs and Their Hidden Preferences
+
+A customer reached out last week. Their scheduled posts were failing across Threads, Instagram, TikTok, and Facebook. The error messages weren't helpful - just generic "upload failed" responses from the platforms.
+
+Here's the frustrating part: the files were technically within the documented limits. Dimensions? Correct. Duration? Under the max. File size? Below the stated cap.
+
+But social media APIs have their own... let's call them "preferences." They don't just enforce limits - they actively discourage large files. Even when your content meets every requirement on paper, platforms will reject uploads that they consider "too heavy." The APIs want you to pre-compress, pre-optimize, and basically do their processing work for them.
+
+The customer had disabled automatic compression in their bundle.social organization settings. We give you that choice - some users need original quality for specific workflows, or they're doing their own encoding pipeline. Totally valid. But it meant the platforms got the raw files, and the APIs weren't having it.
+
+## Why Video Compression Matters for Social Media APIs
+
+Video dominates internet traffic. According to [Sandvine's Global Internet Phenomena Report](https://www.sandvine.com/global-internet-phenomena-report-2024), video streaming applications consistently represent the largest share of downstream bandwidth globally. Social platforms know this, and they push back hard on anything that increases their processing load.
+
+Each platform handles video differently:
+
+- **Instagram** - Max 650 MB for feed videos, specific aspect ratio requirements, H.264 codec required
+- **Threads** - Inherits Instagram's video requirements with similar dimension strictness
+- **TikTok** - Max 287.6 MB for most uploads, picky about dimensions and encoding
+- **Facebook** - 10 GB limit sounds generous until you hit their processing queue and timeout
+- **Twitter/X** - 512 MB limit, but Premium tiers change duration limits
+- **YouTube** - Most permissive, but still requires proper encoding
+
+The [FFmpeg H.264 encoding guide](https://trac.ffmpeg.org/wiki/Encode/H.264) puts it plainly about CRF (Constant Rate Factor) setting: "The range of the CRF scale is 0-51, where 0 is lossless and 51 is worst quality possible." For social media, a CRF of 23-30 typically delivers visually identical results at a fraction of the file size.
+
+## The Fix: We Handled It For Them
+
+We didn't tell the customer "re-upload everything manually." That's not support - that's deflection.
+
+This customer uses bundle.social through our dashboard - not the API. They're a content creator, not a developer. They schedule posts through our UI, upload videos with drag-and-drop, and expect things to just work.
+
+So we did the technical work ourselves. We built a script on our end that:
+
+1. Fetched all their scheduled posts from our system
+2. Downloaded each video
+3. Compressed using smart H.264 encoding (the same tech we use for automatic compression)
+4. Re-uploaded the optimized versions
+5. Updated each post with the new files
+6. Verified everything was ready to publish
+
+The customer didn't have to touch a terminal, write any code, or even re-schedule their posts. They just got a message from us: "Fixed. Your posts are ready to go."
+
+Results on one 578 MB file: compressed to 122 MB. That's 78.8% reduction with no visible quality difference. The video looks exactly as they intended - not washed out, not artifacted, not "optimized" into oblivion like some other tools do.
+
+## Compression Quality Comparison: 578 MB vs 122 MB
+
+Screenshots were captured manually, so dimensions may vary slightly. The point is clear - you can't tell the difference.
+
+<CardGroup cols={2}>
+  <Card title="Before compression (578 MB)">
+    <img src="/images/video-compression-before-1.png" alt="Video frame before compression - original 578 MB file" />
+  </Card>
+  <Card title="After compression (122 MB)">
+    <img src="/images/video-compression-after-1.png" alt="Video frame after compression - optimized 122 MB file" />
+  </Card>
+</CardGroup>
+
+<CardGroup cols={2}>
+  <Card title="Before compression (578 MB)">
+    <img src="/images/video-compression-before-2.png" alt="Video frame before compression - original quality" />
+  </Card>
+  <Card title="After compression (122 MB)">
+    <img src="/images/video-compression-after-2.png" alt="Video frame after compression - maintained quality" />
+  </Card>
+</CardGroup>
+
+<Note>
+  78.8% file size reduction with virtually identical visual quality. This is what smart H.264 compression looks like when done right.
+</Note>
+
+## What We Did Behind The Scenes
+
+For those curious about the technical side - here's what our compression process looks like under the hood. We use [FFmpeg](https://ffmpeg.org/), the industry-standard open-source tool for video processing. This is the same technology that powers automatic compression when you have it enabled:
+
+```javascript
+function compressVideo(inputPath, outputPath) {
+  return new Promise((resolve, reject) => {
+    const args = [
+      "-i", inputPath,
+      "-y",
+      "-c:v", "libx264",      // H.264 codec - maximum compatibility
+      "-c:a", "aac",          // AAC audio
+      "-crf", "30",           // Quality level (lower = better, bigger)
+      "-preset", "medium",    // Balance speed vs compression
+      "-movflags", "+faststart",  // Progressive playback
+      "-pix_fmt", "yuv420p",  // Maximum device compatibility
+      "-threads", "4",
+      outputPath,
+    ];
+
+    const ffmpeg = spawn("ffmpeg", args);
+    
+    ffmpeg.on("close", (code) => {
+      if (code === 0) resolve(outputPath);
+      else reject(new Error(`ffmpeg exited with code ${code}`));
+    });
+  });
+}
+```
+
+Key settings explained:
+- **libx264** - The [H.264/AVC encoder](https://en.wikipedia.org/wiki/Advanced_Video_Coding), supported by virtually every device and platform
+- **AAC audio** - Standard audio codec for modern video streaming
+- **CRF 30** - Constant Rate Factor for quality control
+- **movflags +faststart** - Moves metadata to the beginning for progressive streaming
+
+We handled edge cases automatically:
+
+- **Posts without valid dates** - Fixed malformed scheduling data
+- **Already-deleted uploads** - Skipped gracefully
+- **Non-video files** - Left images and documents untouched
+- **Already-optimized videos** - Used original when compression wouldn't help
+
+## What bundle.social Does Automatically
+
+To be clear: if you keep automatic compression enabled (the default), all of this happens server-side. We process videos with the same FFmpeg settings. Thumbnails get generated. Files get optimized for each target platform.
+
+The organization setting to disable compression exists for users who need it - specific encoding pipelines, archival workflows, or downstream editing requirements. We give you that control.
+
+But here's the difference: when that flexibility leads to problems, we don't leave you stuck. Some tools would aggressively compress your content until it looks like it was filmed on a potato. Others would just reject your uploads and point to the docs. We actually help you fix it - with your content looking exactly as you intended.
+
+## The Bigger Point: Support That Actually Solves Problems
+
+Most social media tools would respond to this situation with a help article. "Here are the upload requirements. Here are the platform limits. Good luck re-uploading your 200 videos."
+
+We did the work for them. The customer didn't have to learn FFmpeg, didn't have to manually re-upload anything, didn't have to reschedule 200+ posts.
+
+The difference between good and great support isn't response time metrics. It's whether you actually fix the problem or just acknowledge it exists.
+
+The customer's 200+ scheduled posts went from "all failing" to "all ready to publish" in about two hours. No re-uploading. No rescheduling. No learning curve. Just fixed.
+
+## Pro Tips for Video Uploads
+
+Whether you're using our dashboard or building with our API:
+
+1. **Keep automatic compression enabled** - It's on by default for a reason. Your videos will look identical but upload reliably
+2. **Check dimensions first** - Platforms reject non-standard aspect ratios faster than file size issues
+3. **Test with one post first** - Before scheduling 500 posts, verify one works
+4. **Monitor for silent failures** - Some platforms accept uploads but fail during processing
+5. **When in doubt, reach out** - We'd rather help you before 200 posts fail than after
+
+## Need Help?
+
+If you're hitting upload issues, dimension rejections, or mysterious platform errors - reach out. Whether you're a content creator using our dashboard or a developer building with our API, we've probably seen your problem before.
+
+We'd rather spend an hour fixing your problem than have you spend a week frustrated.
+
+That's the bundle.social approach: your posts get published, and when something breaks, we actually fix it - not just point you to documentation.
+
+Questions? Feel free to reach out.
+
+---
+
+*Found this useful? We write about social media APIs, automation, and the weird edge cases we encounter building bundle.social. More at [bundlesocial.com/blog](https://bundlesocial.com/blog).*
