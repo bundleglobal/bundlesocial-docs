@@ -340,24 +340,24 @@ When you're managing hundreds of channels, organization matters:
 const org = {
   id: 'org_mcn_network',
   teams: [
-    {
-      id: 'team_creator_alice',
-      name: 'Alice (Gaming)',
-      socialAccounts: [
-        { platform: 'TIKTOK', handle: '@alicegaming' },
-        { platform: 'YOUTUBE', handle: 'AliceGamingTV' },
-        { platform: 'INSTAGRAM', handle: '@alice.games' }
-      ]
-    },
-    {
-      id: 'team_creator_bob',
-      name: 'Bob (Fitness)',
-      socialAccounts: [
-        { platform: 'TIKTOK', handle: '@bobfitness' },
-        { platform: 'YOUTUBE', handle: 'BobFitnessOfficial' },
-        { platform: 'INSTAGRAM', handle: '@bob.fitness' }
-      ]
-    }
+  {
+    id: 'team_creator_alice',
+    name: 'Alice (Gaming)',
+    socialAccounts: [
+      { platform: 'TIKTOK', username: 'alicegaming' },
+      { platform: 'YOUTUBE', channelId: 'UC_AliceGamingTV' },
+      { platform: 'INSTAGRAM', username: 'alice.games' }
+    ]
+  },
+  {
+    id: 'team_creator_bob',
+    name: 'Bob (Fitness)',
+    socialAccounts: [
+      { platform: 'TIKTOK', username: 'bobfitness' },
+      { platform: 'YOUTUBE', channelId: 'UC_BobFitnessOfficial' },
+      { platform: 'INSTAGRAM', username: 'bob.fitness' }
+    ]
+  }
     // ... 200 more creators
   ]
 };
