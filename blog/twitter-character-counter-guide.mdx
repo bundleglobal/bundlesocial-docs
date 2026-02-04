@@ -1,0 +1,220 @@
+---
+title: "Twitter Character Counter: Complete X/Twitter Limits Guide (2026)"
+description: "Everything about X/Twitter character limits - 280 for tweets, 25K for Premium, DM limits, bio limits, and how to count characters correctly for your posts."
+keywords: ["twitter character counter", "tweet character counter", "twitter character count", "count characters for twitter", "twitter character limit", "x character limit", "twitter word count"]
+"og:title": "Twitter Character Counter: Complete X/Twitter Limits Guide (2026)"
+"og:description": "X/Twitter character limits explained - 280 for standard, 25K for Premium, plus DMs, bios, and alt text limits."
+date: '2026-02-04'
+---
+
+*By Marcel Czuryszkiewicz, Founder @ [bundle.social](https://bundle.social)*
+
+*Building & shipping social tools since 2024.*
+
+## TL;DR
+
+- **Standard tweets:** 280 characters max
+- **X Premium tweets:** Up to 25,000 characters
+- **DMs:** 10,000 characters
+- **Bio:** 160 characters
+- **Display name:** 50 characters
+- **Username:** 15 characters
+- **Alt text:** 1,000 characters
+
+## Why Character Counts Matter on X
+
+X (formerly Twitter) built its identity on brevity. The original 140-character limit forced users to be concise. When they doubled it to 280 in 2017, the platform kept its punchy, fast-scrolling feel.
+
+But here's what trips people up: not all characters are equal. URLs, emojis, and mentions eat into your count differently than plain text. If you've ever written what seemed like a short tweet only to see "Your post is over the character limit" - you've hit this problem.
+
+Understanding the exact limits saves you from editing frustration and helps you craft posts that fit perfectly on the first try.
+
+## The Complete X/Twitter Character Limits
+
+### Tweets (Posts)
+
+| Account Type | Character Limit |
+|--------------|-----------------|
+| Standard (free) | 280 characters |
+| X Premium | 25,000 characters |
+| X Premium+ | 25,000 characters |
+
+Standard accounts get 280 characters. That's it. No exceptions.
+
+X Premium subscribers can post up to 25,000 characters - essentially turning tweets into blog posts. But here's the catch: only the first 280 characters show in the timeline. Readers have to tap "Show more" to see the rest.
+
+> Posts longer than 280 characters are truncated in the timeline. Only Premium subscribers can create them, but everyone can read them. - [X Help Center](https://help.twitter.com/en/using-x/x-premium)
+
+### Direct Messages
+
+DMs allow up to **10,000 characters** per message. This applies to both standard and Premium accounts.
+
+### Profile Elements
+
+| Element | Limit |
+|---------|-------|
+| Display name | 50 characters |
+| Username (@handle) | 15 characters |
+| Bio | 160 characters |
+| Location | 30 characters |
+
+Your bio is prime real estate. 160 characters to explain who you are and why someone should follow you. Use them wisely.
+
+### Media Alt Text
+
+Alt text for images is capped at **1,000 characters**. This is accessibility text for screen readers - describe what's in the image clearly.
+
+## How Characters Are Counted
+
+X counts characters using Unicode normalization. In practice, this means:
+
+**1 character each:**
+- Letters (A-Z, a-z)
+- Numbers (0-9)
+- Spaces
+- Basic punctuation
+
+**2 characters each:**
+- Most emojis (yes, that heart costs you double)
+- Some special characters
+- Characters from certain languages (Chinese, Japanese, Korean)
+
+**Special cases:**
+- **URLs:** All URLs are shortened to 23 characters, regardless of actual length. A 100-character URL still counts as 23.
+- **Mentions:** @username counts as its full length including the @ symbol
+- **Hashtags:** Full length including the # symbol
+
+<Note>
+The 23-character URL rule is crucial for link-heavy tweets. A long tracking URL and a short bit.ly link cost the same character budget.
+</Note>
+
+## Counting Characters Correctly
+
+### Quick Mental Math
+
+For a typical tweet with text, one emoji, and one link:
+- Your text: count normally
+- Each emoji: add 2
+- Your link: add 23
+
+Example: "Check out our new guide" (23 chars) + link (23 chars) + 🚀 (2 chars) = 48 characters total.
+
+### Using X's Built-in Counter
+
+When composing a tweet on X (web or app), a circular progress indicator appears. It fills as you type:
+- **Blue arc:** You're under the limit
+- **Yellow arc:** Approaching the limit
+- **Red arc:** Over the limit
+
+The number inside shows remaining characters once you're close.
+
+### Third-Party Character Counters
+
+Several tools count characters before you paste into X:
+
+- **charactercounter.com** - Simple web tool, shows character and word count
+- **lettercount.com** - Includes X-specific counting mode
+- **Your scheduling tool** - Most social media schedulers show character counts per platform
+
+When you schedule X posts through an API or scheduling platform, the character count typically happens server-side before submission. If you're over the limit, the post fails with an error.
+
+## Platform-Specific Quirks
+
+### Threads (Multi-tweet Posts)
+
+When creating a thread, each tweet in the thread has its own 280-character limit. The platform adds "1/5", "2/5" etc. automatically - this counts against your limit.
+
+If you're numbering manually, factor that in: "1/10 " costs 5 characters.
+
+### Quote Tweets
+
+When you quote-tweet, you get the full 280 characters for your commentary. The quoted tweet appears as an embedded card and doesn't count against your limit.
+
+### Replies
+
+Replies also get 280 characters. The @mention of who you're replying to doesn't count against this limit - X handles that separately.
+
+## Premium Long-Form: When to Use It
+
+X Premium's 25,000-character posts are tempting for long-form content. But consider:
+
+**Good use cases:**
+- Detailed threads consolidated into one post
+- Technical explanations that need space
+- Essays or opinion pieces
+
+**Bad use cases:**
+- Anything that could be a normal thread (engagement is often better)
+- Content that should be a blog post (SEO is better on your own site)
+- Padding short ideas to seem more substantial
+
+The timeline preview shows 280 characters max. If your hook isn't in those first 280, most people won't tap to read more.
+
+## Character Limits for API Integrations
+
+If you're posting to X via API (directly or through a scheduling platform), the character validation happens when you submit the post.
+
+The [X API v2](https://developer.twitter.com/en/docs/twitter-api) returns specific error codes:
+
+```json
+{
+  "errors": [
+    {
+      "message": "Tweet text is too long",
+      "code": 186
+    }
+  ]
+}
+```
+
+Error code 186 means you exceeded the character limit. Your integration should validate length client-side before attempting to post.
+
+<Warning>
+X's API counts characters the same way the app does - including the 2-character emoji rule and 23-character URL shortening. Don't assume ASCII-only counting.
+</Warning>
+
+## Comparing X to Other Platforms
+
+| Platform | Post Limit | Notes |
+|----------|------------|-------|
+| X (standard) | 280 | Iconic short-form |
+| X (Premium) | 25,000 | Long-form option |
+| [Instagram](/api-reference/platforms/instagram) caption | 2,200 | But only ~125 show before "more" |
+| [LinkedIn](/api-reference/platforms/linkedin) post | 3,000 | Professional context |
+| [Facebook](/api-reference/platforms/facebook) post | 63,206 | Rarely used fully |
+| [Threads](/api-reference/platforms/threads) | 500 | Meta's X competitor |
+| [Bluesky](/api-reference/platforms/bluesky) | 300 | Decentralized alternative |
+
+X's 280-character limit is among the shortest. This constraint is a feature, not a bug - it forces clarity and makes the timeline scannable.
+
+## Tips for Writing Within the Limit
+
+**1. Cut filler words**
+- "In order to" → "To"
+- "The fact that" → (delete)
+- "I think that" → (just state the thought)
+
+**2. Use numerals**
+- "twenty-three" (12 chars) → "23" (2 chars)
+
+**3. Strategic abbreviations**
+- "with" → "w/" in casual contexts
+- "versus" → "vs"
+
+**4. Let the link work harder**
+- Don't describe what's in the link. Just tease it.
+- Bad: "Here's an article about character limits on Twitter" (53 chars)
+- Good: "X character limits, explained" (29 chars) + link
+
+**5. Split into threads**
+- If you're fighting the limit, you probably have two thoughts. Make them two tweets.
+
+---
+
+**Posting to X programmatically?**
+
+If you're building an app that posts to X, character validation should happen before you hit the API. Our [X/Twitter integration](/api-reference/platforms/twitter) handles limit validation automatically - posts over 280 fail gracefully with clear error messages telling you exactly how many characters to cut.
+
+<Card title="X/Twitter API Documentation" icon="twitter" href="/api-reference/platforms/twitter">
+  Full X posting options including threads and media
+</Card>
