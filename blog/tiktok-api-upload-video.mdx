@@ -97,7 +97,7 @@ That's it. We handle the OAuth, the polling, the status checking, everything.
 For developers searching "tiktok api upload video" in JavaScript/TypeScript, here's how to use our [SDK](/api-reference/sdk):
 
 ```typescript
-import BundleSocial from 'bundlesocial';
+import { BundleSocial } from 'bundlesocial';
 import fs from 'fs';
 
 const client = new BundleSocial({ apiKey: 'YOUR_API_KEY' });
@@ -214,7 +214,7 @@ const post = await client.post.create({
       privacy: 'PUBLIC_TO_EVERYONE',
     },
     INSTAGRAM: {
-      type: 'REELS',
+      type: 'REEL',
       text: 'Watch this Reel! #instagram',
       uploadIds: [uploadId],
     },

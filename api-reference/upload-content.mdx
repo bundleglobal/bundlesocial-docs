@@ -82,7 +82,7 @@ Good for images or small clips. Uses standard `multipart/form-data`.
 
 ```bash
 curl -X POST "https://api.bundle.social/upload/create" \
-  -H "Authorization: Bearer YOUR_KEY" \
+  -H "x-api-key: YOUR_KEY" \
   -F "file=@./meme.jpg" \
   -F "teamId=YOUR_TEAM_ID"
 ```
