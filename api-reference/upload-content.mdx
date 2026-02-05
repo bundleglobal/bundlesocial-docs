@@ -1,6 +1,9 @@
 ---
 title: Media Upload
 description: Uploading images and videos. Small files are easy, big files are robust.
+keywords: ["media upload api", "video upload", "image upload", "resumable upload", "social media upload"]
+"og:title": "Media Upload API - Upload Images & Videos with Resumable Uploads"
+"og:description": "Upload images and videos to bundle.social. Use resumable uploads for large files or simple uploads for quick media. Supports MP4, JPG, PNG, GIF, WebP."
 icon: cloud-arrow-up
 ---
 
@@ -43,6 +46,10 @@ We give you a magic `url` (Pre-signed URL) and a `path`. Keep them safe.
   "path": "uploads/123/viral-video.mp4"
 }
 ```
+
+<Note>
+**The pre-signed URL expires after 10 minutes.** If you don't start uploading within that window, you'll need to initialize again. Don't go make coffee between Step 1 and Step 2.
+</Note>
 
 ### Step 2: Push the Bytes
 Send the raw binary file to the `url` we gave you. Use `PUT`.
@@ -96,9 +103,38 @@ Returns the `id` immediately.
 
 | Type | Formats | Max Size |
 | :--- | :--- | :--- |
-| **Images** | JPG, PNG | 25 MB |
-| **Videos** | MP4 | 1 GB (1024 MB) |
+| **Images** | JPG, PNG, GIF, WebP | 25 MB |
+| **Videos** | MP4 | Platform-dependent (see [Limits](/api-reference/limits)) |
+
+<Note>
+The max video size depends on the platform you're posting to. TikTok allows up to 4 GB, YouTube up to 256 GB, while Discord caps at 25 MB. Check [Platform Limits](/api-reference/limits) for the exact numbers per platform.
+</Note>
 
 <Info>
 **Tip:** If you are uploading a picture of your cat (or your mom, we don't judge), Simple Upload is fine. For a 4K podcast clip, use Resumable.
 </Info>
+
+---
+
+## Video Compression
+
+You can enable automatic video compression on your organization. When enabled, we'll compress videos larger than 10 MB before they're stored and posted.
+
+### How to enable
+
+Video compression is an organization-level setting. You can toggle it from your dashboard or contact us to enable it. Once on, it applies to all uploads across all teams in your org.
+
+### What happens
+
+| Setting | Value |
+| :--- | :--- |
+| Threshold | Videos > 10 MB |
+| Output format | MP4 (H.264 + AAC) |
+| Quality | CRF 30 (good balance of quality and size) |
+| Preset | Medium |
+
+We're smart about it - if the compressed file ends up **larger** than the original (rare, but it happens with already-compressed videos), we keep the original and toss the compressed version. You always get the smaller file.
+
+<Tip>
+This is great if your users upload raw or minimally compressed videos. A 500 MB screen recording can often shrink to under 100 MB with no visible quality loss. Your storage costs will thank you - and so will the upload speeds.
+</Tip>

@@ -1,30 +1,40 @@
 ---
 title: LinkedIn
-description: "The professional network. Where URNs are king and Personal profiles are limited."
+description: "The professional network. Where URNs are king and Personal profiles have limited superpowers."
 icon: linkedin
-keywords: ["linkedin api", "linkedin automation", "linkedin post api", "linkedin company page api", "social media api"]
+keywords: ["linkedin api", "linkedin automation", "linkedin post api", "linkedin company page api", "social media api", "linkedin analytics", "linkedin post scheduling"]
+"og:title": "LinkedIn API Integration - Personal vs Company Pages"
+"og:description": "LinkedIn API guide: Personal profiles vs Company pages, URNs, analytics differences, and posting capabilities."
 ---
 
-LinkedIn is unique because it strictly separates **Personal Profiles** (Members) from **Organization Pages** (Companies). The API treats them very differently.
+LinkedIn is unique because it strictly separates **Personal Profiles** (Members) from **Organization Pages** (Companies). The API treats them very differently, and this affects analytics significantly.
 
 ## Quirks & Gotchas
 
 ### Personal vs. Organization
 This is the biggest source of confusion.
 
-*   **Personal Profile (Member):** Limited API. **Cannot import post history.** Limited analytics.
-*   **Organization (Company Page):** Full API power. Richer analytics. Supports historical import.
+*   **Personal Profile (Member):** Limited API. **Cannot import post history.** Limited analytics. No profile views data.
+*   **Organization (Company Page):** Full API power. Richer analytics. Supports historical import. Has page view data.
 
-### The URN Nightmre
+### The URN Nightmare
 LinkedIn uses "URNs" (Uniform Resource Names) to identify everything.
 *   Organization: `urn:li:organization:12345`
 *   Person: `urn:li:person:abcde`
 
 If you are constructing raw text mentions, you need to use this format. Our API handles basic text automatically, but if you're getting fancy, keep this in mind.
 
+### Media Limits
+
+Video max size is **2 GB** (not 200 MB - that was an old API limitation). Documents must be PDF format, max 100 MB.
+
+See [Platform Limits](/api-reference/limits#linkedin) for the full breakdown.
+
 ---
 
 ## Analytics
+
+For general analytics concepts (refresh rates, data retention, what "Returns 0" means), see the [Analytics Overview](/api-reference/analytics).
 
 ### Profile Analytics
 
@@ -33,24 +43,30 @@ If you are constructing raw text mentions, you need to use this format. Our API 
 
 | Metric | Description | Note |
 | :--- | :--- | :--- |
-| `Impressions` | Total views | |
-| `Impressions (Unique)` | Unique views | |
-| `Likes` | Total likes | |
-| `Comments` | Total comments | |
-| `Followers` | Connections/Followers | |
-| `Views` | Returns `0` | Not provided for personal profiles |
+| `impressions` | Total content views | |
+| `impressionsUnique` | Unique content views | |
+| `views` | - | Returns `0` (LinkedIn doesn't provide views for personal accounts) |
+| `viewsUnique` | - | Returns `0` |
+| `likes` | Total likes | |
+| `comments` | Total comments | |
+| `postCount` | - | Returns `0` (not provided by LinkedIn API) |
+| `followers` | Connections/Followers | |
+| `following` | - | Returns `0` (not provided by LinkedIn API) |
 
 #### Organization (Company)
 **Period:** Rolling window (30 days).
 
 | Metric | Description | Note |
 | :--- | :--- | :--- |
-| `Impressions` | Total views | |
-| `Impressions (Unique)` | Unique views | |
-| `Views` | **Page Views** | Available for Orgs! |
-| `Likes` | Total likes | |
-| `Comments` | Total comments | |
-| `Followers` | Followers | |
+| `impressions` | Total content views | |
+| `impressionsUnique` | Unique content views | |
+| `views` | **Page Views** | Available for Orgs only! |
+| `viewsUnique` | Unique page views | |
+| `likes` | Total likes | |
+| `comments` | Total comments | |
+| `postCount` | - | Returns `0` (not provided by LinkedIn API) |
+| `followers` | Followers | |
+| `following` | - | Returns `0` (not provided by LinkedIn API) |
 
 ### Post Analytics
 
@@ -59,22 +75,35 @@ If you are constructing raw text mentions, you need to use this format. Our API 
 
 | Metric | Description | Note |
 | :--- | :--- | :--- |
-| `Impressions` | View count | |
-| `Likes` | Reactions | |
-| `Comments` | Comments | |
-| `Shares` | Reposts | |
+| `impressions` | View count | |
+| `impressionsUnique` | Unique view count | |
+| `views` | Video views | Video posts only |
+| `viewsUnique` | Unique video views | Video posts only |
+| `likes` | Reactions | |
+| `comments` | Comments | |
+| `shares` | Reposts | |
 
 #### Organization Posts
 **Period:** Rolling window (30 days).
 
 <Warning>
-**Only recent posts.** Organization analytics only cover posts published within the last 30 days.
+**Only recent posts.** Organization analytics only cover posts published within the last 30 days. Posts authored by members (not the organization/brand itself) are excluded from organization analytics.
 </Warning>
 
 | Metric | Description | Note |
 | :--- | :--- | :--- |
-| `Impressions` | View count | |
-| `Likes` | Reactions | |
-| `Comments` | Comments | |
-| `Shares` | Reposts | |
-| `Views` | Returns `0` | Not provided for individual posts |
+| `impressions` | View count | |
+| `impressionsUnique` | Unique view count | |
+| `views` | - | Returns `0` (not provided for individual org posts) |
+| `viewsUnique` | - | Returns `0` |
+| `likes` | Reactions | |
+| `comments` | Comments | |
+| `shares` | Reposts | |
+| `saves` | - | Returns `0` (not provided by LinkedIn API) |
+
+### Quirks
+
+- **Personal accounts** do NOT have views analytics for profiles - only organizations get page views.
+- **Organization accounts** have page views for profile analytics but NOT for individual posts. Yes, it's confusing.
+- Post count and following count are not provided through the LinkedIn API for either account type.
+- Organization post analytics only include posts from the last 30 days.

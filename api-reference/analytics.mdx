@@ -1,0 +1,201 @@
+---
+title: Analytics
+description: "How analytics work, how we refresh them, how long we keep them, and why some numbers are zero. The full picture."
+icon: chart-mixed
+keywords: ["social media analytics api", "analytics api", "social media metrics", "cross-platform analytics", "analytics rate limits"]
+---
+
+Everything you need to know about analytics before you dive into the [platform-specific pages](/api-reference/platforms/index). This page covers the cross-cutting concepts - refresh rates, rate limits, data retention, and why some numbers are zero.
+
+For platform-specific metrics and quirks, see each platform's dedicated page.
+
+---
+
+## Analytics Refresh & Rate Limits
+
+### Default Refresh
+
+Analytics are automatically refreshed every **24 hours**. You don't need to do anything - we handle it. No cron jobs, no manual triggers, just vibes.
+
+### Force Refresh
+
+You can request analytics to be refreshed immediately by calling the analytics endpoint with a `force` parameter.
+
+However, force refresh requests are rate limited to `number of teams × 5` per day. Per organization. No exceptions.
+
+You may ask why?
+
+To protect US from our greatest and brightest vibe code engineers doing:
+
+```typescript
+while (true) {
+  await bundlesocial.analytics.analyticsForceRefresh({
+    teamId: team.id,
+  });
+}
+```
+
+We had such cases. We are not joking. Someone actually did this in production.
+
+<Note>
+**Rate Limit Formula**: Maximum force refresh requests per day = `number of teams × 5`
+
+For example, if you have 10 teams, you can make up to 50 force refresh requests per day. Post analytics have the same limit: `teams × 5`.
+
+Exceeds? You get a `429 Too Many Requests`. Come back tomorrow.
+</Note>
+
+### Custom Refresh Periods
+
+By default, analytics are automatically refreshed every **24 hours**. However, we can configure custom refresh periods based on your organization's needs.
+
+**Important**: If you require a higher refresh rate (e.g., every 15 minutes for large organizations), there may be additional charges due to increased data costs.
+
+We will discuss these costs with you directly to determine the best solution for your use case. Nothing expensive/outlandish etc... we are not evil.
+
+Maybe you will need to skip on one OF subscription but you know, economy...
+
+---
+
+## Data Retention
+
+We retain analytics data for **40 days** from the date of creation. After that, it's gone. Poof. Deleted.
+
+If your team needs yearly or long-term history, we recommend fetching and storing the data daily on your end. Build a cron job, pipe it to your database, and sleep well at night.
+
+This retention period is fixed and will not be extended. Maybe we are evil?
+
+<Warning>
+**40 days.** That's it. If you need analytics from 3 months ago and you didn't save them, we can't help you. We told you. Right here. In this doc. That you're reading right now.
+</Warning>
+
+For the full breakdown of what we retain and for how long (not just analytics), see [Data Retention](/api-reference/data-retention).
+
+---
+
+## Important Note: Data Differences & Zeros
+
+<Note>
+**Data shown in our platform may differ from what you see on the social media platform itself.** This can happen for several reasons:
+
+- **Processing Delays**: Platforms may take time to process and return analytics data. For example, TikTok can take up to 48 hours for some detailed analytics like audience demographics and splits.
+
+- **Rolling Window Timing**: When platforms return rolling window data, the exact time window and aggregation method may differ slightly from what's displayed in their native interfaces.
+
+- **Data Availability**: Some metrics may be available in the platform's native interface but not through their API, or vice versa. APIs and dashboards are built by different teams. At big companies. With different priorities.
+
+- **Update Frequency**: Analytics are updated based on when we fetch data from each platform, which may not match the real-time updates you see in the platform's own interface.
+
+- **Zero Values**: **Some metrics return `0` when the platform API doesn't provide that specific data point.** This doesn't mean you have zero engagement - it means the data is not available through the API. Each platform page clearly marks which fields return 0 and why.
+</Note>
+
+---
+
+## Understanding Analytics
+
+This is what we return to you in aggregated form. It ain't much but it's honest work.
+
+### Rolling Window
+
+Analytics show aggregated data over a fixed time period (e.g., last 30 days) that updates as time progresses. Each time you view analytics, you see data for the most recent period.
+
+Think of it like a conveyor belt - old data falls off the end, new data gets added at the front.
+
+### Lifetime
+
+Analytics show a snapshot of cumulative totals from when the post or profile was created up to the current moment. These values represent the current state and will continue to grow over time.
+
+Think of it like an odometer - it only goes up.
+
+Nothing new. But now you know the vocabulary.
+
+---
+
+## Raw Analytics Data
+
+In addition to the parsed analytics data described above, raw analytics data is also available via the dedicated raw endpoints. Raw analytics contain the unparsed, original data returned directly from each platform's API. This includes:
+
+- Platform-specific metrics that may not be mapped to our standard schema
+- Additional metadata and context provided by the platform
+- Detailed breakdowns (e.g., audience demographics, engagement by time period, etc.)
+
+Raw analytics can be useful for advanced analysis or when you need access to platform-specific metrics that aren't included in the standardized analytics format. Note that raw data structure and fields vary significantly between platforms - because every platform is a special snowflake.
+
+<Info>
+Raw data is subject to the same **40-day retention** as parsed analytics. If you need it long-term, fetch and store it yourself.
+</Info>
+
+BTW, you are a nerd for reading all of this.
+
+---
+
+## Platform Summary Table
+
+A quick reference for what each platform gives us (and what it doesn't).
+
+| Platform | Profile Period | Post Period | Key Limitations |
+| :--- | :--- | :--- | :--- |
+| [Instagram](/api-reference/platforms/instagram) | Rolling (30d) | Lifetime | Views (Unique) returns 0 |
+| [Facebook](/api-reference/platforms/facebook) | Rolling (30d) | Lifetime | Profile: likes, comments, post count all return 0 |
+| [LinkedIn (Personal)](/api-reference/platforms/linkedin) | Rolling (30d) | Rolling (30d) | Views, post count, following return 0 |
+| [LinkedIn (Org)](/api-reference/platforms/linkedin) | Rolling (30d) | Rolling (30d) | Post count, following, post views/saves return 0 |
+| [Twitter/X](/api-reference/platforms/twitter) | N/A | N/A | Not available. Won't be. |
+| [TikTok](/api-reference/platforms/tiktok) | Rolling (30d) | Lifetime | Post saves return 0 |
+| [YouTube](/api-reference/platforms/youtube) | Lifetime | Lifetime | Profile likes, following, post shares return 0 |
+| [Threads](/api-reference/platforms/threads) | Rolling | Lifetime | Following returns 0 |
+| [Pinterest](/api-reference/platforms/pinterest) | Rolling (30d) | Mixed | Profile comments, post shares return 0 |
+| [Reddit](/api-reference/platforms/reddit) | N/A | Lifetime | All profile analytics return 0 |
+| [Mastodon](/api-reference/platforms/mastodon) | Snapshot | Lifetime | Most metrics return 0 - very limited |
+| [Bluesky](/api-reference/platforms/bluesky) | Snapshot | Lifetime | Most metrics return 0 - impressions are calculated |
+| [Discord](/api-reference/platforms/discord) | N/A | N/A | No analytics |
+| [Slack](/api-reference/platforms/slack) | N/A | N/A | No analytics |
+| [Google Business](/api-reference/platforms/google-business) | Rolling | Lifetime | Limited engagement metrics |
+
+---
+
+## Available Metrics Reference
+
+### Understanding Return Values
+
+- **Available**: The metric is provided by the platform API and returns real data.
+- **Returns 0**: The metric returns 0 because the platform API doesn't provide this data. This is not a bug. This is the platform being stingy.
+
+### Profile Analytics Metrics
+
+| Metric | Description |
+| :--- | :--- |
+| `impressions` | Number of times your profile/content was shown |
+| `impressionsUnique` | Number of unique users who saw your profile/content |
+| `views` | Number of times your profile/page was viewed |
+| `viewsUnique` | Number of unique users who viewed your profile |
+| `likes` | Total likes/reactions received |
+| `comments` | Total comments received |
+| `postCount` | Total number of posts published |
+| `followers` | Current follower count |
+| `following` | Current following count |
+
+### Post Analytics Metrics
+
+| Metric | Description |
+| :--- | :--- |
+| `impressions` | Number of times the post was shown |
+| `impressionsUnique` | Number of unique users who saw the post |
+| `views` | Number of times the post was viewed (for videos, this is play count) |
+| `viewsUnique` | Number of unique users who viewed the post |
+| `likes` | Total likes/reactions received |
+| `dislikes` | Total dislikes (YouTube, Reddit only) |
+| `comments` | Total comments received |
+| `shares` | Total shares/reposts |
+| `saves` | Total saves/bookmarks |
+
+---
+
+## Notes
+
+- **Rolling Window** data refreshes to show the most recent period. Each time you check, you see the current window.
+- **Lifetime** data represents cumulative totals from creation to now.
+- **Returns 0** means the platform API doesn't provide that data. Not a bug. Each platform page documents exactly which fields return 0.
+- Some platforms have date restrictions (e.g., Threads requires posts after April 2024).
+- LinkedIn has significant differences between personal and organization account analytics.
+- Metrics may vary slightly between platforms due to how each defines and tracks engagement.
+- All analytics (parsed and raw) are deleted after **40 days**. See [Data Retention](/api-reference/data-retention).

@@ -1,12 +1,15 @@
 ---
 title: Introduction
 description: Get started with the bundle.social API.
+keywords: ["social media api", "api authentication", "api key", "bundle.social api", "social media integration api"]
+"og:title": "Get Started with bundle.social API - Social Media Integration Made Simple"
+"og:description": "Start building with the unified social media API. Authenticate with API keys, understand teams and organizations, and connect to Instagram, TikTok, YouTube, and more."
 icon: key
 ---
 
 ## Authentication
 
-We use standard Bearer Token authentication. Simple, secure, boring.
+We use API Key authentication. Simple, secure, boring.
 
 <Note>
   **Don't have an API Key?**  
@@ -41,12 +44,52 @@ All endpoints are protected. If you don't send the key, you get a `401 Unauthori
 https://api.bundle.social
 ```
 
-Everything is prefixed with `/api/v1` usually, but check the specific endpoint reference.
+Everything is prefixed with `/api/v1`, but check the specific endpoint reference to be sure.
+
+---
+
+## Organizations vs Teams
+
+This is important. Almost every API call involves a `teamId`, so you need to understand the hierarchy:
+
+```
+Organization (your account)
+  ├── Team A (e.g. "Marketing")
+  │   ├── Social Accounts (Instagram, TikTok, ...)
+  │   ├── Posts
+  │   └── Uploads
+  ├── Team B (e.g. "Client: Acme Corp")
+  │   ├── Social Accounts
+  │   ├── Posts
+  │   └── Uploads
+  ├── API Keys (shared across all teams)
+  ├── Webhooks (shared across all teams)
+  └── Subscription & Billing
+```
+
+### What lives where
+
+| Level | What belongs here |
+| :--- | :--- |
+| **Organization** | API keys, webhooks, subscription/billing, compression settings |
+| **Team** | Social accounts, posts, uploads, bots, invitations, bio/link-in-bio |
+
+### Why this matters for you
+
+- **`teamId` is required** on most endpoints (creating posts, uploading media, connecting accounts). Think of a team as a "workspace" or "project" - it groups related social accounts together.
+- **API keys are org-level.** One key gives you access to all teams in the organization.
+- **Webhooks are org-level.** You get events for all teams from a single webhook endpoint.
+- **Rate limits are per team.** Each team has its own daily posting quota. Five teams means five independent limits. See [Rate Limits](/api-reference/rate-limits).
+- **Monthly post caps are org-level.** The total monthly posts across all teams are capped by your subscription tier.
+
+<Tip>
+If you're building a SaaS where each of your customers needs their own social accounts, create a **team per customer**. They won't step on each other's toes.
+</Tip>
+
+---
 
 ## Rate Limits
 
 We have sensible rate limits to protect the system. If you hit them, you'll get a `429 Too Many Requests`.
-*   **Standard:** 600 requests / minute per IP.
-*   **Platform Specific:** Posting limits depend on the social network (e.g. you can't post 100 TikToks in an hour).
 
-Check the [Rate Limits](/api-reference/rate-limits) page for the nitty-gritty details.
+Check the [Rate Limits](/api-reference/rate-limits) page for the full breakdown - including burst protection, per-minute caps, and daily posting limits per platform.

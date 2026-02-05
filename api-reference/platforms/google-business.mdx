@@ -2,9 +2,19 @@
 title: Google Business
 description: "Local SEO posts, events, offers, and updates for your business profile."
 icon: google
+keywords: ["google business api", "google my business api", "google business profile api", "local seo api", "social media api", "google business automation", "google business post scheduling"]
+"og:title": "Google Business Profile API - Local SEO Posts & Events"
+"og:description": "Google Business API guide: Create posts, events, offers, CTAs. Local SEO updates for Google Search and Maps."
 ---
 
-Google Business Profile (formerly Google My Business) lets you post updates that appear in Google Search and Maps.
+Google Business Profile (formerly Google My Business) lets you post updates that appear in Google Search and Maps. It's not social media in the traditional sense, but it's great for local businesses.
+
+## Supported Content Types
+
+*   **Standard Posts:** Regular text updates with optional image.
+*   **Events:** Time-bound events with a title and date range.
+*   **Offers:** Promotional offers with coupon codes and terms.
+*   **Alerts:** Special alerts (currently only `COVID_19`).
 
 ## Quirks & Gotchas
 
@@ -23,8 +33,16 @@ You can add a CTA button to your posts:
 *   `BOOK`, `ORDER`, `SHOP`, `LEARN_MORE`, `SIGN_UP`, `CALL`
 *   Requires a `callToActionUrl` for most types.
 
-### Character Limit
-Posts are limited to **1,500 characters**.
+### Media Limits
+
+| Constraint | Value |
+| :--- | :--- |
+| Files | 0-1 image only (no video) |
+| Image max size | 5 MB |
+| Image min resolution | 250x250 |
+| Text | Max 1,500 characters |
+
+See [Platform Limits](/api-reference/limits#google-business) for details.
 
 ---
 
@@ -33,7 +51,7 @@ Posts are limited to **1,500 characters**.
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | `text` | `string` | Post content. Max 1,500 characters. |
-| `uploadIds` | `string[]` | Media attachments (images). |
+| `uploadIds` | `string[]` | Media attachments (images only). |
 | `topicType` | `enum` | Post type: `STANDARD`, `EVENT`, `OFFER`, `ALERT`. Default: `STANDARD`. |
 | `languageCode` | `string` | Language code (e.g., `en`, `en-US`). Default: `en`. |
 | `callToActionType` | `enum` | CTA button: `BOOK`, `ORDER`, `SHOP`, `LEARN_MORE`, `SIGN_UP`, `CALL`. |
@@ -59,30 +77,32 @@ Posts are limited to **1,500 characters**.
 
 ## Analytics
 
-Google Business provides analytics for your business location.
+For general analytics concepts (refresh rates, data retention, what "Returns 0" means), see the [Analytics Overview](/api-reference/analytics).
+
+Google Business provides basic analytics for your business location. Don't expect Instagram-level data here.
 
 ### Profile Analytics
 **Period:** Rolling window.
 
 | Metric | Description | Note |
 | :--- | :--- | :--- |
-| `Impressions` | Profile views | How many times your profile was viewed |
-| `Views` | Profile views | |
-| `Followers` | Returns `0` | Not applicable |
+| `impressions` | Profile views | How many times your profile was viewed |
+| `views` | Profile views | Same as impressions |
+| `followers` | - | Returns `0` (not applicable) |
 
 ### Post Analytics
 **Period:** Lifetime.
 
 | Metric | Description | Note |
 | :--- | :--- | :--- |
-| `Impressions` | Post views | |
-| `Views` | Post views | |
-| `Likes` | Returns `0` | Not tracked by Google |
-| `Comments` | Returns `0` | Not tracked by Google |
+| `impressions` | Post views | |
+| `views` | Post views | Same as impressions |
+| `likes` | - | Returns `0` (not tracked by Google) |
+| `comments` | - | Returns `0` (not tracked by Google) |
 
 ---
 
-## Example
+## Examples
 
 ### Standard Post
 

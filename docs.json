@@ -37,6 +37,8 @@
               "api-reference/connect-social-accounts",
               "api-reference/webhooks",
               "api-reference/examples",
+              "api-reference/analytics",
+              "api-reference/data-retention",
               "api-reference/limits",
               "api-reference/rate-limits",
               "api-reference/import-posts",
@@ -117,6 +119,7 @@
             "group": "Featured",
             "pages": [
               "blog/index",
+              "blog/social-media-api-mistakes",
               "blog/automate-social-media-n8n",
               "blog/how-to-create-ai-brand-voice-xml",
               "blog/agency-automation-case-study",

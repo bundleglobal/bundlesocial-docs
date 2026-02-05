@@ -1,41 +1,78 @@
 ---
 title: Threads
-description: "Meta's text app. It's like Twitter, but with Meta's infrastructure."
+description: "Meta's text app. It's like Twitter, but with Meta's infrastructure and surprisingly decent API."
 icon: at
+keywords: ["threads api", "threads post api", "meta threads api", "social media api", "threads analytics", "threads automation", "threads post scheduling"]
+"og:title": "Threads API Integration - Meta's Text Platform"
+"og:description": "Threads API guide: Post text and media, analytics, date restrictions, and mixed media support (0-10 files)."
 ---
 
-Threads is the new kid on the block, integrated tightly with Instagram's infrastructure.
+Threads is the new kid on the block, integrated tightly with Instagram's infrastructure. The API is surprisingly decent for a platform this young.
+
+## Supported Content Types
+
+*   **Text Posts:** Text only, or text with images/videos. 0-10 files.
+*   **Mixed Media:** Images and videos can be combined in the same post. Up to 10 items.
 
 ## Quirks & Gotchas
 
 ### Terminology
-*   **Comments** are called **Replies**.
-*   **Shares** include both **Reposts** and **Quotes**.
+*   **Comments** are called **Replies** in Threads-land.
+*   **Shares** include both **Reposts** and **Quotes**. We combine them into one number.
+
+### Date Restrictions
+Threads requires posts to be after **April 2024** for analytics. Older imported posts won't have analytics data.
+
+### Media Limits
+
+| Constraint | Value |
+| :--- | :--- |
+| Files | 0-10 (images and/or videos, mixed allowed) |
+| Video max bitrate | 100 Mbps |
+| Video aspect ratio | 0.01:1 to 1.91:1 |
+| Image max size | 8 MB |
+| Image width | 320-1440px |
+| Image aspect ratio | 0.01:1 to 1.91:1 |
+
+See [Platform Limits](/api-reference/limits#threads) for more details.
 
 ---
 
 ## Analytics
+
+For general analytics concepts (refresh rates, data retention, what "Returns 0" means), see the [Analytics Overview](/api-reference/analytics).
 
 ### Profile Analytics
 **Period:** Rolling window.
 
 | Metric | Description | Note |
 | :--- | :--- | :--- |
-| `Impressions` | Views | Includes Quote count |
-| `Impressions (Unique)` | Unique views | Includes Repost count |
-| `Views` | Views | |
-| `Likes` | Likes | |
-| `Comments` | Replies | |
-| `Followers` | Followers | |
-| `Following` | Returns `0` | Not provided |
+| `impressions` | Content impressions | Internally contains quote count from API |
+| `impressionsUnique` | Unique impressions | Internally contains repost count from API |
+| `views` | Views | |
+| `viewsUnique` | - | Same as views |
+| `likes` | Likes | |
+| `comments` | Replies | |
+| `postCount` | Total posts | |
+| `followers` | Followers | |
+| `following` | - | Returns `0` (not provided by Threads API) |
 
 ### Post Analytics
 **Period:** Lifetime.
 
 | Metric | Description | Note |
 | :--- | :--- | :--- |
-| `Impressions` | Views | |
-| `Views` | Views | Same as impressions |
-| `Likes` | Likes | |
-| `Comments` | Replies | |
-| `Shares` | Reposts + Quotes | |
+| `impressions` | Views | |
+| `impressionsUnique` | - | Same as impressions |
+| `views` | Views | Same as impressions |
+| `viewsUnique` | - | Same as views |
+| `likes` | Likes | |
+| `comments` | Replies | |
+| `shares` | Reposts + Quotes | Combined into one number |
+
+### Quirks
+- Views metric is used for both impressions and views (they are the same value).
+- Comments are called "replies" in Threads.
+- Shares include both reposts and quotes - we don't split them.
+- For profile analytics: the impressions field internally contains quote counts and impressionsUnique contains repost counts. This is how the Threads API returns data.
+- Following count is not available through the Threads API.

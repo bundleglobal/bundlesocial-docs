@@ -2,6 +2,9 @@
 title: Discord
 description: "Channel-based messaging via webhooks. Perfect for community updates."
 icon: discord
+keywords: ["discord api", "discord webhooks", "discord bot api", "social media api", "discord automation", "discord post scheduling"]
+"og:title": "Discord API Integration - Webhooks & Channel Messaging"
+"og:description": "Discord API guide: Post messages via webhooks, custom bot identity, channel selection, and media attachments."
 ---
 
 Discord works differently from other platforms. Instead of OAuth tokens, we use **webhooks** that you set up in your Discord server.
@@ -36,16 +39,31 @@ You can customize how your posts appear:
 
 ---
 
+## Media Limits
+
+| Constraint | Value |
+| :--- | :--- |
+| Files | 0-10 (images and/or videos, mixed allowed) |
+| Video max size | 25 MB |
+| Image max size | 25 MB |
+| Text | Max 2,000 characters |
+
+See [Platform Limits](/api-reference/limits#discord) for more details.
+
+---
+
 ## Analytics
 
-Discord does not provide analytics via its API. All metrics return `0`.
+For general analytics concepts, see the [Analytics Overview](/api-reference/analytics).
 
-| Metric | Description | Note |
-| :--- | :--- | :--- |
-| `Impressions` | Returns `0` | Not available |
-| `Views` | Returns `0` | Not available |
-| `Likes` | Returns `0` | Not available |
-| `Comments` | Returns `0` | Not available |
+Discord does not provide analytics via its API. All metrics return `0`. It's a messaging platform, not an analytics platform.
+
+| Metric | Note |
+| :--- | :--- |
+| `impressions` | Returns `0` |
+| `views` | Returns `0` |
+| `likes` | Returns `0` |
+| `comments` | Returns `0` |
 
 ---
 

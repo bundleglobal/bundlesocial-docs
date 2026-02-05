@@ -1,34 +1,80 @@
 ---
 title: Reddit
-description: "The front page of the internet. Minimalist API."
+description: "The front page of the internet. Minimalist analytics, maximum subreddit rules."
 icon: reddit
+keywords: ["reddit api", "reddit post api", "social media api", "reddit analytics", "reddit automation", "reddit post scheduling"]
+"og:title": "Reddit API Integration - Subreddit Rules & Limited Analytics"
+"og:description": "Reddit API guide: Post text, links, images, videos. Learn subreddit rules, upvotes/downvotes, and minimal analytics."
 ---
 
-Reddit is a collection of communities. The API is functional but stingy with data.
+Reddit is a collection of communities, each with its own rules. The API is functional but stingy with data - especially analytics.
+
+## Supported Content Types
+
+*   **Text Posts:** Title + text. Title is required.
+*   **Link Posts:** Title + URL.
+*   **Image Posts:** 1 image, or gallery (up to 10 images if the subreddit allows).
+*   **Video Posts:** 1 video.
 
 ## Quirks & Gotchas
 
-### Engagement
-*   **Likes** = **Upvotes**.
-*   **Dislikes** = **Downvotes**.
-*   Reddit does not track "Impressions" or "Reach" in the way marketers want.
+### Subreddit Rules are King
+Each subreddit has its own rules about what's allowed:
+*   Some subreddits don't allow media at all.
+*   Some allow images but not galleries.
+*   Some require flairs.
+*   We validate against subreddit settings before posting. If it's not allowed, you get a clear error.
+
+### Engagement Terminology
+*   **Likes** = **Upvotes**
+*   **Dislikes** = **Downvotes**
+*   **Shares** = **Crossposts**
+
+Reddit does not track "Impressions" or "Reach" the way marketers want. If that's a dealbreaker, you're on the wrong platform.
+
+### Media Limits
+
+| Constraint | Value |
+| :--- | :--- |
+| **Single post** | 0-1 file (image or video) |
+| Video max size | 1 GB |
+| Video aspect ratio | 9:16 to 16:9 |
+| Video duration | 4s - 15 min |
+| Image max size | 20 MB |
+| **Gallery** | 0-10 images (if subreddit allows) |
+| Gallery image max size | 20 MB each |
+
+See [Platform Limits](/api-reference/limits#reddit) for more details.
 
 ---
 
 ## Analytics
 
+For general analytics concepts (refresh rates, data retention, what "Returns 0" means), see the [Analytics Overview](/api-reference/analytics).
+
 ### Profile Analytics
 **Status:** Not available.
 
-Reddit does not provide profile-level analytics via API. Everything returns `0`.
+Reddit does not provide profile-level analytics through their API. Everything returns `0`. All of it. Every single metric. Don't ask.
 
 ### Post Analytics
 **Period:** Lifetime.
 
 | Metric | Description | Note |
 | :--- | :--- | :--- |
-| `Likes` | Upvotes | |
-| `Dislikes` | Downvotes | |
-| `Comments` | Comments | |
-| `Shares` | Crossposts | |
-| `Impressions` | Returns `0` | Not available |
+| `impressions` | - | Returns `0` (not available) |
+| `impressionsUnique` | - | Returns `0` (not available) |
+| `views` | View count | May not be available for all posts |
+| `viewsUnique` | - | Returns `0` (not available) |
+| `likes` | Upvotes | |
+| `dislikes` | Downvotes | |
+| `comments` | Comments | |
+| `shares` | Crossposts | |
+| `saves` | - | Returns `0` (not available) |
+
+### Quirks
+- Reddit has the most limited analytics of any major platform we support.
+- No profile-level analytics whatsoever.
+- View counts exist for some posts but are not guaranteed.
+- No impressions or reach metrics. Reddit's API simply doesn't provide them.
+- Upvotes/downvotes are the primary engagement signals.

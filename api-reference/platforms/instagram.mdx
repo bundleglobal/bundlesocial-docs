@@ -2,65 +2,168 @@
 title: Instagram
 description: "Reels, Stories, Posts, and the strict laws of aspect ratios."
 icon: instagram
-keywords: ["instagram api", "instagram reels api", "instagram stories api", "instagram automation", "social media api"]
+keywords: ["instagram api", "instagram reels api", "instagram stories api", "instagram posts api", "social media api", "instagram analytics", "instagram automation", "instagram post scheduling"]
+"og:title": "Instagram API Integration - Limits, Analytics & Quirks"
+"og:description": "Complete Instagram API guide: Reels, Stories, Posts. Learn aspect ratios, media limits, analytics, and posting requirements."
 ---
 
 Instagram is visually demanding. The API reflects that. If you don't follow their rules on aspect ratios and media types, they will reject your content without mercy.
 
 ## Supported Content Types
 
-*   **Posts:** Single image, single video, or carousel (mixed).
-*   **Reels:** Video only. Must be 9:16.
-*   **Stories:** Image or video. Expire after 24 hours.
+*   **Posts:** Single image, single video, or carousel (mixed images + videos). 1-10 files.
+*   **Reels:** Video only. Must be vertical.
+*   **Stories:** Image or video. Expire after 24 hours. Gone like your motivation on Monday morning.
 
 ## Quirks & Gotchas
 
 ### Aspect Ratios are Law
 Instagram is very strict here. 
-*   **Stories/Reels:** Must be **9:16** (vertical).
-*   **Feed Posts:** Generally **4:5** (vertical) or **1:1** (square).
+*   **Stories/Reels:** Must be **9:16** (vertical). Technically the API accepts wider ratios, but they'll look terrible.
+*   **Feed Posts:** **4:5** (vertical) or **1:1** (square) for images. Videos are more flexible.
 
 <Warning>
-**Don't try to cheat.** If you upload a 16:9 (landscape) video as a Reel, it might technically "work" but it will look terrible (awkwardly cropped) or be rejected entirely. Your marketing team will not be happy.
+**Don't try to cheat.** If you upload a 16:9 (landscape) video as a Reel, it might technically "work" but it will look terrible (awkwardly cropped) or be rejected entirely. Your marketing team will not be happy. Your users' marketing teams will not be happy. Nobody will be happy.
 </Warning>
 
 ### Stories vs. Reels vs. Posts
-*   **Stories** are ephemeral. They disappear.
-*   **Reels** are for growth. They are public videos.
-*   **Posts** are for your feed grid.
+*   **Stories** are ephemeral. They disappear after 24 hours. Great for FOMO content.
+*   **Reels** are for growth. They're public, discoverable, and the algorithm loves them.
+*   **Posts** are for the feed grid. The permanent collection.
+
+### Media Limits
+
+See [Platform Limits](/api-reference/limits#instagram) for the full breakdown of file sizes, resolutions, and aspect ratios.
 
 ---
 
 ## Analytics
 
-We pull data directly from the Instagram Graph API.
+For general analytics concepts (refresh rates, data retention, what "Returns 0" means), see the [Analytics Overview](/api-reference/analytics).
 
 ### Refresh Rate & Limits
 *   **Default Refresh:** Every 24 hours.
-*   **Force Refresh:** Available (max `Teams * 5` times).
+*   **Force Refresh:** Available (max `Teams × 5` per day).
+*   **Data Retention:** 40 days. [Details](/api-reference/data-retention).
 
 ### Profile Analytics
 **Period:** Rolling window (30 days).
 
 | Metric | Description | Note |
 | :--- | :--- | :--- |
-| `Impressions` | Total times profile content was shown | |
-| `Impressions (Unique)` | Unique accounts that saw content | Called "Reach" in API |
-| `Views` | Profile views | |
-| `Likes` | Total likes | |
-| `Comments` | Total comments | |
-| `Followers` | Total followers | |
-| `Views (Unique)` | Returns `0` | Not provided by API |
+| `impressions` | Total times profile content was shown | |
+| `impressionsUnique` | Unique accounts that saw content | Called "Reach" by Instagram |
+| `views` | Profile views | |
+| `viewsUnique` | - | Returns `0` (not provided by API) |
+| `likes` | Total likes | |
+| `comments` | Total comments | |
+| `postCount` | Total posts published | |
+| `followers` | Total followers | |
+| `following` | Total following | |
 
 ### Post Analytics
 **Period:** Lifetime (Snapshot).
 
 | Metric | Description | Note |
 | :--- | :--- | :--- |
-| `Impressions` | Total views | Called "views" for videos |
-| `Impressions (Unique)` | Unique accounts reached | Called "reach" |
-| `Views` | Video plays | Videos/Reels only |
-| `Likes` | Total likes | |
-| `Comments` | Total comments | |
-| `Shares` | Total shares | Reels only |
-| `Saves` | Total saves | |
+| `impressions` | Total views | Called "views" in Instagram API |
+| `impressionsUnique` | Unique accounts reached | Called "reach" in Instagram API |
+| `views` | Video plays | Videos/Reels only |
+| `viewsUnique` | - | Returns `0` (not provided by API) |
+| `likes` | Total likes | |
+| `comments` | Total comments | |
+| `shares` | Total shares | Reels only |
+| `saves` | Total saves | |
+
+### Raw Analytics - Demographics & Audience Data
+
+Instagram provides some of the richest demographic data via raw analytics. Here's what the raw payload looks like when enabled for your organization:
+
+```json
+{
+  "profileInfo": { /* basic account info */ },
+  "totals30d": [ /* 30-day daily breakdown */ ],
+  "demographics": {
+    "follows_and_unfollows": {
+      "data": [{
+        "name": "follows_and_unfollows",
+        "period": "day",
+        "title": "Follows and unfollows",
+        "total_value": { "value": { "follows": 142, "unfollows": 23 } }
+      }]
+    },
+    "follower_demographics": {
+      "country": {
+        "data": [{
+          "name": "follower_demographics",
+          "total_value": {
+            "breakdowns": [{
+              "dimension_keys": ["country"],
+              "results": [
+                { "dimension_values": ["US"], "value": 4521 },
+                { "dimension_values": ["GB"], "value": 1893 },
+                { "dimension_values": ["DE"], "value": 1247 }
+              ]
+            }]
+          }
+        }]
+      },
+      "city": {
+        "data": [{
+          "name": "follower_demographics",
+          "total_value": {
+            "breakdowns": [{
+              "dimension_keys": ["city"],
+              "results": [
+                { "dimension_values": ["New York, New York"], "value": 892 },
+                { "dimension_values": ["London, England"], "value": 654 }
+              ]
+            }]
+          }
+        }]
+      },
+      "gender": {
+        "data": [{
+          "name": "follower_demographics",
+          "total_value": {
+            "breakdowns": [{
+              "dimension_keys": ["gender"],
+              "results": [
+                { "dimension_values": ["M"], "value": 5234 },
+                { "dimension_values": ["F"], "value": 4891 },
+                { "dimension_values": ["U"], "value": 312 }
+              ]
+            }]
+          }
+        }]
+      },
+      "age": {
+        "data": [{
+          "name": "follower_demographics",
+          "total_value": {
+            "breakdowns": [{
+              "dimension_keys": ["age"],
+              "results": [
+                { "dimension_values": ["18-24"], "value": 3421 },
+                { "dimension_values": ["25-34"], "value": 4102 },
+                { "dimension_values": ["35-44"], "value": 1893 },
+                { "dimension_values": ["45-54"], "value": 721 }
+              ]
+            }]
+          }
+        }]
+      }
+    },
+    "engaged_audience_demographics": {
+      "country": { /* same structure as follower_demographics */ },
+      "city": { /* same structure */ },
+      "gender": { /* same structure */ },
+      "age": { /* same structure */ }
+    }
+  }
+}
+```
+
+<Info>
+Raw demographics include both **follower demographics** (lifetime, who follows you) and **engaged audience demographics** (this month, who interacts with your content). These are two different audiences and both are useful for understanding your reach.
+</Info>
