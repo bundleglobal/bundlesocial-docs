@@ -2,52 +2,77 @@
 title: YouTube
 description: "Long-form, Shorts, and the legal requirement of 'Made for Kids'."
 icon: youtube
-keywords: ["youtube api", "youtube shorts api", "youtube upload api", "youtube automation", "social media api"]
+keywords: ["youtube api", "youtube shorts api", "youtube upload api", "youtube automation", "social media api", "youtube analytics"]
 ---
 
-YouTube is a beast. It handles both traditional videos and Shorts (vertical video).
+YouTube is a beast. It handles both traditional long-form videos and Shorts (vertical video). The API is powerful but comes with legal requirements you can't ignore.
+
+## Supported Content Types
+
+*   **Videos:** Long-form content. 1 video, up to 4 hours. Max 256 GB (not a typo).
+*   **Shorts:** Vertical/square video, max 3 minutes. YouTube auto-detects based on duration and aspect ratio.
 
 ## Quirks & Gotchas
 
 ### "Made for Kids" (COPPA)
 This is not just a quirk, it's a **legal requirement**.
 *   You **must** flag content as `madeForKids: true` if it targets children.
-*   Failure to do so can result in penalties. We expose this field in the `data.YOUTUBE` object. Use it.
+*   Failure to do so can result in penalties - real ones, from the FTC.
+*   We expose this field in the `data.YOUTUBE` object. Use it. Don't skip it. Don't "figure it out later".
 
 ### Shorts Detection
 There is no special "upload as Short" button. YouTube decides for you based on the file:
-*   **Duration:** Under 60 seconds.
-*   **Aspect Ratio:** Vertical (9:16) or Square (1:1).
+*   **Duration:** Under **3 minutes** (180 seconds).
+*   **Aspect Ratio:** Vertical (9:16) or Square (1:1). Technically 1:3 to 1:1.
 
-If your video meets these criteria, it becomes a Short. If it doesn't, it's a regular video. Simple.
+If your video meets these criteria, it becomes a Short. If it doesn't, it's a regular video.
+
+### YouTube Title is Required
+Unlike most platforms where you just need text, YouTube requires a **title** (`data.YOUTUBE.title`). If you forget it, the post will fail.
+
+### Media Limits
+
+See [Platform Limits](/api-reference/limits#youtube) for the full breakdown.
 
 ---
 
 ## Analytics
 
-YouTube analytics are all **Lifetime** values. There is no rolling window.
+For general analytics concepts (refresh rates, data retention, what "Returns 0" means), see the [Analytics Overview](/api-reference/analytics).
+
+YouTube analytics are all **Lifetime** values. There is no rolling window - everything is cumulative from day one.
 
 ### Profile (Channel) Analytics
 **Period:** Lifetime.
 
 | Metric | Description | Note |
 | :--- | :--- | :--- |
-| `Impressions` | Total channel views | |
-| `Views` | Total channel views | |
-| `Comments` | Total comments | Across all videos |
-| `Followers` | Subscribers | |
-| `Likes` | Returns `0` | Not available at channel level |
-| `Following` | Returns `0` | Not applicable |
+| `impressions` | Total channel views | |
+| `impressionsUnique` | - | Same as impressions (YouTube doesn't distinguish) |
+| `views` | Total channel views | Same as impressions |
+| `viewsUnique` | - | Same as views |
+| `likes` | - | Returns `0` (not available at channel level) |
+| `comments` | Total comments | Across all videos |
+| `postCount` | Total videos | |
+| `followers` | Subscribers | |
+| `following` | - | Returns `0` (not applicable to channels) |
 
 ### Post (Video) Analytics
 **Period:** Lifetime.
 
 | Metric | Description | Note |
 | :--- | :--- | :--- |
-| `Impressions` | Video views | |
-| `Views` | Video views | |
-| `Likes` | Likes | |
-| `Dislikes` | Dislikes | Available via API even if hidden on UI |
-| `Comments` | Comments | |
-| `Saves` | Favorites | |
-| `Shares` | Returns `0` | Not provided by API |
+| `impressions` | Video views | |
+| `impressionsUnique` | - | Same as impressions (YouTube doesn't distinguish) |
+| `views` | Video views | Same as impressions |
+| `viewsUnique` | - | Same as views |
+| `likes` | Likes | |
+| `dislikes` | Dislikes | Available via API even though YouTube hides them on the UI |
+| `comments` | Comments | |
+| `shares` | - | Returns `0` (not provided by YouTube API) |
+| `saves` | Favorites | |
+
+### Quirks
+- YouTube doesn't distinguish between impressions and unique impressions at any level.
+- Dislikes are available through the API (though YouTube no longer shows dislike counts publicly). Handy if you want to know the truth.
+- Channel-level likes are not available. Post shares are not available. YouTube gives us a lot, but not everything.

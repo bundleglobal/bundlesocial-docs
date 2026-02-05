@@ -1,38 +1,79 @@
 ---
 title: Mastodon
-description: "The decentralized social web. Basic metrics only."
+description: "The decentralized social web. Basic metrics only, but at least it's open source."
 icon: mastodon
+keywords: ["mastodon api", "mastodon automation", "fediverse api", "social media api", "mastodon analytics"]
 ---
 
-Mastodon is part of the Fediverse. It's decentralized, which means "analytics" is a loose concept.
+Mastodon is part of the Fediverse. It's decentralized, which means "analytics" is a loose concept. Each instance runs independently, and there's no central authority tracking impressions or views.
+
+## Supported Content Types
+
+*   **Toots (Posts):** Text with optional media. Up to 4 files.
+*   Mixed images and videos allowed, but only 1 video max.
 
 ## Quirks & Gotchas
 
 ### Terminology
-*   **Likes** = **Favourites**.
-*   **Shares** = **Reblogs**.
+*   **Likes** = **Favourites** (British spelling, because Mastodon).
+*   **Shares** = **Reblogs** (like retweets, but federated).
+*   **Posts** = **Toots** (or "statuses" in the API, because naming things is hard).
+
+### Character Limits
+Character limits are **instance-dependent** - most instances default to 500, but some allow more. We can't know in advance what your user's instance allows.
+
+### Media Limits
+
+| Constraint | Value |
+| :--- | :--- |
+| Files | 0-4 (images and/or videos, mixed allowed) |
+| Max videos | 1 |
+| Video max size | 99 MB |
+| Video aspect ratio | 1:3 to 1:1 |
+| Max images | 4 |
+| Image max size | 16 MB each |
+
+See [Platform Limits](/api-reference/limits#mastodon) for more details.
 
 ---
 
 ## Analytics
+
+For general analytics concepts (refresh rates, data retention, what "Returns 0" means), see the [Analytics Overview](/api-reference/analytics).
+
+Mastodon has very limited analytics capabilities. Being decentralized means there's no central tracking of impressions or views.
 
 ### Profile Analytics
 **Period:** Snapshot.
 
 | Metric | Description | Note |
 | :--- | :--- | :--- |
-| `Post Count` | Total toots | |
-| `Followers` | Followers | |
-| `Following` | Following | |
-| `Impressions` | Returns `0` | Not available |
-| `Likes` | Returns `0` | Not available |
+| `impressions` | - | Returns `0` (not available) |
+| `impressionsUnique` | - | Returns `0` (not available) |
+| `views` | - | Returns `0` (not available) |
+| `viewsUnique` | - | Returns `0` (not available) |
+| `likes` | - | Returns `0` (not available at profile level) |
+| `comments` | - | Returns `0` (not available at profile level) |
+| `postCount` | Total toots | |
+| `followers` | Followers | |
+| `following` | Following | |
 
 ### Post Analytics
 **Period:** Lifetime.
 
 | Metric | Description | Note |
 | :--- | :--- | :--- |
-| `Likes` | Favourites | |
-| `Comments` | Replies | |
-| `Shares` | Reblogs | |
-| `Impressions` | Returns `0` | Not available |
+| `impressions` | - | Returns `0` (not available) |
+| `impressionsUnique` | - | Returns `0` (not available) |
+| `views` | - | Returns `0` (not available) |
+| `viewsUnique` | - | Returns `0` (not available) |
+| `likes` | Favourites | |
+| `comments` | Replies | |
+| `shares` | Reblogs | |
+| `saves` | - | Returns `0` (not available) |
+
+### Quirks
+- No impression or view metrics. The Fediverse doesn't track eyeballs the way corporate social media does.
+- Only basic engagement metrics (favourites, replies, reblogs) are available per post.
+- Profile-level engagement is not aggregated by Mastodon's API.
+- This is by design, not a bug. Privacy-focused platform = limited tracking.

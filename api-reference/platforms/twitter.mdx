@@ -1,18 +1,35 @@
 ---
 title: Twitter / X
-description: "It's X now. The API is... well, it exists."
+description: "It's X now. The API is... well, it exists. Analytics are not included."
 icon: x-twitter
 keywords: ["twitter api", "x api", "twitter automation", "twitter post api", "social media api"]
 ---
 
-The platform formerly known as Twitter. 
+The platform formerly known as Twitter. The API changes have been... eventful. Let's focus on what works.
+
+## Supported Content Types
+
+*   **Tweets:** Text with optional media. 0-4 files.
+*   Images and videos can be mixed in the same tweet.
 
 ## Quirks & Gotchas
 
 ### Media Limits
 *   Max 4 images per tweet.
-*   Max 1 video per tweet.
-*   You cannot mix images and videos in the same tweet via API.
+*   Max 4 videos per tweet (though realistically, 1 is most common).
+*   Video max size: 512 MB.
+
+### Subscription-Based Limits
+Twitter/X limits vary based on the account's subscription tier:
+
+| Tier | Text Limit | Video Duration |
+| :--- | :--- | :--- |
+| Free | 280 chars | 140s (2:20) |
+| Basic | 280 chars | 140s (2:20) |
+| Premium | 25,000 chars | 600s (10 min) |
+| Premium+ | 25,000 chars | 600s (10 min) |
+
+See [Platform Limits](/api-reference/limits#twitter--x) for the full breakdown.
 
 ---
 
@@ -21,11 +38,11 @@ The platform formerly known as Twitter.
 We'll be honest here.
 
 ### Profile Analytics
-**Status:** Not available.
+**Status:** Not available. Won't be.
 
 ### Post Analytics
-**Status:** Not available.
+**Status:** Not available. Won't be.
 
 <Info>
-**Why?** The X API changes have made analytics access extremely expensive and restrictive. For now, we do not support them. We know, it sucks.
+**Why?** The X API changes have made analytics access extremely expensive and restrictive. The cost-to-value ratio doesn't make sense for anyone involved. We know, it sucks. If this changes in the future, we'll add support. But don't hold your breath.
 </Info>

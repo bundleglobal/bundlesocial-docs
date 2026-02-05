@@ -1,0 +1,186 @@
+---
+title: "The Developer's Survival Guide to Social Media APIs: 5 Mistakes to Avoid"
+description: "Stop making these 5 social media API integration mistakes. From token expiry to polling traps - a practical guide for developers who've been burned by production edge cases."
+keywords: ["social media api mistakes", "social media api integration", "social media api best practices", "oauth token refresh", "api rate limits", "social media webhooks", "social media scheduling api", "social media api integration guide", "social media api integration best practices"]
+"og:title": "5 Social Media API Mistakes That Will Ruin Your Weekend"
+"og:description": "I've been rate-limited by Twitter more times than I've had hot dinners. Here's what I learned so you don't have to."
+date: '2026-02-05'
+---
+
+*By Marcel Czuryszkiewicz, Founder @ [bundle.social](https://bundle.social)*
+
+*I've been rate-limited by Twitter more times than I've had hot dinners. Here's what I learned.*
+
+## TL;DR
+
+- **The Reality:** Integrating social media APIs looks easy until you hit production. Then the edge cases kill you.
+- **The Mistakes:** Ignoring token expiry, polling instead of listening, assuming all platforms are the same, and underestimating maintenance.
+- **The Fix:** Use [webhooks](/api-reference/webhooks), handle errors gracefully, standardize your data, and stop trying to build everything from scratch.
+- **The Goal:** Build a social media integration that scales, not one that wakes you up at 3 AM.
+
+## Why Most Integrations Fail
+
+So you've decided to build a social media API integration for your marketing platform. You read the docs, made a "Hello World" post, and thought, "This is easy."
+
+Fast forward three months: your users are complaining that their [LinkedIn](/api-reference/platforms/linkedin) tokens expired, your server is crashing from polling [Instagram](/api-reference/platforms/instagram) too often, and [TikTok](/api-reference/platforms/tiktok) just changed their API version without warning.
+
+Building a social media scheduling API is one thing. Keeping it running is another. Whether you're doing this in PHP, Android, or Node.js, these are the 5 deadly sins you must avoid.
+
+## Mistake #1: The "Forever Token" Fallacy
+
+**The Mistake:** Assuming that once a user logs in, you have access forever.
+
+**The Reality:** Access tokens expire. A lot.
+
+When you're dealing with [OAuth and social API integration](/api-reference/connect-social-accounts), you're juggling tokens with wildly different lifespans. Facebook tokens last 60 days. Some platforms give you 1 hour before you need a refresh token to get a new one. Others just... revoke access when they feel like it.
+
+Here's what happens in production: a user connects their Instagram on Monday. By Wednesday, something triggers a token invalidation - maybe they changed their password, maybe Meta did a server migration, maybe Mercury is in retrograde. Your app tries to post, gets a `401 Unauthorized`, and your user sees "Post failed" with zero explanation.
+
+**The Fix:**
+
+- **Automate refreshing.** Build a background job that checks for tokens expiring soon and refreshes them before they die. Don't wait for the `401` to tell you something's wrong - by then you've already failed a post.
+- **Handle revocation gracefully.** Users will change passwords. They'll revoke your app from their settings page at 2 AM. Your app needs to catch these errors and prompt reconnection, not crash silently.
+- **Monitor token health.** Track `lastTokenRefreshedAt` for every connected account. If it's been a while, something might be off.
+
+<Note>
+At bundle.social, we handle token refreshing and health monitoring automatically. When we detect a disconnected account, we notify you via the `social-account.deleted` [webhook event](/api-reference/webhooks) so you can prompt the user to reconnect. You don't have to build the plumbing yourself.
+</Note>
+
+## Mistake #2: The Polling Trap
+
+**The Mistake:** Asking the API "Do I have new comments?" every 30 seconds for every user.
+
+**The Reality:** You will hit [rate limits](/api-reference/rate-limits) instantly, and platforms will block you.
+
+I've seen this in production more times than I'd like to admit. A developer sets up a cron job:
+
+```typescript
+// Please don't do this
+setInterval(async () => {
+  for (const user of allUsers) {
+    for (const account of user.accounts) {
+      await checkForNewComments(account); // 10,000 users × 3 accounts = 30,000 requests every 30s
+    }
+  }
+}, 30_000);
+```
+
+Congratulations, you've just built a DDoS tool aimed at yourself. Most social media APIs have strict request limits - [Twitter gives you 50 posts/day on Basic tier](https://developer.x.com/en/docs/x-api), Instagram's rate limits are per-user, and LinkedIn will just silently start returning empty responses when you annoy them enough.
+
+**The Fix: Use webhooks.**
+
+Instead of calling the API, you give the platform a URL. When something happens, *they* call *you*. It's faster, cheaper, and keeps you out of API jail.
+
+```typescript
+// This is the way
+app.post('/webhooks/bundle', (req, res) => {
+  const event = req.body;
+  
+  switch (event.type) {
+    case 'post.published':
+      // Update your UI - the post went live
+      break;
+    case 'post.failed':
+      // Alert the user - something broke
+      break;
+    case 'comment.published':
+      // First comment posted successfully
+      break;
+  }
+  
+  res.status(200).send('OK');
+});
+```
+
+We support [8 webhook events](/api-reference/webhooks) covering posts, comments, social accounts, and teams. Set it up once, never poll again.
+
+## Mistake #3: Treating Every Platform the Same
+
+**The Mistake:** Building a generic `createPost()` function and expecting it to work everywhere.
+
+**The Reality:** Every platform has unique constraints that will reject your content in creative ways.
+
+Here's a fun exercise. Try posting the same video to all 14 platforms and count the errors:
+
+- **Instagram** requires specific [aspect ratios](/api-reference/limits#instagram) (4:5 to 16:9 for Reels). Portrait video? Fine. Ultrawide? Rejected.
+- **TikTok** only accepts [JPG/JPEG for images](/api-reference/limits#tiktok) (not PNG, not WebP, just JPG). Also, videos go through a `REVIEW` status before publishing - your post isn't live until TikTok says so.
+- **YouTube** decides if your video is a Short based on duration and aspect ratio. There's no "upload as Short" button.
+- **LinkedIn** has different capabilities for [personal vs. organization accounts](/api-reference/platforms/linkedin). What works for one might not work for the other.
+- **Twitter/X** has a 280-character limit (shocking, I know). But Threads gives you 500, and Mastodon gives you 5,000.
+- **Reddit** requires you to specify a subreddit and follow its specific rules.
+
+**The Fix: Build a validation layer.**
+
+Before you ever send data to the API, check it against the platform's rules. "Is this video too long for Instagram Stories?" "Is this image a PNG going to TikTok?" "Is this text over 280 characters for Twitter?"
+
+We maintain a complete [platform limits reference](/api-reference/limits) with every file size, resolution, duration, and text limit across all 14 platforms. Use it as your validation source of truth - we update it when platforms change their rules (which is... often).
+
+## Mistake #4: Ignoring the "Analytics Mess"
+
+**The Mistake:** Displaying raw analytics data from the API directly to your users.
+
+**The Reality:** The data is messy, delayed, and inconsistent across platforms.
+
+If a user posts a video and checks their dashboard 10 minutes later, the [TikTok API](/api-reference/platforms/tiktok) might still show 0 views. Not because nobody watched it - TikTok just takes up to 48 hours to process detailed analytics. If you show "0 views" right away, your user thinks your tool is broken.
+
+Then there's the normalization problem. Instagram calls it "reach." Facebook calls it "unique impressions." LinkedIn calls it "unique impressions" too but calculates it differently. YouTube doesn't even distinguish between impressions and unique impressions. Good luck building a unified dashboard.
+
+And here's the kicker: most platforms don't give you historical data forever. We retain [analytics for 40 days](/api-reference/data-retention) - after that, it's gone. If your users expect yearly charts, you need to store the data yourself.
+
+**The Fix:**
+
+- **Cache aggressively.** Don't fetch live data on every page load. Sync [analytics in the background](/api-reference/analytics) on a schedule (daily is usually enough).
+- **Manage expectations.** Show "Last updated: 1 hour ago" labels on dashboards. Users understand that data isn't real-time if you tell them.
+- **Normalize your metrics.** Create your own definition of "engagement" and map each platform's weird metrics to it. Our [analytics overview](/api-reference/analytics) explains exactly which metrics return real data vs. `0` for each platform.
+- **Store it long-term.** If you need data beyond 40 days, fetch it daily and keep it in your own database. We even have a [code example](/api-reference/data-retention) for setting up a daily sync.
+
+## Mistake #5: Building vs. Buying (The Ego Trap)
+
+**The Mistake:** Spending 6 months building integrations instead of building your actual product.
+
+**The Reality:** Social media API integration best practices include knowing when to stop.
+
+Here's the math. You want to support 5 platforms. Each one needs:
+
+- OAuth implementation and token management
+- Content validation per platform rules
+- Upload handling (simple for images, resumable for large videos)
+- Error handling and retry logic
+- Analytics normalization
+- Ongoing maintenance when platforms change their APIs
+
+That's ~2-4 weeks per platform if your developer is experienced. So 10-20 weeks of pure integration work before you ship a single feature that your users actually care about.
+
+If your startup *is* a social media scheduler, then yes - build it in-house. It's your core IP.
+
+But if you're a CRM, a fitness app, a real estate platform, or anything else that "just needs to post updates" - building and maintaining 14 API integrations is a massive distraction from your actual product.
+
+**The Fix: Ask yourself one question.**
+
+*"Do I want to be an API maintenance company, or do I want to build my product?"*
+
+If the answer is the latter, use an aggregator. One API call, 14 platforms, someone else deals with TikTok's mood swings.
+
+## The Cheat Sheet
+
+| Mistake | Symptom | Fix |
+| :--- | :--- | :--- |
+| Forever Token | Random `401` errors, failed posts | Auto-refresh tokens, handle revocation |
+| Polling Trap | Rate limited, slow, expensive | [Webhooks](/api-reference/webhooks) |
+| Same Platform | Content rejected, mysterious failures | [Validation layer](/api-reference/limits) per platform |
+| Analytics Mess | "0 views" complaints, inconsistent data | Cache, normalize, [sync daily](/api-reference/data-retention) |
+| Build Everything | 6 months in, still no product | Use a [unified API](/api-reference/introduction) |
+
+## Final Thoughts: Build Smarter, Not Harder
+
+What does social media API success look like? It's when your users don't even know the API exists. It just works.
+
+The posts publish on time. The analytics load correctly. The tokens refresh silently. Nobody gets woken up at 3 AM because TikTok decided to change their video codec requirements.
+
+If you're ready to build a social media integration, keep these pitfalls in mind. Start small, handle errors like a pro, and respect the [rate limits](/api-reference/rate-limits).
+
+### Need a Shortcut?
+
+At [bundle.social](https://bundle.social), we've already solved the token refreshing, the [rate limiting](/api-reference/rate-limits), the [video validation](/api-reference/limits), and the [analytics normalization](/api-reference/analytics) problems. One API, 14 platforms, and you can focus on building the thing your users actually pay for.
+
+Check out our [docs](/api-reference/introduction) or our [GitHub examples](https://github.com/bundleglobal/bundlesocial-examples) to see how we handle the hard stuff.

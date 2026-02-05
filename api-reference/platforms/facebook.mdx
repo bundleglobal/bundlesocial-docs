@@ -1,16 +1,17 @@
 ---
 title: Facebook
-description: "Pages, Reels, and the eternal struggle with token expiration."
+description: "Pages, Reels, Stories, and the eternal struggle with token expiration."
 icon: facebook
-keywords: ["facebook api", "facebook pages api", "facebook reels api", "facebook automation", "social media api"]
+keywords: ["facebook api", "facebook pages api", "facebook reels api", "facebook automation", "social media api", "facebook analytics"]
 ---
 
-The OG social network. It's robust, but it carries a lot of legacy baggage.
+The OG social network. It's robust, but it carries a lot of legacy baggage. And rate limits. So many rate limits.
 
 ## Supported Content Types
 
-*   **Page Posts:** Text, Link, Image, Video.
-*   **Reels:** Vertical video for Pages.
+*   **Page Posts:** Text, Link, Image, Video. 0-10 files.
+*   **Reels:** Vertical video for Pages. 1 video.
+*   **Stories:** Image or video. 1 file.
 
 ## Quirks & Gotchas
 
@@ -18,46 +19,57 @@ The OG social network. It's robust, but it carries a lot of legacy baggage.
 Facebook Page Access Tokens typically expire after **60 days**. 
 
 <Note>
-**This is not a bug, it's a feature.** If a user changes their password or security settings, the token dies immediately. You need to build your app to handle re-connection flows gracefully. We handle automatic refreshing where possible, but we can't perform miracles.
+**This is not a bug, it's a feature.** If a user changes their password or security settings, the token dies immediately. You need to build your app to handle re-connection flows gracefully. We handle automatic refreshing where possible, but we can't perform miracles. If the token dies, the user needs to reconnect.
 </Note>
 
 ### Reels Limitations
-Facebook Reels via API are a bit stricter than mobile uploads:
+Facebook Reels via API are stricter than mobile uploads:
 *   No "Remix" functionality available via API.
+*   Duration: **3 seconds to 8 minutes** (480s). Not 60s - that's Stories.
+*   Minimum resolution: 540x960.
+
+### Media Limits
+
+See [Platform Limits](/api-reference/limits#facebook) for the full breakdown of file sizes, resolutions, aspect ratios, and bitrates.
 
 ---
 
 ## Analytics
 
+For general analytics concepts (refresh rates, data retention, what "Returns 0" means), see the [Analytics Overview](/api-reference/analytics).
+
 ### Profile Analytics
 **Period:** Rolling window (30 days).
 
 <Info>
-**Why so many zeros?** To avoid hitting Facebook's aggressive rate limits, we've disabled fetching profile-level likes, comments, and post counts. We'd have to scan every single post on your page to get these, and Facebook would block us (and you).
+**Why so many zeros?** To avoid hitting Facebook's aggressive rate limits, we've disabled fetching profile-level likes, comments, and post counts. We'd have to scan every single post on your page to get these, and Facebook would block us (and you). It's not worth it.
 </Info>
 
 | Metric | Description | Note |
 | :--- | :--- | :--- |
-| `Impressions` | Total impressions | |
-| `Impressions (Unique)` | Unique users reached | Uses 28-day period |
-| `Views` | Page views | |
-| `Followers` | Page followers | |
-| `Likes` | Returns `0` | Disabled to save rate limits |
-| `Comments` | Returns `0` | Disabled to save rate limits |
-| `Post Count` | Returns `0` | Disabled to save rate limits |
+| `impressions` | Total impressions | |
+| `impressionsUnique` | Unique users reached | Uses 28-day period to avoid overcounting |
+| `views` | Page views | |
+| `viewsUnique` | - | Returns `0` (not provided by API) |
+| `likes` | - | Returns `0` (disabled to save rate limits) |
+| `comments` | - | Returns `0` (disabled to save rate limits) |
+| `postCount` | - | Returns `0` (disabled to save rate limits) |
+| `followers` | Page followers | |
+| `following` | - | Returns `0` (not applicable to Pages) |
 
 ### Post Analytics
 **Period:** Lifetime (Snapshot).
 
 | Metric | Description | Note |
 | :--- | :--- | :--- |
-| `Impressions` | Total impressions | |
-| `Impressions (Unique)` | Unique impressions | |
-| `Views` | Video views | Video posts only |
-| `Likes` | Total reactions | Aggregates Like, Love, Wow, Haha, Anger |
-| `Comments` | Total comments | |
-| `Shares` | Total shares | |
-| `Saves` | Total saves | |
+| `impressions` | Total impressions | |
+| `impressionsUnique` | Unique impressions | |
+| `views` | Video views | Video posts only |
+| `viewsUnique` | Unique video views | Video posts only |
+| `likes` | Total reactions | Aggregates Like, Love, Wow, Haha, Anger |
+| `comments` | Total comments | |
+| `shares` | Total shares | |
+| `saves` | Total saves | |
 
 ### Reaction Aggregation
-When we say "Likes" for Facebook, we mean **all reactions** combined. Whether someone Loved it, Hated it (Anger), or Laughed at it (Haha) — it counts as a "Like" in our simplified metric.
+When we say "Likes" for Facebook, we mean **all reactions** combined. Whether someone Loved it, Hated it (Anger), or Laughed at it (Haha) - it all counts as one `likes` number. We don't break down reaction types in the standard schema. If you need that granularity, check the [raw analytics data](/api-reference/analytics#raw-analytics-data).

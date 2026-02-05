@@ -1,0 +1,135 @@
+---
+title: Data Retention
+description: "What we keep, for how long, and when it disappears. Plan accordingly."
+icon: clock-rotate-left
+keywords: ["data retention", "analytics retention", "webhook retention", "cleanup policy", "data deletion"]
+---
+
+We don't keep your data forever. Storage costs money, and we are great on your wallet - don't exploit us. We are not running a digital museum. Here's exactly what gets cleaned up, when, and why.
+
+---
+
+## Analytics Data - 40 Days
+
+**What:** All parsed and raw analytics data (profile analytics, post analytics, and their raw counterparts).
+
+**Retention:** **40 days** from the date the analytics record was created.
+
+After 40 days, the data is gone. Permanently. No backups. No "can you please recover it?". No.
+
+### What You Should Do
+
+If you need analytics history beyond 40 days (and you probably do if you're building dashboards or reports), set up a daily sync. Here's a battle-tested approach:
+
+```typescript
+// analytics-sync.ts - Run this daily via cron
+import { CronJob } from 'cron';
+
+const syncAnalytics = async () => {
+  // 1. Fetch all teams
+  const teams = await yourDatabase.teams.findAll();
+
+  for (const team of teams) {
+    // 2. For each social account, fetch current analytics
+    for (const account of team.socialAccounts) {
+      const analytics = await bundlesocial.analytics.getSocialAccountAnalytics({
+        teamId: team.id,
+        socialAccountId: account.id,
+      });
+
+      // 3. Store with timestamp for historical tracking
+      await yourDatabase.analyticsHistory.upsert({
+        socialAccountId: account.id,
+        date: new Date().toISOString().split('T')[0], // YYYY-MM-DD
+        ...analytics,
+        fetchedAt: new Date(),
+      });
+    }
+
+    // 4. Fetch post analytics too
+    const posts = await bundlesocial.analytics.getBulkPostAnalytics({
+      teamId: team.id,
+    });
+
+    for (const post of posts.data) {
+      await yourDatabase.postAnalyticsHistory.upsert({
+        postId: post.id,
+        date: new Date().toISOString().split('T')[0],
+        ...post.analytics,
+        fetchedAt: new Date(),
+      });
+    }
+  }
+};
+
+// Run daily at 2 AM UTC
+new CronJob('0 2 * * *', syncAnalytics, null, true, 'UTC');
+```
+
+With this running, you have full analytics history in your own database. Build dashboards, generate reports, impress clients - all without worrying about our 40-day window.
+
+<Note>
+**Why 40 days?** Because it covers a full rolling window (30 days) plus a 10-day buffer. If we kept data for 30 days, you'd lose the beginning of your rolling window before you could fetch it. We're evil, but not that evil.
+</Note>
+
+---
+
+## Webhook Events - 7 Days
+
+**What:** All webhook event records (delivery attempts, payloads, responses).
+
+**Retention:** **7 days** from the date the event was created.
+
+If you need to debug a webhook delivery from last week, you have 7 days. After that, the record is gone.
+
+### What You Should Do
+
+Log webhook payloads on your end when you receive them. This is standard practice for any webhook integration. If you're not logging incoming webhooks, you're living dangerously.
+
+---
+
+## Deleted Uploads - 7 Days
+
+**What:** Files you've deleted (images, videos) and their database records.
+
+**Retention:** **7 days** after you soft-delete an upload.
+
+When you delete an upload, we don't immediately nuke the file. We keep it around for 7 days in case you change your mind (or in case it's still referenced by active posts). After 7 days:
+
+- If the upload is used by active posts: We remove the file from storage but keep the database record (so post references don't break).
+- If the upload is unused: Both the file and the database record are deleted.
+
+---
+
+## Imported Posts - 30 Days
+
+**What:** Posts imported via the [Post History Import](/api-reference/import-posts) feature.
+
+**Retention:** **30 days** from the date of import.
+
+Imported posts are meant to populate your dashboard quickly - not to serve as a permanent archive. After 30 days, they're deleted (along with their analytics, via cascade).
+
+### Monthly Import Counter Reset
+
+Your import quota resets on the **1st of every month**. So if you hit your monthly limit, just wait for the calendar to flip.
+
+---
+
+## Summary
+
+| Data Type | Retention Period |
+| :--- | :--- |
+| Analytics (parsed + raw) | **40 days** |
+| Webhook events | **7 days** |
+| Deleted uploads | **7 days** after deletion |
+| Imported posts | **30 days** |
+
+---
+
+## The Golden Rule
+
+**If you need it long-term, store it yourself.**
+
+We are optimized for real-time publishing and recent analytics. We are not Snowflake. We are not BigQuery. We are a social media API that happens to collect analytics as a side quest.
+
+Set up a daily sync. It takes 20 minutes to build (we gave you the code above). You'll sleep better.

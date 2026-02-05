@@ -4,65 +4,210 @@ description: We call you when things happen.
 icon: webhook
 ---
 
-Webhooks are how you know if a post actually went live or if it exploded.
+Webhooks are how you know if a post actually went live or if it exploded. Instead of polling us every 2 seconds like a psychopath, just give us a URL and we'll tell you.
 
 <Note>
-**Prerequisite:** You need an API Key and a URL where we can send POST requests.
+**Prerequisite:** You need an API Key and a URL where we can send POST requests. Webhooks are configured at the **organization** level - all teams under that org share the same webhook endpoints.
 </Note>
 
 ## Setup
 
 1.  Go to the [Webhooks Dashboard](https://bundle.social/dashboard/organization/webhooks).
-2.  Add your URL (e.g., `https://api.yourapp.com/webhooks/bundle`).
+2.  Add your URL (e.g., `https://api.yourapp.com/webhooks/bundle`). Must be **HTTPS**.
 3.  Get your **Signing Secret**.
 
 <Tip>
 **Local Dev:** Use `ngrok` to test locally. `ngrok http 3000`.
 </Tip>
 
+---
+
 ## Events
 
-We support these events:
+| Event | When it fires |
+| :--- | :--- |
+| `post.published` | Post went live (or failed permanently after retries) |
+| `post.failed` | Post failed - check the error details |
+| `comment.published` | First comment was posted (or failed permanently) |
+| `social-account.created` | User connected a new social account |
+| `social-account.deleted` | Social account was disconnected |
+| `team.created` | A new team was created |
+| `team.updated` | Team details changed (name, avatar, social accounts added/removed) |
+| `team.deleted` | A team was deleted |
 
-*   `post.published`: Post is live.
-*   `post.failed`: Post failed (check error details).
-*   `comment.published`: First comment added.
-*   `social-account.created`: User connected an account.
-*   `social-account.deleted`: User disconnected.
+<Note>
+`team.updated` also fires when a social account is added to or removed from a team - so you don't need to listen to social account events separately if you're already tracking teams.
+</Note>
 
-## Security (Verify It's Us)
+---
 
-Don't trust random POST requests. Verify the signature.
+## Payload Structure
 
-**Header:** `x-signature`
-**Algorithm:** HMAC SHA256
+Every webhook delivery is an HTTP POST with this shape:
 
-### Node.js Example
-
-```typescript
-import crypto from 'crypto';
-
-function verifySignature(body: string, signature: string, secret: string) {
-  const sig = crypto
-    .createHmac('sha256', secret)
-    .update(body) // Raw body string
-    .digest('hex');
-
-  return sig === signature;
-}
-
-// Express Middleware
-app.post('/webhook', (req, res) => {
-  const signature = req.headers['x-signature'];
-  const secret = process.env.BUNDLE_WEBHOOK_SECRET;
-
-  if (!verifySignature(JSON.stringify(req.body), signature, secret)) {
-    return res.status(400).send('Nice try, hacker.');
+```json
+{
+  "type": "post.published",
+  "data": {
+    // ... event-specific payload
   }
-
-  const event = req.body;
-  console.log('Received event:', event.type);
-  
-  res.send('Received');
-});
+}
 ```
+
+### Headers We Send
+
+| Header | Value |
+| :--- | :--- |
+| `Content-Type` | `application/json` |
+| `User-Agent` | `bundlesocial` |
+| `x-signature` | HMAC-SHA256 signature (see [Security](#security-verify-its-us)) |
+
+### Post Events Payload
+
+When you receive `post.published` or `post.failed`, the `data` field contains the full post object:
+
+```json
+{
+  "type": "post.published",
+  "data": {
+    "id": "post_abc123",
+    "title": "My awesome post",
+    "content": "Hello world!",
+    "status": "POSTED",
+    "scheduledDate": "2026-01-15T10:00:00.000Z",
+    "postedDate": "2026-01-15T10:00:02.341Z",
+    "teamId": "team_xyz",
+    "createdAt": "2026-01-14T15:30:00.000Z",
+    "updatedAt": "2026-01-15T10:00:02.341Z",
+    "deletedAt": null,
+    "uploads": [
+      {
+        "upload": {
+          "id": "upload_456",
+          "fileName": "cover.jpg",
+          "mimeType": "image/jpeg",
+          "size": 245000
+        }
+      }
+    ],
+    "socialAccounts": [
+      {
+        "socialAccount": {
+          "id": "sa_789",
+          "type": "INSTAGRAM",
+          "username": "mybrand",
+          "displayName": "My Brand"
+        }
+      }
+    ]
+  }
+}
+```
+
+### Comment Events Payload
+
+```json
+{
+  "type": "comment.published",
+  "data": {
+    "id": "comment_abc",
+    "content": "#growth #mindset",
+    "status": "POSTED",
+    "postId": "post_abc123",
+    "teamId": "team_xyz",
+    "createdAt": "2026-01-15T10:00:05.000Z",
+    "socialAccounts": [
+      {
+        "socialAccount": {
+          "id": "sa_789",
+          "type": "INSTAGRAM",
+          "username": "mybrand"
+        }
+      }
+    ]
+  }
+}
+```
+
+### Social Account Events Payload
+
+```json
+{
+  "type": "social-account.created",
+  "data": {
+    "id": "sa_789",
+    "type": "INSTAGRAM",
+    "teamId": "team_xyz",
+    "username": "mybrand",
+    "displayName": "My Brand",
+    "avatarUrl": "https://...",
+    "externalId": "17841400000",
+    "channels": [],
+    "createdAt": "2026-01-10T12:00:00.000Z"
+  }
+}
+```
+
+Sensitive fields like `accessToken`, `refreshToken`, `secret`, and `expiresAt` are **never** included in webhook payloads. We're not that reckless.
+
+### Team Events Payload
+
+```json
+{
+  "type": "team.created",
+  "data": {
+    "id": "team_xyz",
+    "name": "Marketing Team",
+    "avatarUrl": "https://...",
+    "organizationId": "org_123",
+    "createdById": "user_456",
+    "createdAt": "2026-01-10T12:00:00.000Z",
+    "organization": { "id": "org_123", "name": "Acme Corp" },
+    "createdBy": { "id": "user_456", "email": "..." },
+    "socialAccounts": []
+  }
+}
+```
+
+---
+
+## Delivery & Retries
+
+We really try to deliver your webhooks. Here's how hard we try:
+
+| Setting | Value |
+| :--- | :--- |
+| Timeout | 15 seconds per request |
+| Max attempts | 3 (initial + 2 retries) |
+| Backoff | Exponential, starting at 30 seconds |
+| Concurrency | We process up to 50 deliveries simultaneously |
+
+So if your server is down, we'll try 3 times with increasing delays. After that, the event is marked as failed and we move on. We're persistent, not obsessive.
+
+### Auto-Disable (The Safety Net)
+
+If your webhook endpoint fails **50 consecutive times** within a **24-hour window**, we automatically disable it. This protects both of us - we stop wasting resources, and you stop missing events you don't know about.
+
+When this happens:
+- Your webhook is marked as **disabled**
+- We stop sending events to that URL
+- You can re-enable it from the dashboard or API (this resets the failure counter)
+- On the next successful delivery, the failure counter resets to 0
+
+<Warning>
+**Don't let your endpoint go down for too long.** 50 consecutive failures is generous, but if your server is having a bad day, re-enable manually once it's back. Events that happened while disabled are gone - we don't replay them.
+</Warning>
+
+### Resending Events
+
+Made a mistake in your handler? Event got lost? You can resend any webhook event from the dashboard or via the API. We'll create a fresh delivery attempt with the same payload.
+
+---
+
+## Best Practices
+
+1. **Respond fast.** Return a `200` within 15 seconds. Do heavy processing asynchronously. If you take too long, we'll count it as a failure.
+2. **Be idempotent.** We might deliver the same event twice in rare cases (retries, race conditions). Use the event ID to deduplicate.
+3. **Verify signatures.** Always. No exceptions. Even in development. See the [SDK](/api-reference/sdk) for built-in signature verification, or check the [Swagger](/api-reference/openapi) for the raw details.
+4. **Use HTTPS.** We only send webhooks to HTTPS URLs. Sorry, `http://localhost` works via ngrok though.
+5. **Monitor your failures.** If you're getting close to 50 consecutive failures, fix your endpoint before we disable it.
