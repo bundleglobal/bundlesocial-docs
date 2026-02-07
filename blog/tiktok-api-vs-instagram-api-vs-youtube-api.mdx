@@ -1,0 +1,522 @@
+---
+title: "TikTok API vs Instagram API vs YouTube API: Which Is Actually the Hardest to Integrate?"
+description: "Honest comparison of TikTok, Instagram, and YouTube API integrations from a developer who's built all three. OAuth flows, upload complexity, rate limits, and which platform will ruin your weekend."
+keywords: ["tiktok api vs instagram api", "instagram api vs youtube api", "tiktok api vs youtube api", "social media api comparison", "tiktok api integration", "instagram api integration", "youtube api integration", "hardest social media api to integrate", "social media api upload comparison", "tiktok content posting api", "instagram container api", "youtube resumable upload", "social media api difficulty"]
+"og:title": "TikTok API vs Instagram API vs YouTube API: Which Is the Hardest?"
+"og:description": "I've debugged OAuth flows at 2 AM for all three platforms. Here's the honest comparison I wish I had before starting."
+date: '2026-02-07'
+---
+
+*By Marcel Czuryszkiewicz, Founder @ [bundle.social](https://bundle.social)*
+
+*I've debugged OAuth flows at 2 AM for all three platforms. I've handled their edge cases, their rate limits, and their breaking changes. This is the honest comparison I wish I'd had before starting.*
+
+## TL;DR
+
+- **TikTok (6/10):** Approval process is the real bottleneck (1-4 weeks + video walkthrough). Once you're in, URL pull uploads are straightforward. Polling is annoying but manageable.
+- **Instagram (8/10):** The container system is painful. Dual OAuth paths. A 10-item carousel = minimum 23 API calls. Strict media requirements with cryptic error messages.
+- **YouTube (8.5/10):** Resumable uploads are powerful but complex (though SDKs help a lot). Quota system limits you to ~6 videos/day by default. Multi-channel selection adds another layer.
+- **The shortcut:** Use a [unified API](/api-reference/introduction) that handles containers, resumable uploads, polling, and [rate limits](/api-reference/rate-limits) for you.
+
+## The Verdict (If You're Impatient)
+
+| Aspect | TikTok | Instagram | YouTube |
+|---|---|---|---|
+| **Overall Difficulty** | Medium-Hard | Hard | Hardest |
+| **Time to First Post** | 2-4 weeks | 2-4 weeks | 1-2 weeks |
+| **Ongoing Maintenance** | Medium | High | High |
+| **Documentation Quality** | Okay | Poor | Good |
+| **Upload Complexity** | Medium | High | Very High |
+| **Approval Process** | Slow | Slow | Fast |
+
+My ranking from hardest to easiest:
+
+1. **YouTube** - heaviest initial build (resumable uploads, quota system, channel selection), but well-documented
+2. **Instagram** - most frustrating day-to-day (container system, two OAuth paths, frequent breaking changes, cryptic errors)
+3. **TikTok** - polling required, but relatively straightforward once approved
+
+Now let me explain why.
+
+---
+
+## TikTok: The Gatekeeper
+
+### The Approval Process
+
+[TikTok's](/api-reference/platforms/tiktok) biggest hurdle isn't the API itself - it's getting access.
+
+To use the Content Posting API, you need to:
+
+1. Register as a TikTok developer
+2. Create an app and request `video.publish` scope
+3. Record a video walkthrough of your application
+4. Submit for review
+5. Wait 1-4 weeks
+6. Possibly get rejected and resubmit
+
+The video requirement is unusual. You literally record your screen showing how your app works and why you need each permission. If your explanation is vague, you get rejected. If your UI looks half-baked, rejected. If Mercury is in retrograde... honestly, maybe also rejected.
+
+<Note>
+We covered the full TikTok approval timeline and hidden costs in our [TikTok API Integration Cost](/blog/tiktok-api-integration-cost) breakdown. If you want the granular hour-by-hour picture, start there.
+</Note>
+
+**Time sink:** 2-4 weeks just to get started.
+
+### The OAuth Flow
+
+Once approved, TikTok's [OAuth](/api-reference/connect-social-accounts) is standard. User authorizes, you get tokens, you refresh them when they expire.
+
+```
+Authorization → Code → Access Token → Refresh Token
+```
+
+The scopes are granular:
+
+- `video.publish` - Post content
+- `video.upload` - Direct file uploads
+- `user.info.basic` - Get user ID
+
+Nothing unusual here. If you've done OAuth before, you'll feel at home.
+
+### The Upload Flow
+
+TikTok supports two upload methods:
+
+**URL Pull (Easier):**
+
+You give TikTok a public URL to your video. They fetch it. Clean and simple.
+
+```python
+response = tiktok_api.post("/business/video/publish/", {
+    "business_id": user_id,
+    "video_url": "https://your-cdn.com/video.mp4",
+    "post_info": {
+        "caption": "Hello TikTok!",
+        "privacy_level": "PUBLIC_TO_EVERYONE"
+    }
+})
+```
+
+**Direct Upload (Harder):**
+
+Chunk-based upload for when you can't expose a public URL. More plumbing, but not catastrophic.
+
+For a step-by-step guide on both methods, check our [TikTok API Upload Video](/blog/tiktok-api-upload-video) guide.
+
+### The Catch: Polling
+
+Here's where TikTok gets annoying. When you submit a video, you don't get the post ID immediately. You get a `share_id`, and TikTok processes the video in the background.
+
+You have to poll:
+
+```python
+while True:
+    status = tiktok_api.get("/business/publish/status/", {
+        "business_id": user_id,
+        "publish_id": share_id
+    })
+
+    if status["data"]["status"] == "PUBLISH_COMPLETE":
+        post_id = status["data"]["post_ids"][0]
+        break
+    elif status["data"]["status"] == "FAILED":
+        raise Exception(status["data"]["reason"])
+
+    time.sleep(15)  # Wait and try again
+```
+
+For a 4GB video, this can take 2+ minutes. You need timeout handling, retry logic, and graceful failure modes. It's not the end of the world, but it's the kind of thing that [ruins your weekend](/blog/social-media-api-mistakes) if you don't handle it properly.
+
+### TikTok's Quirks
+
+- **Business accounts only** - Personal accounts can't use the API
+- **Draft mode** - Some user settings cause posts to go to drafts instead of publishing
+- **Rate limits** - ~100 videos/day per app (varies by approval level)
+- **Review status** - Posts can end up "under review" with no guaranteed publish
+
+### TikTok Difficulty Score: 6/10
+
+The API itself is reasonable. The approval process is the real barrier. Once you're past the gatekeeper, it's the most straightforward of the three.
+
+---
+
+## Instagram: Death by Container
+
+### The OAuth Situation
+
+[Instagram](/api-reference/platforms/instagram) has two different OAuth paths. This is already confusing.
+
+**Path 1: Instagram via Facebook (Graph API)**
+
+This is the "official" way. You authenticate via Facebook, which grants access to Instagram Professional accounts (Business or Creator).
+
+Scopes required:
+
+```
+instagram_basic
+instagram_content_publish
+instagram_manage_insights
+instagram_manage_comments
+pages_show_list
+pages_manage_posts
+```
+
+**Path 2: Instagram Direct (New API)**
+
+Instagram launched a direct OAuth flow more recently. Different scopes, different endpoints, different headaches.
+
+```
+instagram_business_basic
+instagram_business_content_publish
+instagram_business_manage_comments
+instagram_business_manage_insights
+```
+
+Which should you use? Depends on your use case. Many developers end up supporting both. Yes, that means maintaining two auth flows for one platform. Fun times.
+
+<Tip>
+Not sure which Instagram account type your users need? We broke down the differences in [Instagram Business vs Creator Account](/blog/instagram-business-vs-creator-account).
+</Tip>
+
+### The Container System
+
+This is where Instagram gets painful.
+
+Instagram doesn't let you just "post." You create containers, wait for them to process, then publish them. It's like ordering food at a restaurant where you have to submit each ingredient separately and then wait for the kitchen to acknowledge each one before you can order the meal.
+
+**Single Image/Video:**
+
+```
+1. POST /{ig-user-id}/media → creation_id
+2. GET /{creation_id}?fields=status_code → wait for FINISHED
+3. POST /{ig-user-id}/media_publish → published post
+```
+
+**Carousel (2-10 items):**
+
+```
+1. POST /{ig-user-id}/media (item 1) → creation_id_1
+2. POST /{ig-user-id}/media (item 2) → creation_id_2
+3. ... repeat for all items
+4. Wait for ALL containers to be FINISHED
+5. POST /{ig-user-id}/media (carousel parent, children=[...]) → carousel_creation_id
+6. Wait for carousel container to be FINISHED
+7. POST /{ig-user-id}/media_publish → published carousel
+```
+
+For a 10-item carousel, that's:
+
+- 10 child container creations
+- 10 polling operations
+- 1 parent container creation
+- 1 more polling operation
+- 1 publish call
+
+**Minimum 23 API calls for a single carousel post.**
+
+And if any step fails, you need to handle partial states. Containers don't clean themselves up. You're the janitor now.
+
+For a deeper dive into the upload flow, see our [Instagram API Upload Video](/blog/instagram-api-upload-video) guide.
+
+### Media Requirements Hell
+
+Instagram is notoriously strict about what you feed it:
+
+**Reels:**
+- 3 seconds to 15 minutes
+- Max 1920px width
+- Aspect ratio: 0.01:1 to 10:1
+- Max 45 Mbps bitrate
+
+**Stories:**
+- 3 to 60 seconds
+- Max 100MB (video), 8MB (image)
+- Max 25 Mbps bitrate
+
+**Feed Posts:**
+- Image aspect ratio: 4:5 to 1.91:1
+- Video aspect ratio: 0.01:1 to 10:1
+- Max 8MB per image
+
+Upload something that doesn't match? You get a cryptic error, or worse - the container just hangs in `IN_PROGRESS` forever. No error. No timeout. Just... vibes.
+
+<Note>
+Instagram also has strict [character limits](/blog/instagram-character-limits-guide) on captions, comments, and bios. Worth checking before you hit another mystery rejection.
+</Note>
+
+### Instagram's Quirks
+
+- **Professional accounts only** - Personal accounts don't work
+- **Facebook connection required** (for Graph API path) - Users must have a Facebook Page linked
+- **Activity restrictions** - Instagram sometimes blocks API activity temporarily with no clear reason
+- **Error code 2207027** - The legendary "Media not ready" error that requires retries and patience
+- **Stories have no caption** - You can't set text on Stories via API
+
+### Instagram Difficulty Score: 8/10
+
+The container system, dual OAuth paths, and strict media requirements make Instagram the most frustrating day-to-day integration. The API works - it just makes you earn every single post.
+
+---
+
+## YouTube: The Beast
+
+### The OAuth Flow
+
+[YouTube](/api-reference/platforms/youtube) uses Google OAuth, which is... extensive.
+
+Required scopes for full functionality:
+
+```
+youtube
+youtube.upload
+youtube.force-ssl
+youtube.readonly
+youtube.channel-memberships.creator
+youtubepartner
+youtubepartner-channel-audit
+yt-analytics.readonly
+yt-analytics-monetary.readonly
+userinfo.profile
+```
+
+That's 10 scopes. Google's consent screen shows all of them. Users see that wall of permissions and get nervous. Can't blame them, tbh.
+
+### The Channel Selection Problem
+
+Here's something TikTok and Instagram don't have: **multiple channels per account.**
+
+A single Google account can own multiple YouTube channels. After OAuth, you need to:
+
+1. List the user's channels
+2. Let them select which one to connect
+3. Store the channel ID separately from the user ID
+
+If you skip this, you end up posting to the wrong channel. Ask me how I know.
+
+For multi-channel architecture patterns, we wrote a detailed guide: [YouTube Shorts Multi-Channel](/blog/youtube-shorts-multiple-channels).
+
+### Resumable Uploads: Powerful but Complex
+
+YouTube uses resumable uploads. This is actually a good thing - it means large files don't fail catastrophically. And to be fair, if you use Google's official client libraries (Python, Node, Java), a lot of this is abstracted for you. But if you're rolling your own HTTP calls - or you need to understand what's happening under the hood - here's what you're dealing with.
+
+**Step 1: Initiate upload session**
+
+```python
+response = youtube_api.post(
+    "/upload/youtube/v3/videos?uploadType=resumable",
+    headers={"X-Upload-Content-Type": "video/mp4"},
+    json={
+        "snippet": {"title": "My Video", "description": "..."},
+        "status": {"privacyStatus": "public"}
+    }
+)
+session_uri = response.headers["Location"]
+```
+
+**Step 2: Upload in chunks (8MB default)**
+
+```python
+chunk_size = 8 * 1024 * 1024
+offset = 0
+
+while offset < file_size:
+    chunk = file.read(chunk_size)
+    response = requests.put(
+        session_uri,
+        headers={
+            "Content-Range": f"bytes {offset}-{offset + len(chunk) - 1}/{file_size}"
+        },
+        data=chunk
+    )
+
+    if response.status_code == 308:  # Resume Incomplete
+        offset = int(response.headers["Range"].split("-")[1]) + 1
+    elif response.status_code in [200, 201]:  # Complete
+        video_id = response.json()["id"]
+        break
+```
+
+**Step 3: Handle failures**
+
+If a chunk fails, query the session to find the last committed byte:
+
+```python
+response = requests.put(session_uri, headers={"Content-Range": "bytes */*"})
+last_byte = int(response.headers["Range"].split("-")[1])
+# Resume from last_byte + 1
+```
+
+With the official SDK, you get retry and chunking logic out of the box. Without it, you need to handle:
+
+- Chunk retries with exponential backoff
+- Session expiration (resumable sessions last 1 week)
+- Persisting session URIs across process restarts
+- Range header parsing edge cases
+
+<Tip>
+If you're using Python, the `googleapiclient` library's `MediaFileUpload` with `resumable=True` handles chunking and retries for you. The raw HTTP flow above is what's happening under the hood - and what you'll need to debug when things go sideways.
+</Tip>
+
+For the full walkthrough, see our [YouTube API Upload Guide](/blog/youtube-api-upload-guide).
+
+### The Quota System
+
+YouTube has a quota system that's different from simple [rate limits](/api-reference/rate-limits).
+
+Every API operation costs "quota units." You get 10,000 units per day by default.
+
+| Operation | Cost |
+|---|---|
+| Video upload | 1,600 |
+| Playlist create | 50 |
+| Video update | 50 |
+| Read operations | 1-5 |
+
+**10,000 / 1,600 = 6.25 videos per day on the default quota.**
+
+Need more? You have to apply for a quota increase, which requires:
+
+- Detailed use case explanation
+- Compliance review
+- Sometimes weeks of back-and-forth
+
+For context, TikTok gives you ~100 videos/day. YouTube gives you 6. The math is not mathing.
+
+### YouTube's Quirks
+
+- **Thumbnail upload is separate** - You upload the video, then call another endpoint to set the thumbnail
+- **Processing time** - YouTube processes videos after upload; they're not immediately viewable
+- **Category IDs** - You need to look up numeric category IDs (and they vary by region)
+- **Made for Kids** - Required field with legal implications
+- **Synthetic media flag** - Required disclosure for AI-generated content
+
+### YouTube Difficulty Score: 8.5/10
+
+The quota system is the real pain point - it's restrictive and the increase process is slow. Multi-channel support adds a layer that TikTok and Instagram don't have. The upload flow itself is complex at the protocol level, but Google's SDKs soften the blow significantly. Day-to-day, YouTube is less frustrating than Instagram (better docs, fewer breaking changes), but the initial build is heavier.
+
+---
+
+## Side-by-Side: The Details
+
+### Approval & Setup Time
+
+| Platform | Approval Process | Typical Timeline |
+|---|---|---|
+| TikTok | Video walkthrough required, human review | 1-4 weeks |
+| Instagram | Meta app review, screen recordings | 2-4 weeks |
+| YouTube | Automated OAuth consent verification | 1-3 days |
+
+**Winner: YouTube** (fastest to get started)
+
+### Upload Complexity
+
+| Platform | Upload Method | Complexity |
+|---|---|---|
+| TikTok | URL pull or direct upload | Medium |
+| Instagram | Container system with polling | High |
+| YouTube | Resumable chunk upload | Very High |
+
+**Winner: TikTok** (URL pull is dead simple)
+
+### Post-Upload Processing
+
+| Platform | Processing | You Need To |
+|---|---|---|
+| TikTok | Background processing | Poll for status |
+| Instagram | Container processing | Poll for each container |
+| YouTube | Background processing | Handle as async |
+
+**Winner: None** (they all require async handling - welcome to social media APIs)
+
+### Documentation Quality
+
+| Platform | Docs Quality | Notes |
+|---|---|---|
+| TikTok | Okay | Business API docs are decent, some gaps |
+| Instagram | Poor | Scattered across Graph API docs, many outdated examples |
+| YouTube | Good | Comprehensive, well-organized, good examples |
+
+**Winner: YouTube** (best documentation by a mile)
+
+### Rate Limits
+
+| Platform | Limits | Impact |
+|---|---|---|
+| TikTok | ~100 videos/day, 1,000 API calls/minute | Moderate |
+| Instagram | Complex, varies by endpoint | High |
+| YouTube | 10,000 quota units/day (6 videos default) | Severe |
+
+**Winner: TikTok** (most generous limits)
+
+### Maintenance Burden
+
+| Platform | API Changes | Breaking Changes |
+|---|---|---|
+| TikTok | Occasional | Rare |
+| Instagram | Frequent | Common |
+| YouTube | Occasional | Rare |
+
+**Winner: TikTok/YouTube tie** (Instagram changes most often and breaks things the loudest)
+
+---
+
+## My Honest Recommendations
+
+### If You're Picking One Platform to Start
+
+**Start with TikTok.**
+
+Once you're approved, the API is the most straightforward. URL pull uploads are simple. Polling is annoying but manageable. You'll learn the patterns without fighting unnecessary complexity.
+
+### If You Need All Three
+
+Budget significant time. Here's what I'd estimate based on production builds:
+
+- **TikTok:** 40-60 hours (including approval wait)
+- **Instagram:** 60-80 hours (container system is complex)
+- **YouTube:** 80-100 hours (resumable uploads, quota handling, channel selection)
+
+That's **180-240 hours** for a production-quality integration across all three platforms. Plus ongoing maintenance. At $80/hour, you're looking at $14,400-$19,200 in developer time - before the first bug report comes in.
+
+For a deeper breakdown of build-vs-buy economics, check our [social media API integration guide](/blog/social-media-api-integration-guide).
+
+### If You Don't Want to Build This
+
+That's why we built [bundle.social](https://bundle.social).
+
+```python
+# All three platforms, one API call
+post = bundlesocial.post.create({
+    "teamId": team_id,
+    "socialAccountTypes": ["TIKTOK", "INSTAGRAM", "YOUTUBE"],
+    "data": {
+        "TIKTOK": {"type": "VIDEO", "text": caption, "uploadIds": [upload_id]},
+        "INSTAGRAM": {"type": "REEL", "text": caption, "uploadIds": [upload_id]},
+        "YOUTUBE": {"type": "SHORT", "text": title, "uploadIds": [upload_id]}
+    }
+})
+```
+
+We handle the containers. We handle the resumable uploads. We handle the polling. We handle the [rate limits](/api-reference/rate-limits). You get one [upload](/api-reference/upload-content), one API call, three platforms.
+
+Check out more [code examples](/api-reference/examples) to see it in action.
+
+---
+
+## The Bottom Line
+
+| Platform | Difficulty | Time to Build | Best For |
+|---|---|---|---|
+| TikTok | Medium-Hard | 40-60 hours | Starting point, simpler use cases |
+| Instagram | Hard | 60-80 hours | When you need Reels + Stories + Carousels |
+| YouTube | Hardest | 80-100 hours | When you need robust large file handling |
+
+All three are doable. None are trivial. The question is whether building and maintaining three separate integrations is the best use of your engineering time.
+
+If you're building a social media product, probably yes - these integrations are core to your value.
+
+If social posting is a feature, not the product, probably no. Use a [unified API](/api-reference/introduction) and focus on what makes your product unique.
+
+<Note>
+Have questions about specific platform quirks? [Reach out](https://bundle.social/contact). We've seen most of the edge cases - and we've got the 2 AM debug logs to prove it.
+</Note>
