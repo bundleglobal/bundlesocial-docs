@@ -1,0 +1,946 @@
+---
+title: "Social Media API for Python: Complete Integration Guide"
+description: "Post to Instagram, TikTok, YouTube, LinkedIn & 10 more platforms from Python. Upload media, verify webhooks, pull analytics - with requests, Flask, and Django examples."
+keywords: ["social media api python", "python social media posting", "python social media api integration", "python instagram api", "python tiktok api", "social media api requests", "python social media automation"]
+"og:title": "Social Media API for Python: Complete Integration Guide"
+"og:description": "Post to 14+ social platforms from Python. Upload media, verify webhooks, pull analytics - with requests, Flask, and Django examples."
+date: '2026-02-09'
+---
+
+*By Marcel Czuryszkiewicz, Founder @ [bundle.social](https://bundle.social)*
+
+## TL;DR
+
+- No SDK needed. `requests` library + one API key. That's it.
+- One base URL, 14+ platforms. Upload media, create posts, pull analytics, handle webhooks.
+- Every code example verified against the actual API contracts. Copy-paste and ship.
+
+## What You'll Need
+
+- **Python 3.8+** (3.10+ recommended for `match` statements)
+- **`requests`** library - `pip install requests`
+- **bundle.social API key** - get one from the [dashboard](https://bundle.social/dashboard)
+
+```bash
+pip install requests
+```
+
+---
+
+## Setup: The Client Class
+
+Here's a client that handles auth, JSON, multipart uploads, and surfaces verbose error details:
+
+```python
+import requests
+from datetime import datetime, timezone
+from typing import Optional, Dict, Any, List
+
+
+class BundleSocialError(Exception):
+    """API error with optional platform-specific error details."""
+
+    def __init__(
+        self,
+        message: str,
+        status_code: int,
+        errors_verbose: Optional[Dict] = None,
+    ):
+        super().__init__(message)
+        self.status_code = status_code
+        self.errors_verbose = errors_verbose
+
+
+class BundleSocialClient:
+    def __init__(self, api_key: str):
+        self.api_key = api_key
+        self.base_url = "https://api.bundle.social/api/v1"
+
+    def _request(
+        self,
+        method: str,
+        endpoint: str,
+        json_data: Optional[Dict] = None,
+        params: Optional[Dict] = None,
+        files: Optional[Dict] = None,
+        form_data: Optional[Dict] = None,
+    ) -> Dict[str, Any]:
+        url = f"{self.base_url}{endpoint}"
+
+        headers = {"x-api-key": self.api_key}
+        if not files:
+            headers["Content-Type"] = "application/json"
+
+        response = requests.request(
+            method=method,
+            url=url,
+            headers=headers,
+            json=json_data,
+            params=params,
+            files=files,
+            data=form_data,
+        )
+
+        if response.status_code == 429:
+            raise BundleSocialError("Rate limited. Back off and retry.", 429)
+
+        result = response.json()
+
+        if response.status_code >= 400:
+            raise BundleSocialError(
+                result.get("message", "Unknown API error"),
+                response.status_code,
+                result.get("errorsVerbose"),
+            )
+
+        return result
+
+    def get(self, endpoint: str, params: Optional[Dict] = None) -> Dict[str, Any]:
+        return self._request("GET", endpoint, params=params)
+
+    def post(self, endpoint: str, data: Dict) -> Dict[str, Any]:
+        return self._request("POST", endpoint, json_data=data)
+
+    def patch(self, endpoint: str, data: Dict) -> Dict[str, Any]:
+        return self._request("PATCH", endpoint, json_data=data)
+
+    def delete(self, endpoint: str) -> Dict[str, Any]:
+        return self._request("DELETE", endpoint)
+
+    def upload_file(self, file_path: str, team_id: str) -> Dict[str, Any]:
+        with open(file_path, "rb") as f:
+            return self._request(
+                "POST",
+                "/upload",
+                files={"file": f},
+                form_data={"teamId": team_id},  # form field, not query param
+            )
+```
+
+Usage:
+
+```python
+import os
+
+client = BundleSocialClient(os.environ["BUNDLE_API_KEY"])
+```
+
+<Warning>
+**API keys are org-scoped.** One key gives access to all teams under your organization. Store it in environment variables, never hardcode. See [API key docs](/api-reference/introduction) for details.
+</Warning>
+
+---
+
+## Teams: Create Workspaces
+
+Teams are isolated workspaces - each team has its own social accounts, posts, and uploads. Think of them as your "client" or "project."
+
+### Create a Team
+
+```python
+team = client.post("/team", {"name": "Acme Corp Marketing"})
+team_id = team["id"]
+print(f"Team created: {team_id}")
+```
+
+### List Teams
+
+```python
+teams = client.get("/team", {
+    "limit": 20,
+    "offset": 0,
+    "search": "Acme",  # optional
+})
+
+for t in teams["items"]:
+    print(f"{t['name']} (ID: {t['id']})")
+```
+
+<Note>
+**One Organization, many Teams.** Don't create separate bundle.social accounts per client. Create Teams programmatically. All billing flows through your single subscription. For the full architecture breakdown, see our [Multi-Tenant Architecture Guide](/blog/multi-tenant-social-media-api-architecture).
+</Note>
+
+---
+
+## Connect Social Accounts
+
+Instead of building OAuth flows for 14+ platforms (you really don't want to), use our hosted portal:
+
+```python
+portal = client.post("/social-account/create-portal-link", {
+    "teamId": team_id,
+    "redirectUrl": "https://yourapp.com/dashboard",
+    "socialAccountTypes": ["INSTAGRAM", "TIKTOK", "LINKEDIN", "YOUTUBE"],
+    # White label it
+    "logoUrl": "https://yourapp.com/logo.png",
+    "hidePoweredBy": True,
+    "language": "en",  # supports: en, pl, fr, de, es, it, nl, pt, ru, tr, zh, hi, sv
+})
+
+# Redirect your user to this URL
+print(f"Connect URL: {portal['url']}")
+```
+
+The user completes OAuth on our branded page (with YOUR logo), then gets redirected back to your `redirectUrl`. We handle token storage, refresh, and permission scopes.
+
+<Tip>
+**Pro tip:** For YouTube, Facebook, Instagram, LinkedIn, and Google Business, users also need to select a channel/page after OAuth. The hosted portal handles this automatically. See the [Connect Social Accounts docs](/api-reference/connect-social-accounts) for both flows.
+</Tip>
+
+---
+
+## Upload Media
+
+Two methods. Pick based on file size.
+
+### Simple Upload (Images & Small Videos)
+
+For anything under 90 MB:
+
+```python
+upload = client.upload_file("./video.mp4", team_id)
+
+print(f"Upload ID: {upload['id']}")
+print(f"Type: {upload['type']}")         # "image" or "video"
+print(f"Size: {upload['fileSize']} bytes")
+
+# Upload multiple files
+upload_ids = []
+for path in ["./image1.jpg", "./image2.jpg", "./image3.jpg"]:
+    u = client.upload_file(path, team_id)
+    upload_ids.append(u["id"])
+
+print(f"Uploaded {len(upload_ids)} files")
+```
+
+### Resumable Upload (Large Videos)
+
+For big files. Three steps: init, push bytes, finalize.
+
+```python
+# Step 1: Initialize - tell us what's coming
+init = client.post("/upload/init", {
+    "teamId": team_id,
+    "fileName": "big-video.mp4",
+    "mimeType": "video/mp4",  # video/mp4, image/jpg, image/jpeg, image/png, application/pdf
+})
+
+upload_url = init["url"]   # Pre-signed URL (expires in 10 minutes!)
+path = init["path"]        # Keep this for Step 3
+
+# Step 2: Push bytes to the signed URL (raw PUT, no auth headers needed)
+with open("big-video.mp4", "rb") as f:
+    requests.put(
+        upload_url,
+        data=f,
+        headers={"Content-Type": "video/mp4"},
+    )
+
+# Step 3: Finalize - register the file in our system
+upload = client.post("/upload/finalize", {
+    "teamId": team_id,
+    "path": path,
+})
+
+print(f"Upload ID: {upload['id']}")
+```
+
+<Warning>
+**The pre-signed URL expires after 10 minutes.** Don't go make coffee between Step 1 and Step 2. Also: use resumable for any video. If a 1 GB upload fails at 99% with the simple method, you start over. With resumable, you don't.
+</Warning>
+
+For supported formats and per-platform size limits, see [Platform Limits](/api-reference/limits).
+
+---
+
+## Create Posts
+
+Every post needs a `teamId`, a `title`, a `postDate` (ISO 8601), a `status`, the target platforms, and platform-specific data.
+
+### Instagram: Reel
+
+```python
+post = client.post("/post", {
+    "teamId": team_id,
+    "title": "Behind the scenes",
+    "postDate": datetime.now(timezone.utc).isoformat(),  # post now
+    "status": "SCHEDULED",
+    "socialAccountTypes": ["INSTAGRAM"],
+    "data": {
+        "INSTAGRAM": {
+            "type": "REEL",              # POST, REEL, or STORY
+            "text": "Behind the scenes footage #bts #reels",  # max 2000 chars
+            "uploadIds": [upload["id"]],
+            "shareToFeed": True,         # show Reel in feed grid
+        }
+    },
+})
+
+print(f"Post ID: {post['id']}")
+```
+
+### TikTok: Video
+
+```python
+post = client.post("/post", {
+    "teamId": team_id,
+    "title": "New TikTok",
+    "postDate": datetime.now(timezone.utc).isoformat(),
+    "status": "SCHEDULED",
+    "socialAccountTypes": ["TIKTOK"],
+    "data": {
+        "TIKTOK": {
+            "text": "Automated with Python #fyp #python",  # max 2200 chars
+            "uploadIds": [upload["id"]],
+            "privacy": "PUBLIC_TO_EVERYONE",
+            # Also: SELF_ONLY, MUTUAL_FOLLOW_FRIENDS, FOLLOWER_OF_CREATOR
+            "disableComments": False,
+            "disableDuet": False,
+            "disableStitch": False,
+        }
+    },
+})
+```
+
+### Multiple Platforms at Once
+
+Each platform gets its own data block with platform-specific fields:
+
+```python
+post = client.post("/post", {
+    "teamId": team_id,
+    "title": "Product launch",
+    "postDate": "2026-03-01T10:00:00Z",  # schedule for later
+    "status": "SCHEDULED",
+    "socialAccountTypes": ["INSTAGRAM", "TIKTOK", "YOUTUBE", "LINKEDIN"],
+    "data": {
+        "INSTAGRAM": {
+            "type": "REEL",
+            "text": "It's here. #launch #newproduct",
+            "uploadIds": [upload_id],
+        },
+        "TIKTOK": {
+            "text": "We made a thing. #fyp #launch",
+            "uploadIds": [upload_id],
+            "privacy": "PUBLIC_TO_EVERYONE",
+        },
+        "YOUTUBE": {
+            "type": "SHORT",               # SHORT or VIDEO
+            "text": "Product Launch",       # this is the video TITLE (max 100 chars!)
+            "description": "Check out our latest product.",  # max 5000 chars
+            "uploadIds": [upload_id],
+            "privacy": "PUBLIC",            # PUBLIC, PRIVATE, or UNLISTED
+            "madeForKids": False,
+        },
+        "LINKEDIN": {
+            "text": "Excited to share our latest launch.",
+            # text is REQUIRED for LinkedIn (max 3000 chars)
+            "uploadIds": [upload_id],
+            "privacy": "PUBLIC",            # PUBLIC, CONNECTIONS, LOGGED_IN, CONTAINER
+        },
+    },
+})
+```
+
+### Text-Only Posts (No Media)
+
+```python
+post = client.post("/post", {
+    "teamId": team_id,
+    "title": "Quick update",
+    "postDate": datetime.now(timezone.utc).isoformat(),
+    "status": "SCHEDULED",
+    "socialAccountTypes": ["TWITTER", "LINKEDIN"],
+    "data": {
+        "TWITTER": {
+            "text": "We just shipped v2.0. That is all.",  # 280 chars (25K Premium)
+        },
+        "LINKEDIN": {
+            "text": "We just shipped v2.0. Here's what changed and why it matters.",
+        },
+    },
+})
+```
+
+### Facebook: Posts, Reels & Link Shares
+
+```python
+# Facebook page post with a link
+post = client.post("/post", {
+    "teamId": team_id,
+    "title": "Blog share",
+    "postDate": datetime.now(timezone.utc).isoformat(),
+    "status": "SCHEDULED",
+    "socialAccountTypes": ["FACEBOOK"],
+    "data": {
+        "FACEBOOK": {
+            "type": "POST",               # POST, REEL, or STORY
+            "text": "New on the blog: How we reduced upload failures by 80%.",
+            "link": "https://yoursite.com/blog/uploads",  # only for type POST
+        }
+    },
+})
+```
+
+<Note>
+**Platform-specific fields vary.** Instagram has `collaborators` (max 3 usernames) and `tagged` users. TikTok has `isAiGenerated` and `autoAddMusic`. Pinterest requires a `boardId`. Check the [Platform Guides](/api-reference/platforms) for every field per platform.
+</Note>
+
+### Post Status Values
+
+| Status | When to use |
+| :--- | :--- |
+| `SCHEDULED` | With a future `postDate` - publishes at that time |
+| `SCHEDULED` | With current `postDate` - publishes immediately |
+| `DRAFT` | Save without publishing. Edit and schedule later |
+
+<Tip>
+After publishing, posts transition to `POSTED`, `ERROR`, or `PROCESSING`. You can't set these - they're system-managed. Listen for `post.published` and `post.failed` [webhooks](/api-reference/webhooks) to track status.
+</Tip>
+
+---
+
+## List & Manage Posts
+
+### List Posts
+
+```python
+posts = client.get("/post", {
+    "teamId": team_id,          # required
+    "status": "SCHEDULED",      # DRAFT, SCHEDULED, POSTED, ERROR, PROCESSING, REVIEW, RETRYING
+    "limit": 20,
+    "offset": 0,
+    "order": "DESC",            # ASC or DESC
+    "orderBy": "postDate",      # createdAt, updatedAt, postDate, postedDate
+})
+
+print(f"Total: {posts['total']}")
+for p in posts["items"]:
+    print(f"{p['title']} - {p['status']} - {p['postDate']}")
+```
+
+### Get a Single Post
+
+```python
+post = client.get(f"/post/{post_id}")
+print(f"Status: {post['status']}")
+```
+
+### Delete a Post
+
+```python
+client.delete(f"/post/{post_id}")
+```
+
+### Retry a Failed Post
+
+```python
+client.post(f"/post/{post_id}/retry", {})
+```
+
+---
+
+## Analytics
+
+Analytics require a `teamId` and `platformType`. The response contains an `items` array - each item is a daily analytics snapshot (refreshed every 24h, retained for 40 days).
+
+<Warning>
+**Analytics available on paid tiers only** (PRO and BUSINESS). Not available for Twitter/X, Discord, or Slack. See the [Analytics docs](/api-reference/analytics) for per-platform availability.
+</Warning>
+
+### Social Account Analytics
+
+```python
+analytics = client.get("/analytics/social-account", {
+    "teamId": team_id,
+    "platformType": "INSTAGRAM",
+    # Valid: INSTAGRAM, FACEBOOK, LINKEDIN, TIKTOK, YOUTUBE,
+    #        THREADS, PINTEREST, REDDIT, MASTODON, BLUESKY, GOOGLE_BUSINESS
+})
+
+# analytics["socialAccount"] - the social account object
+# analytics["items"]         - list of analytics snapshots (daily)
+
+latest = analytics["items"][-1]  # most recent snapshot
+
+print(f"Followers:   {latest['followers']:,}")
+print(f"Impressions: {latest['impressions']:,}")
+print(f"Views:       {latest['views']:,}")
+print(f"Likes:       {latest['likes']:,}")
+print(f"Comments:    {latest['comments']:,}")
+print(f"Post Count:  {latest['postCount']:,}")
+```
+
+### Post Analytics
+
+```python
+post_analytics = client.get("/analytics/post", {
+    "postId": post_id,
+    "platformType": "INSTAGRAM",
+})
+
+# post_analytics["post"]  - the post object
+# post_analytics["items"] - list of analytics snapshots
+
+latest = post_analytics["items"][-1]
+
+print(f"Impressions: {latest['impressions']:,}")
+print(f"Likes:       {latest['likes']:,}")
+print(f"Comments:    {latest['comments']:,}")
+print(f"Shares:      {latest['shares']:,}")
+print(f"Saves:       {latest['saves']:,}")
+print(f"Views:       {latest['views']:,}")
+```
+
+### Bulk Post Analytics
+
+```python
+bulk = client.get("/analytics/post/bulk", {
+    "postIds": [post_id_1, post_id_2, post_id_3],  # 1-60 IDs
+    "platformType": "INSTAGRAM",
+    "page": 1,
+    "limit": 20,   # max 20
+})
+
+# bulk["results"]    - list of { postId, items: [...], error: str | None }
+# bulk["pagination"] - { page, limit, total, totalPages }
+
+for result in bulk["results"]:
+    if result["error"]:
+        print(f"Post {result['postId']}: Error - {result['error']}")
+        continue
+    latest = result["items"][-1] if result["items"] else None
+    if latest:
+        print(f"Post {result['postId']}: {latest['likes']} likes, {latest['views']} views")
+```
+
+### Force Refresh
+
+```python
+# Rate limited to (number of teams × 5) per day
+client.post("/analytics/social-account/force", {
+    "teamId": team_id,
+    "platformType": "INSTAGRAM",
+})
+```
+
+<Note>
+**Some metrics return 0.** This doesn't mean zero engagement - it means the platform API doesn't provide that data point. Twitter/X has no analytics API at all. Each [Platform Guide](/api-reference/platforms) documents exactly which fields return 0.
+</Note>
+
+---
+
+## Webhooks: Signature Verification
+
+Webhooks fire at the organization level. **Always verify the HMAC-SHA256 signature** in the `x-signature` header.
+
+### Flask
+
+```python
+import hmac
+import hashlib
+import json
+import os
+from flask import Flask, request, abort
+
+app = Flask(__name__)
+WEBHOOK_SECRET = os.environ["BUNDLE_WEBHOOK_SECRET"]
+
+
+@app.route("/webhooks/bundle", methods=["POST"])
+def handle_webhook():
+    body = request.get_data()
+    signature = request.headers.get("x-signature", "")
+
+    expected = hmac.new(
+        WEBHOOK_SECRET.encode(),
+        body,
+        hashlib.sha256,
+    ).hexdigest()
+
+    if not hmac.compare_digest(expected, signature):
+        abort(401)
+
+    event = json.loads(body)
+
+    if event["type"] == "post.published":
+        post_data = event["data"]
+        # post_data["id"], post_data["teamId"], post_data["status"]
+        # Update your DB, notify the user
+        print(f"Post {post_data['id']} published!")
+
+    elif event["type"] == "post.failed":
+        post_data = event["data"]
+        # Alert user, log failure details
+        print(f"Post {post_data['id']} failed")
+
+    elif event["type"] == "social-account.created":
+        account = event["data"]
+        # account["type"] = "INSTAGRAM", "TIKTOK", etc.
+        # account["teamId"], account["username"]
+        print(f"New {account['type']} account connected: {account['username']}")
+
+    elif event["type"] == "social-account.deleted":
+        # Remove from your UI
+        pass
+
+    elif event["type"] == "team.updated":
+        # Also fires when social accounts are added/removed to a team
+        pass
+
+    return "ok", 200
+```
+
+### Django
+
+```python
+# views.py
+import hmac
+import hashlib
+import json
+from django.conf import settings
+from django.http import HttpResponse, HttpResponseForbidden
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+
+
+@csrf_exempt
+@require_POST
+def webhook_handler(request):
+    body = request.body
+    signature = request.headers.get("X-Signature", "")
+
+    expected = hmac.new(
+        settings.BUNDLESOCIAL_WEBHOOK_SECRET.encode(),
+        body,
+        hashlib.sha256,
+    ).hexdigest()
+
+    if not hmac.compare_digest(expected, signature):
+        return HttpResponseForbidden("Invalid signature")
+
+    event = json.loads(body)
+
+    if event["type"] == "post.published":
+        handle_post_published(event["data"])
+    elif event["type"] == "post.failed":
+        handle_post_failed(event["data"])
+    elif event["type"] == "social-account.created":
+        handle_account_created(event["data"])
+
+    return HttpResponse("ok", status=200)
+```
+
+### All Webhook Events
+
+| Event | When it fires |
+| :--- | :--- |
+| `post.published` | Post went live on the platform |
+| `post.failed` | Post failed after retries |
+| `comment.published` | Auto-comment posted |
+| `social-account.created` | New social account connected |
+| `social-account.deleted` | Account disconnected |
+| `team.created` | New team created |
+| `team.updated` | Team details changed (including social accounts added/removed) |
+| `team.deleted` | Team deleted |
+
+### Delivery Details
+
+| Setting | Value |
+| :--- | :--- |
+| Timeout | 15 seconds per delivery |
+| Max attempts | 3 (initial + 2 retries) |
+| Backoff | Exponential, starting at 30s |
+| Auto-disable | After 50 consecutive failures in 24h |
+
+<Warning>
+**Respond fast.** Return a `200` within 15 seconds. Do heavy processing asynchronously - push to Celery, RQ, or a database job table. 50 consecutive failures and we auto-disable your webhook. See the [Webhooks docs](/api-reference/webhooks) for full payload examples.
+</Warning>
+
+---
+
+## Error Handling
+
+When a post fails on specific platforms, the response includes `errorsVerbose` - a per-platform breakdown:
+
+```python
+try:
+    post = client.post("/post", post_data)
+    print(f"Post created: {post['id']}")
+except BundleSocialError as e:
+    print(f"Error ({e.status_code}): {e}")
+
+    if e.errors_verbose:
+        for platform, error in e.errors_verbose.items():
+            if error is None:
+                print(f"  {platform}: Success")
+                continue
+
+            print(f"  {platform}: {error['userFacingMessage']}")
+            print(f"    Code: {error['code']}")             # e.g. "META:190", "TT:spam_risk"
+            print(f"    Transient: {error['isTransient']}")  # True = retry, False = fix it
+            print(f"    Raw: {error['errorMessage']}")       # upstream platform error
+```
+
+### Error Code Prefixes
+
+| Prefix | Platform |
+| :--- | :--- |
+| `META` | Instagram, Facebook, Threads |
+| `TT` | TikTok |
+| `LI` | LinkedIn |
+| `YT` | YouTube |
+| `HTTP` | Generic API errors |
+
+### The `isTransient` Field
+
+| Value | Meaning | Action |
+| :--- | :--- | :--- |
+| `True` | Rate limit, temporary outage, timeout | Retry with exponential backoff |
+| `False` | Auth error, content rejected, validation | Fix the input or reconnect the account |
+
+For the full error reference, see the [Errors docs](/api-reference/errors).
+
+---
+
+## Rate Limiting
+
+Two layers. Both matter.
+
+### Layer 1: API Rate Limits
+
+| Layer | Window | Max Requests |
+| :--- | :--- | :--- |
+| Burst | 1 second | 100 |
+| Short | 10 seconds | 500 |
+| Minute | 1 minute | 2,000 |
+
+Tracked per API key. Hit any limit → `429`. Implement exponential backoff:
+
+```python
+import time
+import random
+
+
+def request_with_retry(client, endpoint, data, max_retries=3):
+    for attempt in range(max_retries + 1):
+        try:
+            return client.post(endpoint, data)
+        except BundleSocialError as e:
+            if e.status_code == 429 and attempt < max_retries:
+                wait = (2 ** attempt) + random.uniform(0, 1)  # jitter
+                print(f"Rate limited. Retrying in {wait:.1f}s...")
+                time.sleep(wait)
+                continue
+            raise
+```
+
+### Layer 2: Platform Posting Limits
+
+Daily caps per social account per platform (varies by [subscription tier](/api-reference/rate-limits)):
+
+| Platform | FREE | PRO | BUSINESS |
+| :--- | :--- | :--- | :--- |
+| Instagram | 10/day | 20/day | 25/day |
+| TikTok | 5/day | 10/day | 15/day |
+| Twitter/X | 5/day | 15/day | 15/day |
+| YouTube | 10/day | 10/day | 15/day |
+
+Plus monthly org-wide caps: FREE = 10, PRO = 1,000, BUSINESS = 100,000.
+
+---
+
+## Automation: Scheduled Posting Script
+
+A practical example using `schedule` (`pip install schedule`):
+
+```python
+"""Daily posting automation - upload today's content, schedule for tomorrow."""
+import schedule
+import time
+from datetime import datetime, timezone, timedelta
+
+
+def daily_post():
+    tomorrow = datetime.now(timezone.utc) + timedelta(days=1)
+    post_time = tomorrow.replace(hour=10, minute=0, second=0, microsecond=0)
+
+    # Upload today's content
+    upload = client.upload_file("./daily-content/video.mp4", team_id)
+
+    # Schedule for tomorrow 10:00 UTC
+    post = client.post("/post", {
+        "teamId": team_id,
+        "title": f"Daily Post - {tomorrow.strftime('%Y-%m-%d')}",
+        "postDate": post_time.isoformat(),
+        "status": "SCHEDULED",
+        "socialAccountTypes": ["INSTAGRAM", "TIKTOK"],
+        "data": {
+            "INSTAGRAM": {
+                "type": "REEL",
+                "text": "Daily content! #daily",
+                "uploadIds": [upload["id"]],
+            },
+            "TIKTOK": {
+                "text": "Daily content! #fyp",
+                "uploadIds": [upload["id"]],
+                "privacy": "PUBLIC_TO_EVERYONE",
+            },
+        },
+    })
+
+    print(f"Scheduled {post['id']} for {post_time.isoformat()}")
+
+
+# Run daily at 6 PM
+schedule.every().day.at("18:00").do(daily_post)
+
+print("Scheduler running. Ctrl+C to stop.")
+while True:
+    schedule.run_pending()
+    time.sleep(60)
+```
+
+<Note>
+**For production**, use a proper scheduler - cron, Celery Beat, APScheduler, or your framework's task system. The `schedule` library is great for scripts and prototypes but doesn't survive process restarts.
+</Note>
+
+---
+
+## Django Integration
+
+### Service Class
+
+```python
+# services/bundlesocial.py
+import requests
+from django.conf import settings
+from typing import Dict, List, Optional
+
+
+class BundleSocialService:
+    BASE_URL = "https://api.bundle.social/api/v1"
+
+    def __init__(self):
+        self.api_key = settings.BUNDLESOCIAL_API_KEY
+
+    def _headers(self) -> Dict:
+        return {"x-api-key": self.api_key, "Content-Type": "application/json"}
+
+    def create_team(self, name: str) -> Dict:
+        r = requests.post(
+            f"{self.BASE_URL}/team",
+            headers=self._headers(),
+            json={"name": name},
+        )
+        r.raise_for_status()
+        return r.json()
+
+    def upload_media(self, file_path: str, team_id: str) -> Dict:
+        with open(file_path, "rb") as f:
+            r = requests.post(
+                f"{self.BASE_URL}/upload",
+                headers={"x-api-key": self.api_key},
+                files={"file": f},
+                data={"teamId": team_id},
+            )
+        r.raise_for_status()
+        return r.json()
+
+    def create_post(self, data: Dict) -> Dict:
+        r = requests.post(
+            f"{self.BASE_URL}/post",
+            headers=self._headers(),
+            json=data,
+        )
+        r.raise_for_status()
+        return r.json()
+
+    def get_analytics(self, team_id: str, platform: str) -> Dict:
+        r = requests.get(
+            f"{self.BASE_URL}/analytics/social-account",
+            headers=self._headers(),
+            params={"teamId": team_id, "platformType": platform},
+        )
+        r.raise_for_status()
+        return r.json()
+
+    def get_portal_link(self, team_id: str, platforms: List[str]) -> str:
+        r = requests.post(
+            f"{self.BASE_URL}/social-account/create-portal-link",
+            headers=self._headers(),
+            json={
+                "teamId": team_id,
+                "redirectUrl": settings.BUNDLESOCIAL_REDIRECT_URL,
+                "socialAccountTypes": platforms,
+                "hidePoweredBy": True,
+            },
+        )
+        r.raise_for_status()
+        return r.json()["url"]
+```
+
+### Settings
+
+```python
+# settings.py
+BUNDLESOCIAL_API_KEY = os.environ.get("BUNDLESOCIAL_API_KEY")
+BUNDLESOCIAL_WEBHOOK_SECRET = os.environ.get("BUNDLESOCIAL_WEBHOOK_SECRET")
+BUNDLESOCIAL_REDIRECT_URL = os.environ.get("BUNDLESOCIAL_REDIRECT_URL", "https://yourapp.com/dashboard")
+```
+
+### URL Config
+
+```python
+# urls.py
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path("webhooks/bundle/", views.webhook_handler, name="bundle-webhook"),
+]
+```
+
+---
+
+## Platform-Specific Fields Reference
+
+Quick reference for the most commonly used fields. For the full spec, see [Platform Guides](/api-reference/platforms).
+
+| Platform | Key Fields | Notes |
+| :--- | :--- | :--- |
+| [Instagram](/api-reference/platforms/instagram) | `type` (POST/REEL/STORY), `text`, `uploadIds`, `shareToFeed`, `collaborators`, `tagged` | `text` max 2000 chars. `collaborators` max 3 usernames |
+| [TikTok](/api-reference/platforms/tiktok) | `type` (VIDEO/IMAGE), `text`, `uploadIds`, `privacy`, `disableComments`, `isAiGenerated` | `text` max 2200 chars. IMAGE type: JPG only |
+| [YouTube](/api-reference/platforms/youtube) | `type` (SHORT/VIDEO), `text` (title!), `description`, `uploadIds`, `privacy`, `madeForKids` | `text` is the video TITLE (max 100). `description` max 5000 |
+| [LinkedIn](/api-reference/platforms/linkedin) | `text` (required!), `uploadIds`, `privacy`, `mediaTitle`, `hideFromFeed` | `text` max 3000 chars. Supports PDF documents |
+| [Twitter/X](/api-reference/platforms/twitter) | `text`, `uploadIds` | 280 chars (Free/Basic), 25K chars (Premium) |
+| [Facebook](/api-reference/platforms/facebook) | `type` (POST/REEL/STORY), `text`, `uploadIds`, `link` | `link` only for type POST. `text` max 50K chars |
+| [Pinterest](/api-reference/platforms/pinterest) | `text`, `description`, `uploadIds`, `boardName` (required!), `link` | `text` max 100 chars. `boardName` from `socialAccount.channels` |
+| [Reddit](/api-reference/platforms/reddit) | `sr` (required!), `text`, `uploadIds`, `flairId`, `link`, `nsfw` | `sr` format: `r/subredditName` or `u/username`. `text` max 300 chars |
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="API Documentation" icon="book" href="/api-reference/introduction">
+    Full endpoint reference and interactive examples
+  </Card>
+  <Card title="Platform Guides" icon="grid-2" href="/api-reference/platforms">
+    Platform-specific fields, limits, and quirks for all 14+ platforms
+  </Card>
+  <Card title="Platform Limits" icon="ruler" href="/api-reference/limits">
+    File sizes, aspect ratios, durations - per platform
+  </Card>
+  <Card title="Webhooks" icon="webhook" href="/api-reference/webhooks">
+    All events, payload examples, and delivery details
+  </Card>
+</CardGroup>
+
+<Card title="Swagger / OpenAPI Spec" icon="code" href="/api-reference/openapi">
+  Interactive API explorer - test endpoints directly in your browser
+</Card>
+
+---
+
+Questions? Running into edge cases? Reach out - we've debugged enough `requests.exceptions.HTTPError` tracebacks to last a lifetime.
