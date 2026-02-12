@@ -1,0 +1,753 @@
+---
+title: "Social Media API for Ruby/Rails: Quick Reference Guide"
+description: "Post to Instagram, TikTok, YouTube & 11 more platforms from Ruby. Upload media, create posts, pull analytics - with pure Ruby and Rails examples."
+keywords: ["social media api ruby", "ruby social media posting", "rails social media api", "ruby instagram api", "ruby tiktok api", "social media automation ruby", "ruby api integration"]
+"og:title": "Social Media API for Ruby/Rails: Quick Reference Guide"
+"og:description": "Post to 14+ social platforms from Ruby. Upload, schedule, analytics - pure Ruby and Rails examples verified against the real API."
+date: '2026-02-12'
+---
+
+*By Marcel Czuryszkiewicz, Founder @ [bundle.social](https://bundle.social)*
+
+## TL;DR
+
+- No SDK needed. Native Ruby `net/http` or Faraday works.
+- One API key, one base URL, 14+ platforms. Upload media, create posts, pull analytics.
+- Every code example verified against the actual [API contracts](/api-reference/introduction). Copy-paste with confidence.
+
+## What You'll Need
+
+- **Ruby 3.0+** (2.7+ compatible)
+- **Rails 7+** (optional, for Rails-specific examples)
+- **bundle.social API key** - get one from the [dashboard](https://bundle.social/dashboard)
+
+<Note>
+No gems required for basic usage. We'll show both pure Ruby (`net/http`) and Faraday approaches. The endpoints and payloads are identical either way.
+</Note>
+
+---
+
+## Setup
+
+### Option 1: Pure Ruby (no gems)
+
+```ruby
+require 'net/http'
+require 'json'
+require 'uri'
+
+class BundleSocialClient
+  BASE_URL = 'https://api.bundle.social/api/v1'.freeze
+
+  def initialize(api_key)
+    @api_key = api_key
+  end
+
+  def get(endpoint, params = {})
+    uri = URI("#{BASE_URL}#{endpoint}")
+    uri.query = URI.encode_www_form(params) unless params.empty?
+
+    request = Net::HTTP::Get.new(uri)
+    request['x-api-key'] = @api_key
+    request['Content-Type'] = 'application/json'
+
+    execute_request(uri, request)
+  end
+
+  def post(endpoint, body)
+    uri = URI("#{BASE_URL}#{endpoint}")
+
+    request = Net::HTTP::Post.new(uri)
+    request['x-api-key'] = @api_key
+    request['Content-Type'] = 'application/json'
+    request.body = body.to_json
+
+    execute_request(uri, request)
+  end
+
+  def upload_file(file_path, team_id)
+    uri = URI("#{BASE_URL}/upload")
+
+    boundary = "----RubyBoundary#{rand(1_000_000)}"
+
+    file_content = File.binread(file_path)
+    file_name = File.basename(file_path)
+
+    body = []
+    body << "--#{boundary}\r\n"
+    body << "Content-Disposition: form-data; name=\"teamId\"\r\n\r\n"
+    body << "#{team_id}\r\n"
+    body << "--#{boundary}\r\n"
+    body << "Content-Disposition: form-data; name=\"file\"; filename=\"#{file_name}\"\r\n"
+    body << "Content-Type: application/octet-stream\r\n\r\n"
+    body << file_content
+    body << "\r\n--#{boundary}--\r\n"
+
+    request = Net::HTTP::Post.new(uri)
+    request['x-api-key'] = @api_key
+    request['Content-Type'] = "multipart/form-data; boundary=#{boundary}"
+    request.body = body.join
+
+    execute_request(uri, request)
+  end
+
+  def delete(endpoint)
+    uri = URI("#{BASE_URL}#{endpoint}")
+
+    request = Net::HTTP::Delete.new(uri)
+    request['x-api-key'] = @api_key
+    request['Content-Type'] = 'application/json'
+
+    execute_request(uri, request)
+  end
+
+  private
+
+  def execute_request(uri, request)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+
+    response = http.request(request)
+
+    case response
+    when Net::HTTPSuccess
+      JSON.parse(response.body)
+    else
+      error = JSON.parse(response.body) rescue { 'message' => response.body }
+      raise StandardError, "API Error (#{response.code}): #{error['message']}"
+    end
+  end
+end
+```
+
+### Option 2: With Faraday (recommended)
+
+```ruby
+# Gemfile
+gem 'faraday'
+gem 'faraday-multipart'
+```
+
+```ruby
+require 'faraday'
+require 'faraday/multipart'
+
+class BundleSocialClient
+  BASE_URL = 'https://api.bundle.social/api/v1'.freeze
+
+  def initialize(api_key)
+    @api_key = api_key
+    @conn = build_connection
+    @multipart_conn = build_multipart_connection
+  end
+
+  def get(endpoint, params = {})
+    response = @conn.get(endpoint, params)
+    handle_response(response)
+  end
+
+  def post(endpoint, body)
+    response = @conn.post(endpoint, body.to_json)
+    handle_response(response)
+  end
+
+  def delete(endpoint)
+    response = @conn.delete(endpoint)
+    handle_response(response)
+  end
+
+  def upload_file(file_path, team_id)
+    payload = {
+      file: Faraday::Multipart::FilePart.new(file_path, 'application/octet-stream'),
+      teamId: team_id
+    }
+
+    response = @multipart_conn.post('/upload', payload)
+    handle_response(response)
+  end
+
+  private
+
+  def build_connection
+    Faraday.new(url: BASE_URL) do |f|
+      f.request :json
+      f.response :json
+      f.headers['x-api-key'] = @api_key
+      f.headers['Content-Type'] = 'application/json'
+    end
+  end
+
+  def build_multipart_connection
+    Faraday.new(url: BASE_URL) do |f|
+      f.request :multipart
+      f.response :json
+      f.headers['x-api-key'] = @api_key
+    end
+  end
+
+  def handle_response(response)
+    if response.success?
+      response.body
+    else
+      raise StandardError, "API Error (#{response.status}): #{response.body['message'] || response.body}"
+    end
+  end
+end
+```
+
+---
+
+## Initialize Client
+
+```ruby
+# Using environment variables (recommended)
+client = BundleSocialClient.new(ENV['BUNDLESOCIAL_API_KEY'])
+TEAM_ID = ENV['BUNDLESOCIAL_TEAM_ID']
+```
+
+---
+
+## Upload Media
+
+```ruby
+# Upload a video
+upload = client.upload_file('./video.mp4', TEAM_ID)
+
+puts "Upload ID: #{upload['id']}"
+puts "URL: #{upload['url']}"
+puts "Type: #{upload['type']}"       # "image", "video", or "document"
+puts "MIME: #{upload['mime']}"       # e.g. "video/mp4"
+
+# Upload multiple files for carousel
+upload_ids = ['./image1.jpg', './image2.jpg', './image3.jpg'].map do |path|
+  client.upload_file(path, TEAM_ID)['id']
+end
+
+puts "Uploaded #{upload_ids.length} files"
+```
+
+---
+
+## Create Posts
+
+### Post to Instagram
+
+```ruby
+post = client.post('/post', {
+  teamId: TEAM_ID,
+  title: 'My Instagram Reel',
+  postDate: Time.now.utc.iso8601,
+  status: 'SCHEDULED',
+  socialAccountTypes: ['INSTAGRAM'],
+  data: {
+    INSTAGRAM: {
+      type: 'REEL',
+      text: 'Posted with Ruby! #ruby #rails #automation',
+      uploadIds: [upload['id']],
+      shareToFeed: true
+    }
+  }
+})
+
+puts "Post created: #{post['id']}"
+```
+
+### Post to TikTok
+
+```ruby
+post = client.post('/post', {
+  teamId: TEAM_ID,
+  title: 'My TikTok Video',
+  postDate: Time.now.utc.iso8601,
+  status: 'SCHEDULED',
+  socialAccountTypes: ['TIKTOK'],
+  data: {
+    TIKTOK: {
+      type: 'VIDEO',
+      text: 'Automated with Ruby! #fyp #ruby',
+      uploadIds: [upload['id']],
+      privacy: 'PUBLIC_TO_EVERYONE',
+      disableComments: false,
+      disableDuet: false,
+      disableStitch: false
+    }
+  }
+})
+```
+
+### Post to Multiple Platforms
+
+```ruby
+post = client.post('/post', {
+  teamId: TEAM_ID,
+  title: 'Cross-platform video',
+  postDate: Time.now.utc.iso8601,
+  status: 'SCHEDULED',
+  socialAccountTypes: %w[TIKTOK INSTAGRAM YOUTUBE LINKEDIN TWITTER],
+  data: {
+    TIKTOK: {
+      type: 'VIDEO',
+      text: 'New video! #fyp #viral',
+      uploadIds: [upload_id],
+      privacy: 'PUBLIC_TO_EVERYONE'
+    },
+    INSTAGRAM: {
+      type: 'REEL',
+      text: 'Check out this Reel! #reels',
+      uploadIds: [upload_id],
+      shareToFeed: true
+    },
+    YOUTUBE: {
+      type: 'SHORT',
+      text: 'New YouTube Short',           # this is the video TITLE (max 100 chars)
+      description: 'Subscribe for more.',   # max 5000 chars
+      uploadIds: [upload_id],
+      privacy: 'PUBLIC',                    # PUBLIC, PRIVATE, or UNLISTED
+      madeForKids: false
+    },
+    LINKEDIN: {
+      text: 'Excited to share this with my professional network!',
+      uploadIds: [upload_id]
+    },
+    TWITTER: {
+      text: 'New video just dropped!',
+      uploadIds: [upload_id]
+    }
+  }
+})
+
+puts "Posted to #{post['socialAccountTypes'].length} platforms!"
+```
+
+### Instagram Carousel
+
+```ruby
+# Upload multiple images first
+image_ids = %w[./img1.jpg ./img2.jpg ./img3.jpg].map do |path|
+  client.upload_file(path, TEAM_ID)['id']
+end
+
+post = client.post('/post', {
+  teamId: TEAM_ID,
+  title: 'My Carousel',
+  postDate: Time.now.utc.iso8601,
+  status: 'SCHEDULED',
+  socialAccountTypes: ['INSTAGRAM'],
+  data: {
+    INSTAGRAM: {
+      type: 'POST',
+      text: 'Swipe through! #carousel',
+      uploadIds: image_ids  # 2-10 items
+    }
+  }
+})
+```
+
+---
+
+## Get Analytics
+
+<Warning>
+**Analytics are available on paid tiers only.** Not available for Twitter/X, Discord, or Slack. See the [Analytics docs](/api-reference/analytics) for per-platform availability.
+</Warning>
+
+### Social Account Analytics
+
+Analytics require both `teamId` and `platformType`. The response contains an `items` array of snapshots (newest last).
+
+```ruby
+analytics = client.get('/analytics/social-account', {
+  teamId: TEAM_ID,
+  platformType: 'INSTAGRAM'
+  # Valid: INSTAGRAM, FACEBOOK, LINKEDIN, TIKTOK, YOUTUBE,
+  #        THREADS, PINTEREST, REDDIT, MASTODON, BLUESKY, GOOGLE_BUSINESS
+})
+
+# analytics['socialAccount'] - the social account object
+# analytics['items']         - array of analytics snapshots (newest last)
+
+latest = analytics['items'].last
+
+puts "Followers: #{latest['followers']}"
+puts "Impressions: #{latest['impressions']}"
+puts "Likes: #{latest['likes']}"
+puts "Comments: #{latest['comments']}"
+```
+
+### Post Analytics
+
+```ruby
+post_analytics = client.get('/analytics/post', {
+  postId: 'POST_ID',
+  platformType: 'INSTAGRAM'
+})
+
+# post_analytics['post']  - the post object
+# post_analytics['items'] - array of analytics snapshots
+
+latest = post_analytics['items'].last
+
+puts "Views: #{latest['views']}"
+puts "Likes: #{latest['likes']}"
+puts "Comments: #{latest['comments']}"
+puts "Shares: #{latest['shares']}"
+puts "Saves: #{latest['saves']}"
+```
+
+### Bulk Post Analytics
+
+```ruby
+bulk = client.get('/analytics/post/bulk', {
+  postIds: ['id1', 'id2', 'id3'],
+  platformType: 'INSTAGRAM',
+  limit: 20    # max 20 per page
+})
+
+# bulk['results']    - array of { postId, items, error }
+# bulk['pagination'] - { page, limit, total, totalPages }
+
+bulk['results'].each do |result|
+  next if result['error']
+
+  latest = result['items']&.last
+  next unless latest
+
+  puts "Post #{result['postId']}: #{latest['impressions']} impressions, #{latest['likes']} likes"
+end
+```
+
+---
+
+## List and Manage Posts
+
+```ruby
+# List posts
+posts = client.get('/post', {
+  teamId: TEAM_ID,
+  status: 'SCHEDULED',    # DRAFT, SCHEDULED, POSTED, ERROR, PROCESSING, etc.
+  orderBy: 'postDate',    # createdAt, updatedAt, postDate, postedDate
+  order: 'DESC',
+  limit: 20,
+  offset: 0
+})
+
+posts['items'].each do |post|
+  puts "#{post['title']} - #{post['postDate']} - #{post['status']}"
+end
+
+# Get single post
+post = client.get("/post/#{post_id}")
+puts post['title']
+
+# Delete post
+deleted = client.delete("/post/#{post_id}")
+puts "Deleted: #{deleted['id']}"
+```
+
+---
+
+## Rails Integration
+
+### Service Object
+
+```ruby
+# app/services/social_media_service.rb
+class SocialMediaService
+  def initialize
+    @client = BundleSocialClient.new(Rails.application.credentials.bundlesocial[:api_key])
+    @team_id = Rails.application.credentials.bundlesocial[:team_id]
+  end
+
+  def upload(file)
+    # file can be an ActionDispatch::Http::UploadedFile or path string
+    path = file.respond_to?(:path) ? file.path : file
+    @client.upload_file(path, @team_id)
+  end
+
+  def create_post(platforms:, caption:, upload_ids:, schedule_at: Time.current)
+    data = build_platform_data(platforms, caption, upload_ids)
+
+    @client.post('/post', {
+      teamId: @team_id,
+      title: caption.truncate(50),
+      postDate: schedule_at.utc.iso8601,
+      status: 'SCHEDULED',
+      socialAccountTypes: platforms,
+      data: data
+    })
+  end
+
+  def get_account_analytics(platform_type)
+    @client.get('/analytics/social-account', {
+      teamId: @team_id,
+      platformType: platform_type
+    })
+  end
+
+  def get_post_analytics(post_id, platform_type)
+    @client.get('/analytics/post', {
+      postId: post_id,
+      platformType: platform_type
+    })
+  end
+
+  private
+
+  def build_platform_data(platforms, caption, upload_ids)
+    platforms.each_with_object({}) do |platform, data|
+      data[platform] = base_data(caption, upload_ids).merge(platform_specific(platform))
+    end
+  end
+
+  def base_data(caption, upload_ids)
+    { text: caption, uploadIds: upload_ids }
+  end
+
+  def platform_specific(platform)
+    case platform
+    when 'TIKTOK'
+      { type: 'VIDEO', privacy: 'PUBLIC_TO_EVERYONE' }
+    when 'INSTAGRAM'
+      { type: 'REEL', shareToFeed: true }
+    when 'YOUTUBE'
+      { type: 'SHORT', privacy: 'PUBLIC', madeForKids: false }
+    else
+      {}
+    end
+  end
+end
+```
+
+### Controller
+
+```ruby
+# app/controllers/posts_controller.rb
+class PostsController < ApplicationController
+  def create
+    service = SocialMediaService.new
+
+    # Upload media
+    upload = service.upload(params[:video])
+
+    # Create cross-platform post
+    post = service.create_post(
+      platforms: params[:platforms],
+      caption: params[:caption],
+      upload_ids: [upload['id']],
+      schedule_at: params[:schedule_at]&.to_datetime || Time.current
+    )
+
+    render json: { success: true, post_id: post['id'] }
+  rescue StandardError => e
+    render json: { error: e.message }, status: :unprocessable_entity
+  end
+end
+```
+
+### Background Job (Sidekiq)
+
+```ruby
+# app/jobs/scheduled_post_job.rb
+class ScheduledPostJob
+  include Sidekiq::Job
+
+  def perform(video_path, platforms, caption, schedule_at)
+    service = SocialMediaService.new
+
+    # Upload
+    upload = service.upload(video_path)
+
+    # Schedule post
+    post = service.create_post(
+      platforms: platforms,
+      caption: caption,
+      upload_ids: [upload['id']],
+      schedule_at: Time.parse(schedule_at)
+    )
+
+    Rails.logger.info "Post scheduled: #{post['id']}"
+  end
+end
+
+# Usage
+ScheduledPostJob.perform_async(
+  '/path/to/video.mp4',
+  %w[INSTAGRAM TIKTOK],
+  'Automated post! #rails',
+  1.day.from_now.iso8601
+)
+```
+
+### Active Record Integration
+
+```ruby
+# app/models/social_post.rb
+class SocialPost < ApplicationRecord
+  has_one_attached :video
+
+  enum :status, { draft: 0, scheduled: 1, published: 2, failed: 3 }
+
+  after_commit :schedule_publishing, on: :create, if: :scheduled?
+
+  private
+
+  def schedule_publishing
+    PublishSocialPostJob.perform_at(scheduled_at, id)
+  end
+end
+
+# app/jobs/publish_social_post_job.rb
+class PublishSocialPostJob
+  include Sidekiq::Job
+
+  def perform(social_post_id)
+    post = SocialPost.find(social_post_id)
+    service = SocialMediaService.new
+
+    # Download attached video to temp file
+    video_path = download_to_temp(post.video)
+
+    begin
+      upload = service.upload(video_path)
+
+      result = service.create_post(
+        platforms: post.platforms,
+        caption: post.caption,
+        upload_ids: [upload['id']]
+      )
+
+      post.update!(
+        status: :published,
+        external_id: result['id'],
+        published_at: Time.current
+      )
+    rescue => e
+      post.update!(status: :failed, error_message: e.message)
+      raise
+    ensure
+      File.delete(video_path) if File.exist?(video_path)
+    end
+  end
+
+  private
+
+  def download_to_temp(attachment)
+    path = Rails.root.join('tmp', attachment.filename.to_s)
+    File.open(path, 'wb') { |f| f.write(attachment.download) }
+    path.to_s
+  end
+end
+```
+
+---
+
+## Error Handling
+
+```ruby
+begin
+  post = client.post('/post', post_data)
+  puts "Success: #{post['id']}"
+rescue StandardError => e
+  case e.message
+  when /400/
+    Rails.logger.error "Validation error: #{e.message}"
+  when /401/
+    Rails.logger.error "Invalid API key"
+  when /429/
+    Rails.logger.error "Rate limited, retry later"
+    sleep(2)
+    retry
+  else
+    Rails.logger.error "Unexpected error: #{e.message}"
+    Sentry.capture_exception(e) if defined?(Sentry)
+  end
+end
+```
+
+<Note>
+For full error codes and what they mean, see the [Errors reference](/api-reference/errors). We return verbose error messages with platform-specific details so you don't have to guess what went wrong.
+</Note>
+
+---
+
+## Configuration (Rails)
+
+```yaml
+# config/credentials.yml.enc
+bundlesocial:
+  api_key: your_api_key_here
+  team_id: your_team_id_here
+```
+
+```ruby
+# Or use environment variables
+# config/initializers/bundlesocial.rb
+Rails.application.config.bundlesocial = {
+  api_key: ENV['BUNDLESOCIAL_API_KEY'],
+  team_id: ENV['BUNDLESOCIAL_TEAM_ID']
+}
+```
+
+---
+
+## Rake Task Example
+
+```ruby
+# lib/tasks/social_media.rake
+namespace :social_media do
+  desc 'Post daily content to all platforms'
+  task daily_post: :environment do
+    service = SocialMediaService.new
+
+    video_path = Rails.root.join('content', 'daily', "#{Date.current}.mp4")
+
+    unless File.exist?(video_path)
+      puts 'No video found for today'
+      exit
+    end
+
+    upload = service.upload(video_path.to_s)
+
+    post = service.create_post(
+      platforms: %w[INSTAGRAM TIKTOK YOUTUBE],
+      caption: "Daily content - #{Date.current.strftime('%B %d, %Y')} #daily",
+      upload_ids: [upload['id']],
+      schedule_at: Date.current.noon
+    )
+
+    puts "Scheduled post: #{post['id']}"
+  end
+
+  desc 'Fetch analytics for all connected accounts'
+  task sync_analytics: :environment do
+    service = SocialMediaService.new
+
+    SocialAccount.find_each do |account|
+      analytics = service.get_account_analytics(account.platform)
+
+      latest = analytics['items']&.last
+      next unless latest
+
+      account.update!(
+        followers: latest['followers'],
+        impressions: latest['impressions'],
+        last_synced_at: Time.current
+      )
+
+      puts "Synced: #{account.platform} - #{latest['followers']} followers"
+    end
+  end
+end
+```
+
+---
+
+## Resources
+
+<Card title="API Documentation" icon="book" href="/api-reference/introduction">
+  Full API reference with all endpoints
+</Card>
+
+<Card title="GitHub Examples" icon="github" href="/api-reference/examples">
+  Working code samples in multiple languages
+</Card>
