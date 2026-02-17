@@ -304,7 +304,7 @@ Want to schedule 50 posts at once? Go for it. But be smart about it.
 
 ### Rate Limits
 
-- **API rate limit:** 600 requests/minute per IP. So you can technically create 600 posts per minute.
+- **API rate limits:** Multi-layer limits per endpoint and tracker (API key / bearer token / IP fallback): burst `100/1s`, short `500/10s`, minute `2000/60s`. See [Rate Limits](/api-reference/rate-limits).
 - **Platform limits:** Each platform has its own daily posting limits per team. Check our [Platform Limits](/api-reference/limits#daily-posting-limits-per-platform) for the exact numbers per tier. If you blast 50 TikToks in an hour, TikTok might have opinions.
 
 ### Best Approach
@@ -356,7 +356,7 @@ Instagram's algorithm treats first-comment hashtags the same as caption hashtags
 ### 4. Remember Data Retention
 
 - **Imported posts:** Deleted after 30 days. Store them if you need them.
-- **Analytics:** Deleted after 40 days. Fetch daily if you're building reports.
+- **Analytics:** Deleted after 30 days. Fetch daily if you're building reports.
 - **Webhook events:** Deleted after 7 days. Log them on your end.
 
 See [Data Retention](/api-reference/data-retention) for the full breakdown.

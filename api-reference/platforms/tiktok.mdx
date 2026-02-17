@@ -23,9 +23,10 @@ If you set a video's privacy to `SELF_ONLY` (Private), the API **cannot** return
 
 ### Music & Copyright
 TikTok is extremely strict about music rights.
-*   **Trending Audio:** You generally **cannot** use TikTok's "trending audio" library directly via API.
+*   **Commercial Music Library (CML):** We expose TikTok's pre-cleared music via [TikTok Music](/api-reference/platforms/tiktok-music) – trending tracks, genres, `song_clip_id` for publish. No copyright roulette.
+*   **Trending Audio:** You generally **cannot** use TikTok's in-app "trending audio" library directly via API.
 *   **Royalty-Free:** You can use the `autoAddMusic` flag to let TikTok assign royalty-free music, but you lose control over the specific track. It's a gamble.
-*   **Best Practice:** Burn your audio into the video file before uploading.
+*   **Best Practice:** Use CML for controlled music, or burn your audio into the video file before uploading.
 
 ### Image Format (Photo Mode)
 TikTok only accepts **JPG** and **JPEG** files for Photo Mode posts. PNG, WebP, and everything else will be rejected. Convert before uploading.

@@ -15,6 +15,7 @@ Google Business Profile (formerly Google My Business) lets you post updates that
 *   **Events:** Time-bound events with a title and date range.
 *   **Offers:** Promotional offers with coupon codes and terms.
 *   **Alerts:** Special alerts (currently only `COVID_19`).
+*   **Reviews & Replies:** Import reviews asynchronously, then manage owner replies.
 
 ## Quirks & Gotchas
 
@@ -43,6 +44,19 @@ You can add a CTA button to your posts:
 | Text | Max 1,500 characters |
 
 See [Platform Limits](/api-reference/limits#google-business) for details.
+
+---
+
+## Google Reviews
+
+Google Reviews run on a separate async flow (similar to Post History Import). You start an import job, poll status, then fetch imported reviews and manage replies.
+
+*   Start import + poll status (`PENDING` -> `FETCHING_REVIEWS` -> `COMPLETED`)
+*   Handle temporary pauses with `RATE_LIMITED` and automatic resume
+*   List imported reviews with pagination and capacity info
+*   Create/update/delete owner replies via API
+
+Full guide: [Google Business Reviews](/api-reference/platforms/google-business-reviews)
 
 ---
 
