@@ -9,17 +9,17 @@ We don't keep your data forever. Storage costs money, and we are great on your w
 
 ---
 
-## Analytics Data - 40 Days
+## Analytics Data - 30 Days
 
 **What:** All parsed and raw analytics data (profile analytics, post analytics, and their raw counterparts).
 
-**Retention:** **40 days** from the date the analytics record was created.
+**Retention:** **30 days** from the date the analytics record was created.
 
-After 40 days, the data is gone. Permanently. No backups. No "can you please recover it?". No.
+After 30 days, the data is gone. Permanently. No backups. No "can you please recover it?". No.
 
 ### What You Should Do
 
-If you need analytics history beyond 40 days (and you probably do if you're building dashboards or reports), set up a daily sync. Here's a battle-tested approach:
+If you need analytics history beyond 30 days (and you probably do if you're building dashboards or reports), set up a daily sync. Here's a battle-tested approach:
 
 ```typescript
 // analytics-sync.ts - Run this daily via cron
@@ -66,10 +66,10 @@ const syncAnalytics = async () => {
 new CronJob('0 2 * * *', syncAnalytics, null, true, 'UTC');
 ```
 
-With this running, you have full analytics history in your own database. Build dashboards, generate reports, impress clients - all without worrying about our 40-day window.
+With this running, you have full analytics history in your own database. Build dashboards, generate reports, impress clients - all without worrying about our 30-day window.
 
 <Note>
-**Why 40 days?** Because it covers a full rolling window (30 days) plus a 10-day buffer. If we kept data for 30 days, you'd lose the beginning of your rolling window before you could fetch it. We're evil, but not that evil.
+**Why 30 days?** We updated our cleanup/deletion methodology and now run a tighter, more consistent retention policy. If you need longer history, sync daily and store it on your side.
 </Note>
 
 ---
@@ -119,7 +119,7 @@ Your import quota resets on the **1st of every month**. So if you hit your month
 
 | Data Type | Retention Period |
 | :--- | :--- |
-| Analytics (parsed + raw) | **40 days** |
+| Analytics (parsed + raw) | **30 days** |
 | Webhook events | **7 days** |
 | Deleted uploads | **7 days** after deletion |
 | Imported posts | **30 days** |

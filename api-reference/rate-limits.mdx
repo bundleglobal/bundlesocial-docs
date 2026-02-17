@@ -14,35 +14,26 @@ bundle.social is a unified social media API built for scale. Unlike other social
 
 ## API Rate Limits
 
-We use a multi-layer throttling system to keep things fair and prevent bursts from taking down the ranch. Limits are tracked **per API key** (which means per organization), per bearer token (per user), or per IP as a fallback.
+We use a multi-layer throttling system to keep things fair and prevent bursts from taking down the ranch. Limits are tracked **per endpoint** and per tracker: **API key** (organization), **bearer token** (user), or **IP** as fallback.
 
 ### The Three Layers
 
-| Layer | Window | Max Requests | What it prevents |
-| :--- | :--- | :--- | :--- |
-| **Burst** | 1 second | 100 | Someone doing `Promise.all()` with 500 requests |
-| **Short** | 10 seconds | 500 | Aggressive polling or runaway loops |
-| **Minute** | 1 minute | 2,000 | Sustained high-volume abuse |
+| Layer | Window | Max Requests | Theoretical equivalent | What it prevents |
+| :--- | :--- | :--- | :--- | :--- |
+| **Burst** | 1 second | 100 | 6,000 / minute | Someone doing `Promise.all()` with 500 requests |
+| **Short** | 10 seconds | 500 | 3,000 / minute | Aggressive polling or runaway loops |
+| **Minute** | 1 minute | 2,000 | 2,000 / minute | Sustained high-volume abuse |
 
-All three layers are enforced simultaneously. You could theoretically do 2,000 requests in a minute, but not 200 of them in the same second.
+All three layers are enforced simultaneously. For sustained traffic, the **minute** layer (2,000/min) is the effective cap.
+
+<Note>
+Because limits are per endpoint, heavy traffic on `POST /post` does not consume the same bucket as `GET /analytics` for the same tracker.
+</Note>
 
 <Warning>
 **Easy there, cowboy.** If you hit any of these limits, you'll get a `429 Too Many Requests`. Take a breath, wait a moment, and try again. We're not going anywhere.
 </Warning>
 
-### How tracking works
-
-We identify you in this order:
-
-1. **API Key** (`x-api-key` header) - one API key = one organization
-2. **Bearer Token** (`Authorization` header) - one token = one user
-3. **IP Address** - fallback if neither of the above is present
-
-This means all requests from the same API key share the same bucket, regardless of which server or IP they come from. If you have microservices all using the same key, they share the limit.
-
-<Note>
-We don't return rate limit headers (`X-RateLimit-Remaining`, etc.) at this time. If you're getting 429s, just back off. Exponential backoff is your friend.
-</Note>
 
 ---
 

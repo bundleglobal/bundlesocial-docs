@@ -59,14 +59,14 @@ Maybe you will need to skip on one OF subscription but you know, economy...
 
 ## Data Retention
 
-We retain analytics data for **40 days** from the date of creation. After that, it's gone. Poof. Deleted.
+We retain analytics data for **30 days** from the date of creation. After that, it's gone. Poof. Deleted.
 
 If your team needs yearly or long-term history, we recommend fetching and storing the data daily on your end. Build a cron job, pipe it to your database, and sleep well at night.
 
 This retention period is fixed and will not be extended. Maybe we are evil?
 
 <Warning>
-**40 days.** That's it. If you need analytics from 3 months ago and you didn't save them, we can't help you. We told you. Right here. In this doc. That you're reading right now.
+**30 days.** That's it. If you need analytics from 3 months ago and you didn't save them, we can't help you. We told you. Right here. In this doc. That you're reading right now.
 </Warning>
 
 For the full breakdown of what we retain and for how long (not just analytics), see [Data Retention](/api-reference/data-retention).
@@ -122,7 +122,7 @@ In addition to the parsed analytics data described above, raw analytics data is 
 Raw analytics can be useful for advanced analysis or when you need access to platform-specific metrics that aren't included in the standardized analytics format. Note that raw data structure and fields vary significantly between platforms - because every platform is a special snowflake.
 
 <Info>
-Raw data is subject to the same **40-day retention** as parsed analytics. If you need it long-term, fetch and store it yourself.
+Raw data is subject to the same **30-day retention** as parsed analytics. If you need it long-term, fetch and store it yourself.
 </Info>
 
 BTW, you are a nerd for reading all of this.
@@ -198,4 +198,4 @@ A quick reference for what each platform gives us (and what it doesn't).
 - Some platforms have date restrictions (e.g., Threads requires posts after April 2024).
 - LinkedIn has significant differences between personal and organization account analytics.
 - Metrics may vary slightly between platforms due to how each defines and tracks engagement.
-- All analytics (parsed and raw) are deleted after **40 days**. See [Data Retention](/api-reference/data-retention).
+- All analytics (parsed and raw) are deleted after **30 days**. See [Data Retention](/api-reference/data-retention).

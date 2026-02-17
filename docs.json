@@ -53,7 +53,13 @@
               "api-reference/platforms/instagram",
               "api-reference/platforms/facebook",
               "api-reference/platforms/linkedin",
-              "api-reference/platforms/tiktok",
+              {
+                "group": "TikTok",
+                "pages": [
+                  "api-reference/platforms/tiktok",
+                  "api-reference/platforms/tiktok-music"
+                ]
+              },
               "api-reference/platforms/youtube",
               "api-reference/platforms/twitter",
               "api-reference/platforms/threads",
@@ -63,7 +69,13 @@
               "api-reference/platforms/bluesky",
               "api-reference/platforms/discord",
               "api-reference/platforms/slack",
-              "api-reference/platforms/google-business"
+              {
+                "group": "Google Business",
+                "pages": [
+                  "api-reference/platforms/google-business",
+                  "api-reference/platforms/google-business-reviews"
+                ]
+              }
             ]
           },
           {
