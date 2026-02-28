@@ -202,3 +202,49 @@ If things go wrong, we tell you why. Here's the complete list:
 <Tip>
 **Pro Tip:** Always handle the `not-enough-permissions` error gracefully. Tell the user: *"Hey, we need those permissions to actually post. Please try again and don't uncheck the boxes."*
 </Tip>
+
+---
+
+## Unset Channel (Switch Pages)
+
+Some platforms let your user pick from multiple pages or channels under one OAuth connection (Facebook Pages, LinkedIn Company Pages, YouTube channels, Instagram accounts via Facebook, Google Business locations). Sometimes they pick the wrong one. Or they want to switch.
+
+Instead of disconnecting and re-authenticating from scratch, you can **unset the current channel** and let them pick a new one.
+
+**Endpoint:** `POST /api/v1/social-account/unset-channel`
+
+```json
+{
+  "type": "FACEBOOK",
+  "teamId": "team_123"
+}
+```
+
+### Supported Platforms
+
+| Platform | Supported | Note |
+| :--- | :--- | :--- |
+| Facebook | Yes | |
+| Instagram | Yes | Only when connected via Facebook. Direct Instagram connections can't be unset. |
+| LinkedIn | Yes | |
+| YouTube | Yes | |
+| Google Business | Yes | |
+
+### What Happens
+
+1. The selected page/channel is cleared from the social account.
+2. The OAuth connection stays intact — no re-auth needed.
+3. The account is removed from all draft and scheduled posts.
+4. Posts that only had this account become drafts.
+5. `social-account.updated` and `team.updated` webhooks fire.
+
+### The Flow
+
+1. Call `POST /social-account/unset-channel` to clear the current selection.
+2. Call `POST /social-account/set-channel` with the new page/channel ID.
+
+No OAuth dance. No popup. No "please grant permissions again."
+
+<Warning>
+**Unsetting removes the account from all draft and scheduled posts.** If a post only had this one account, it becomes a draft. Make sure your users know before they switch.
+</Warning>

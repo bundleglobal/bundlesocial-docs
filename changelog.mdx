@@ -6,17 +6,24 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
-<Update label="2026-02-27">
-Webhook event on account disconnected.
-Unsetting social account channel.
-Continous analytics for imported posts.
-Twitter reply settings.
-Youtube demographics.
-</Update>
+<Update label="2026-02-28">
+TikTok Commercial Music Library - browse trending tracks and attach music to video and photo posts via `musicSoundInfo`. [Docs](/api-reference/platforms/tiktok-music)
 
-<Update label="2026-02-17">
-Google reviews.
-Tiktok music.
+Google Business Reviews - import reviews and reply to them via API. Async import flow with monthly limits per tier. [Docs](/api-reference/platforms/google-business-reviews)
+
+Remote disconnection detection - we check all connected accounts every 6 hours and send `social-account.updated` webhooks when tokens die. Configurable grace period via `deleteAccountAfter`. [Docs](/api-reference/webhooks#remote-disconnection-detection)
+
+Unset channel - clear the selected page/channel without disconnecting OAuth. Switch Facebook Pages, LinkedIn Company Pages, YouTube channels, etc. without re-auth. [Docs](/api-reference/connect-social-accounts#unset-channel-switch-pages)
+
+Twitter reply settings - control who can reply to your tweets (`EVERYONE`, `FOLLOWING`, `MENTIONED_USERS`, `SUBSCRIBERS`, `VERIFIED`). [Docs](/api-reference/platforms/twitter#reply-settings)
+
+YouTube raw analytics - age/gender demographics and country-level view data for videos. [Docs](/api-reference/platforms/youtube#raw-analytics---demographics--audience-data)
+
+Import filtering - filter imports by `surface` (grid, non-grid, stories) and `mediaType` (video, image). Carousel/gallery media now captured in `extraData.media[]` with `importCarousels` flag. [Docs](/api-reference/import-posts)
+
+Analytics for imported posts - ongoing analytics refresh for imported posts (not just initial snapshot). Uses `importedPostId` in analytics endpoints.
+
+Data retention cleanup - analytics now hard-deleted after 30 days. Imported posts cleaned after 30 days. Webhook logs after 7 days. [Docs](/api-reference/data-retention)
 </Update>
 
 <Update label="2026-01-07">

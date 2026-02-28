@@ -9,6 +9,11 @@ icon: file-import
 
 Empty dashboards are sad. Use the History Import API to fetch existing content from connected accounts.
 
+- You can filter imports by **surface** and **media type**.
+- You can request richer media metadata in `extraData` (when platform returns direct media URLs).
+- `extraData` is now normalized as `extraData.media[]`.
+- For platforms/endpoints that do not expose direct media URLs (e.g. current YouTube import path), `extraData` is `null`.
+
 ## How it works
 This is an **asynchronous** job. You don't get the posts instantly.
 1.  **Start:** You trigger a job ("Go fetch 50 posts from Instagram").
@@ -25,10 +30,23 @@ This is an **asynchronous** job. You don't get the posts instantly.
 {
   "teamId": "team_123",
   "socialAccountType": "INSTAGRAM",
-  "count": 50, // Max 100 per batch
-  "withAnalytics": true
+  "count": 50,
+  "withAnalytics": true,
+  "importCarousels": true,
+  "surface": "ALL",
+  "mediaType": "VIDEO"
 }
 ```
+
+### Import filters and media options
+
+- `surface` lets you choose where the content comes from (`ALL`, `PROFILE_GRID`, `NON_GRID`, `STORY`).
+- `mediaType` filters by content type (`VIDEO` or `IMAGE`).
+- `importCarousels` controls whether carousel child media is expanded into `extraData.media[]` when supported.
+
+<Note>
+Platform APIs are inconsistent. Some filters/surfaces may return no data on specific platforms if that API does not expose that view.
+</Note>
 
 **Limits:**
 *   **Free:** 5 posts / month (Demo mode)
@@ -38,6 +56,30 @@ This is an **asynchronous** job. You don't get the posts instantly.
 <Note>
 **Why limits?** Historical imports are expensive on API tokens. We have to be stingy here to keep the service cheap for everyone.
 </Note>
+
+### Imported post analytics
+
+By default, imported posts get an **initial analytics snapshot** at import time when `withAnalytics: true`.
+
+#### Ongoing Analytics Refresh
+
+Imported posts can also be added to the regular analytics refresh cycle - meaning they get updated on the same schedule as posts created through bundle.social.
+
+This is controlled by an organization-level setting. When enabled:
+
+- Imported posts are included in the regular analytics scanner.
+- You can fetch analytics for imported posts via the standard analytics endpoints using `importedPostId` instead of `postId`.
+- You can force-refresh analytics for imported posts the same way you would for regular posts.
+
+<Note>
+**`importedPostId` vs `postId`:** When querying analytics for imported posts, use `importedPostId` (the imported post's ID). Don't mix it with `postId` + `platformType` - they're mutually exclusive.
+</Note>
+
+<Warning>
+Ongoing analytics for imported posts means we're making additional API calls to platforms for posts that weren't created through bundle.social. 
+
+Want to enable this? [Contact us](https://bundle.social/contact) and we'll set it up for your organization, but there will be some fee tho ❤️
+</Warning>
 
 ---
 
@@ -63,14 +105,51 @@ Once status is `COMPLETED`, call this to get the actual data.
   "posts": [
     {
       "title": "My Cat Video",
+      "type": "VIDEO",
+      "extraData": null,
       "analytics": {
         "likes": 1337,
         "impressions": 42000
+      }
+    },
+    {
+      "title": "Carousel example",
+      "type": "IMAGE",
+      "extraData": {
+        "media": [
+          {
+            "id": "1789...",
+            "mediaUrl": "https://cdn.platform.com/media/..."
+          }
+        ]
       }
     }
   ]
 }
 ```
+
+### `extraData` structure
+
+When available, imported posts include:
+
+```json
+{
+  "extraData": {
+    "media": [
+      {
+        "id": "platform-media-id-or-null",
+        "mediaUrl": "direct-platform-media-url"
+      }
+    ]
+  }
+}
+```
+
+If we can't get direct media URLs from the platform endpoint, `extraData` is `null`.
+
+<Note>
+Current YouTube history import returns `extraData: null`.
+</Note>
 
 ---
 

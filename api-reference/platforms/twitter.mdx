@@ -35,6 +35,37 @@ See [Platform Limits](/api-reference/limits#twitter--x) for the full breakdown.
 
 ---
 
+## Reply Settings
+
+You can control who's allowed to reply to your tweets. Set `replySettings` in the `data.TWITTER` object when creating a post.
+
+| Value | Who can reply |
+| :--- | :--- |
+| `EVERYONE` | Anyone (default) |
+| `FOLLOWING` | Only people you follow |
+| `MENTIONED_USERS` | Only users mentioned in the tweet |
+| `SUBSCRIBERS` | Subscribers only |
+| `VERIFIED` | Verified accounts only |
+
+If you don't set `replySettings` or set it to `EVERYONE`, we don't send the parameter to Twitter at all - which is Twitter's default behavior.
+
+```json
+{
+  "data": {
+    "TWITTER": {
+      "text": "Hot take incoming",
+      "replySettings": "MENTIONED_USERS"
+    }
+  }
+}
+```
+
+<Note>
+Reply settings depend on your Twitter/X account tier. Some options (like `SUBSCRIBERS`) only make sense if your account actually has subscribers. Twitter won't error out if you use them anyway - it just won't do much.
+</Note>
+
+---
+
 ## Analytics
 
 We'll be honest here.

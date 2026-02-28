@@ -33,7 +33,8 @@ Webhooks are how you know if a post actually went live or if it exploded. Instea
 | `post.failed` | Post failed - check the error details |
 | `comment.published` | First comment was posted (or failed permanently) |
 | `social-account.created` | User connected a new social account |
-| `social-account.deleted` | Social account was disconnected |
+| `social-account.updated` | Social account changed (channel unset, remote disconnection detected) |
+| `social-account.deleted` | Social account was disconnected or removed |
 | `team.created` | A new team was created |
 | `team.updated` | Team details changed (name, avatar, social accounts added/removed) |
 | `team.deleted` | A team was deleted |
@@ -204,6 +205,77 @@ When this happens:
 ### Resending Events
 
 Made a mistake in your handler? Event got lost? You can resend any webhook event from the dashboard or via the API. We'll create a fresh delivery attempt with the same payload.
+
+---
+
+## Remote Disconnection Detection
+
+We check every connected social account every **6 hours** to see if it's still valid. If the platform tells us "nope, this token is dead," we start the disconnection flow.
+
+### How It Works
+
+1. Every 6 hours, we validate each connected account against its platform.
+2. If the check fails, we retry **3 times** with 10-minute backoff.
+3. If all retries fail, we schedule the account for deletion and send you a `social-account.updated` webhook.
+4. After the grace period, we remove the account (fires `social-account.deleted`).
+
+This covers all OAuth-connected platforms - Meta (Facebook, Instagram, Threads), YouTube, TikTok, Twitter, LinkedIn, Pinterest, Reddit, Discord, Slack, Mastodon, Bluesky, and Google Business.
+
+### The `social-account.updated` Payload
+
+When we detect a disconnection, the webhook includes a `socialAction` object with the details:
+
+```json
+{
+  "type": "social-account.updated",
+  "data": {
+    "id": "sa_789",
+    "type": "INSTAGRAM",
+    "teamId": "team_xyz",
+    "username": "mybrand",
+    "socialAction": {
+      "type": "disconnect-check",
+      "source": "system",
+      "checkedAt": "2026-02-20T14:30:00.000Z",
+      "details": {
+        "status": "error",
+        "code": "REMOTE_DISCONNECT_DELETION_SCHEDULED",
+        "message": "Account failed validation after 3 attempts",
+        "attemptNumber": 3,
+        "attemptsTotal": 3,
+        "scheduledForDeletion": true,
+        "deleteAccountAfter": 6,
+        "deleteOn": "2026-02-20T20:30:00.000Z"
+      }
+    }
+  }
+}
+```
+
+### Status Codes
+
+| Code | Meaning |
+| :--- | :--- |
+| `REMOTE_DISCONNECT_DELETION_SCHEDULED` | All retries failed. Account is scheduled for deletion. |
+| `REMOTE_DISCONNECT_UNAUTHORIZED_WARNING` | Token refresh failed with an auth error (401, expired token, etc.). |
+| `REMOTE_DISCONNECT_REAUTH_REQUIRED` | Connection failed for another reason. User should reconnect. |
+
+### The `deleteOn` Grace Period
+
+When an account is scheduled for deletion, `deleteOn` tells you exactly when it will be removed. The delay is controlled by `deleteAccountAfter` on your organization settings (0–24 hours).
+
+- **Default: 0 hours** - account is removed almost immediately.
+- **If you set it to e.g. 6 hours** - you get a 6-hour window to notify your user before the account is gone.
+
+**Why does this matter?** When an account is deleted:
+
+- It's removed from all draft and scheduled posts.
+- Posts that only had this account become drafts.
+- If the user reconnects before `deleteOn`, the account stays.
+
+<Important>
+**Set `deleteAccountAfter` to something greater than 0** if you want time to notify your users. With the default (0), the account disappears on the next cleanup run - which is every minute. That's fast. Maybe too fast if you want to show a "hey, reconnect your Instagram" banner first.
+</Important>
 
 ---
 
