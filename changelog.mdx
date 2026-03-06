@@ -30,6 +30,16 @@ Analytics for imported posts - ongoing analytics refresh for imported posts (not
 Data retention cleanup - analytics now hard-deleted after 30 days. Imported posts cleaned after 30 days. Webhook logs after 7 days. [Docs](/api-reference/data-retention)
 </Update>
 
+<Update label="2026-03-06">
+Instagram location search endpoint - added `GET /misc/instagram/locations` for searching Facebook Page-based `locationId` values used in `data.INSTAGRAM.locationId`. Works only for Instagram accounts connected via `FACEBOOK` method and returns explicit `400` errors for missing permissions (for example `pages_read_engagement`). [Docs](/api-reference/platforms/instagram)
+
+Instagram business discovery restrictions are now explicit - `GET /misc/instagram/tags` returns clear `400` errors for accounts connected with direct `INSTAGRAM` method instead of silent false-like behavior. [Docs](/api-reference/platforms/instagram)
+
+Instagram payload validation and mapping updates - `locationId` maps to `location_id`, `shareToFeed` is accepted only for reel/video flow, carousel tagging is now per-item via `carouselItems[].tagged`, and story payload blocks `collaborators` + `locationId`. [Docs](/api-reference/platforms/instagram)
+
+Collaborator fallback removed from Instagram publish flow - no automatic retry without unavailable collaborators. Publishing retries now follow standard BullMQ worker retry policy only. [Docs](/api-reference/rate-limits)
+</Update>
+
 <Update label="2026-01-07">
 Post history import with analytics.
 </Update>

@@ -11,7 +11,7 @@ YouTube is a beast. It handles both traditional long-form videos and Shorts (ver
 
 ## Supported Content Types
 
-*   **Videos:** Long-form content. 1 video, up to 4 hours. Max 256 GB (not a typo).
+*   **Videos:** Long-form content. 1 video, up to 4 hours. Max 1 GB.
 *   **Shorts:** Vertical/square video, max 3 minutes. YouTube auto-detects based on duration and aspect ratio.
 
 ## Quirks & Gotchas
@@ -35,6 +35,13 @@ Unlike most platforms where you just need text, YouTube requires a **title** (`d
 ### Media Limits
 
 See [Platform Limits](/api-reference/limits#youtube) for the full breakdown.
+
+### Text & Field Limits
+
+| Field | Limit |
+| :--- | :--- |
+| `text` (video title) | Max 100 characters |
+| `description` | Max 5,000 characters |
 
 ---
 
