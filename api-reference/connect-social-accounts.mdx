@@ -22,6 +22,7 @@ Test it in [Swagger](https://api.bundle.social/swagger#/socialAccount/socialAcco
 | `teamId` | Yes | The team ID to connect the social accounts to. |
 | `redirectUrl` | Yes | The URL to redirect to after clicking the back button. |
 | `socialAccountTypes` | Yes | The social account types to connect (e.g. `['INSTAGRAM', 'LINKEDIN']`). |
+| `disableAutoLogin` | No | Facebook, Instagram (Facebook method), and TikTok only. When `true`, bypasses the platform's automatic "you're already logged in" shortcut and forces the user to explicitly pick which account to connect. |
 | `logoUrl` | No | The URL of the logo to display on the top of the page. |
 | `userLogoUrl` | No | The URL of the user logo/avatar to display. |
 | `userName` | No | The name of the user to display. |
@@ -53,6 +54,10 @@ Test it in [Swagger](https://api.bundle.social/swagger#/socialAccount/socialAcco
 | `tr` | Turkish |
 | `zh` | Chinese |
 
+<Warning>
+`disableAutoLogin` is designed for SaaS platforms where users manage many accounts from the same browser. Without this flag, the OAuth popup silently re-connects the last logged-in account, which is wrong when someone manages multiple clients. Enable it when your users connect accounts on behalf of others.
+</Warning>
+
 ### Hosted Page Preview
 
 ![Connect social account flow](/images/api-reference/connect-social-account/connect-social-account-hosted.png)
@@ -72,10 +77,21 @@ For most platforms, the flow is straightforward. The exceptions are **YouTube**,
 **Channel Selection Required:**
 - **YouTube:** Select a YouTube channel.
 - **Facebook:** Select a Facebook Page.
-- **Instagram:** Select an Instagram account (connected to a Facebook Page).
+- **Instagram (FACEBOOK method):** Select an Instagram account connected to a Facebook Page.
+- **Instagram (INSTAGRAM method):** No Facebook Page needed. Pass `instagramConnectionMethod: "INSTAGRAM"` in the connect body to use the direct Instagram OAuth flow.
 - **LinkedIn:** Select a LinkedIn Company Page.
 - **Google Business:** Select a business location.
 </Note>
+
+### disableAutoLogin
+
+Supported for **Facebook**, **Instagram (Facebook method)**, and **TikTok**.
+
+When `true`, the OAuth URL includes a platform-specific flag that forces the user to explicitly confirm the account rather than silently re-using the last logged-in session:
+
+<Warning>
+Use this when your users connect accounts on behalf of clients or manage multiple accounts from the same browser. Without it, the OAuth popup re-connects whichever account was last logged in, with no chance to pick a different one.
+</Warning>
 
 ---
 

@@ -6,38 +6,44 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
-<Update label="2026-02-28">
-Improved disconnect check.
-</Update>
+<Update label="2026-03-10">
+Instagram Trial Reels with `trialParams.graduationStrategy`.
 
-<Update label="2026-02-28">
-TikTok Commercial Music Library - browse trending tracks and attach music to video and photo posts via `musicSoundInfo`. [Docs](/api-reference/platforms/tiktok-music)
+Instagram `autoFitImage` and `autoCropImage` for non-standard aspect ratios.
 
-Google Business Reviews - import reviews and reply to them via API. Async import flow with monthly limits per tier. [Docs](/api-reference/platforms/google-business-reviews)
+LinkedIn article preview via `link` field.
 
-Remote disconnection detection - we check all connected accounts every 6 hours and send `social-account.updated` webhooks when tokens die. Configurable grace period via `deleteAccountAfter`. [Docs](/api-reference/webhooks#remote-disconnection-detection)
-
-Unset channel - clear the selected page/channel without disconnecting OAuth. Switch Facebook Pages, LinkedIn Company Pages, YouTube channels, etc. without re-auth. [Docs](/api-reference/connect-social-accounts#unset-channel-switch-pages)
-
-Twitter reply settings - control who can reply to your tweets (`EVERYONE`, `FOLLOWING`, `MENTIONED_USERS`, `SUBSCRIBERS`, `VERIFIED`). [Docs](/api-reference/platforms/twitter#reply-settings)
-
-YouTube raw analytics - age/gender demographics and country-level view data for videos. [Docs](/api-reference/platforms/youtube#raw-analytics---demographics--audience-data)
-
-Import filtering - filter imports by `surface` (grid, non-grid, stories) and `mediaType` (video, image). Carousel/gallery media now captured in `extraData.media[]` with `importCarousels` flag. [Docs](/api-reference/import-posts)
-
-Analytics for imported posts - ongoing analytics refresh for imported posts (not just initial snapshot). Uses `importedPostId` in analytics endpoints.
-
-Data retention cleanup - analytics now hard-deleted after 30 days. Imported posts cleaned after 30 days. Webhook logs after 7 days. [Docs](/api-reference/data-retention)
+`disableAutoLogin` flag for Facebook, Instagram, and TikTok OAuth flows.
 </Update>
 
 <Update label="2026-03-06">
-Instagram location search endpoint - added `GET /misc/instagram/locations` for searching Facebook Page-based `locationId` values used in `data.INSTAGRAM.locationId`. Works only for Instagram accounts connected via `FACEBOOK` method and returns explicit `400` errors for missing permissions (for example `pages_read_engagement`). [Docs](/api-reference/platforms/instagram)
+Instagram location search endpoint.
 
-Instagram business discovery restrictions are now explicit - `GET /misc/instagram/tags` returns clear `400` errors for accounts connected with direct `INSTAGRAM` method instead of silent false-like behavior. [Docs](/api-reference/platforms/instagram)
+Instagram business discovery restrictions for direct connections.
 
-Instagram payload validation and mapping updates - `locationId` maps to `location_id`, `shareToFeed` is accepted only for reel/video flow, carousel tagging is now per-item via `carouselItems[].tagged`, and story payload blocks `collaborators` + `locationId`. [Docs](/api-reference/platforms/instagram)
+Instagram payload validation updates.
+</Update>
 
-Collaborator fallback removed from Instagram publish flow - no automatic retry without unavailable collaborators. Publishing retries now follow standard BullMQ worker retry policy only. [Docs](/api-reference/rate-limits)
+<Update label="2026-02-28">
+Improved disconnect check.
+
+TikTok Commercial Music Library. [Docs](/api-reference/platforms/tiktok-music)
+
+Google Business Reviews.
+
+Remote disconnection detection.
+
+Unset channel without re-auth.
+
+Twitter reply settings.
+
+YouTube raw analytics demographics.
+
+Import filtering by surface and media type with carousel support.
+
+Analytics for imported posts.
+
+Data retention cleanup.
 </Update>
 
 <Update label="2026-01-07">
