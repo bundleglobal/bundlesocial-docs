@@ -17,6 +17,16 @@ This is the biggest source of confusion.
 *   **Personal Profile (Member):** Limited API. **Cannot import post history.** Limited analytics. No profile views data.
 *   **Organization (Company Page):** Full API power. Richer analytics. Supports historical import. Has page view data.
 
+### Article / Link Preview
+
+When you send a post with `data.LINKEDIN.link` and no media uploads, bundle.social fetches the URL, scrapes its Open Graph metadata, and builds a LinkedIn article content block with a title, description, and preview image automatically.
+
+- `link` is the URL to preview, max 2048 characters.
+
+<Note>
+This is the correct way to build link posts on LinkedIn. If you include both a `link` and media uploads, the uploads take precedence and the link is ignored.
+</Note>
+
 ### The URN Nightmare
 LinkedIn uses "URNs" (Uniform Resource Names) to identify everything.
 *   Organization: `urn:li:organization:12345`

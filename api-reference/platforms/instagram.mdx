@@ -26,6 +26,19 @@ Instagram is very strict here.
 **Don't try to cheat.** If you upload a 16:9 (landscape) video as a Reel, it might technically "work" but it will look terrible (awkwardly cropped) or be rejected entirely. Your marketing team will not be happy. Your users' marketing teams will not be happy. Nobody will be happy.
 </Warning>
 
+### What if I have non-standardized content?
+
+Instagram feed Posts must fall within a specific aspect ratio range (4:5 to 1.91:1). If your users upload wide landscape photos or tall portrait shots that fall outside this range, you have two automatic correction options instead of rejecting the upload outright:
+
+| Option | Field | Behavior |
+| :--- | :--- | :--- |
+| Fit | `autoFitImage: true` | Adds padding around the image to fit the target ratio. No pixels are lost. The same way Instagram does this natively. |
+| Crop | `autoCropImage: true` | Center-crops the image to fit the target ratio. No padding, but edges are cut. |
+
+<Warning>
+These two options are mutually exclusive. Sending both as `true` will fail validation. They only apply to `type: "POST"` and have no effect on Reels or Stories.
+</Warning>
+
 ### Stories vs. Reels vs. Posts
 *   **Stories** are ephemeral. They disappear after 24 hours. Great for FOMO content.
 *   **Reels** are for growth. They're public, discoverable, and the algorithm loves them.
@@ -121,6 +134,38 @@ Meta location search can be inconsistent. If you hit the permission/error path, 
 - Collaborators are normalized before publish (`@` stripped, trim, lowercase).
 - Automatic fallback retry without unavailable collaborators was removed.
 - Retry behavior now follows standard BullMQ worker retry policy.
+
+#### Trial Reels
+
+Trial reels are shared only with non-followers first. If the content performs well, it can be graduated to a regular reel that appears to everyone.
+
+Send `data.INSTAGRAM.trialParams.graduationStrategy` in the publish payload:
+
+| Value | Behavior |
+| :--- | :--- |
+| `MANUAL` | The trial reel stays in trial until you manually graduate it from the native Instagram app. |
+| `SS_PERFORMANCE` | Instagram automatically graduates the reel if it meets a performance threshold. |
+
+Requirements and caveats:
+- Only valid for `type: "REEL"`. Ignored for Posts and Stories.
+- Requires a public professional (Creator or Business) account with at least around 1,000 followers. Instagram has not published an official threshold and some users report access starting at 200 followers.
+- Not all professional accounts will have access to this feature regardless of follower count.
+
+```json
+{
+  "socialAccountTypes": ["INSTAGRAM"],
+  "data": {
+    "INSTAGRAM": {
+      "type": "REEL",
+      "text": "Testing this reel with non-followers first",
+      "uploadIds": ["upl_vid_1"],
+      "trialParams": {
+        "graduationStrategy": "SS_PERFORMANCE"
+      }
+    }
+  }
+}
+```
 
 ---
 
