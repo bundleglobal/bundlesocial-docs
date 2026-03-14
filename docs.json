@@ -159,20 +159,18 @@
           {
             "group": "Platform Guides",
             "pages": [
-              "blog/quick-guide-on-when-to-post",
               "blog/tiktok-api-upload-video",
               "blog/tiktok-api-integration-cost",
               "blog/instagram-api-upload-video",
               "blog/instagram-business-vs-creator-account",
               "blog/instagram-character-limits-guide",
               "blog/youtube-shorts-multiple-channels",
+              "blog/youtube-shorts-api-multi-channel-api-architecture",
               "blog/youtube-api-upload-guide",
               "blog/schedule-youtube-shorts-guide",
-              "blog/youtube-shorts-api-secrets",
               "blog/twitter-character-counter-guide",
               "blog/grow-your-tiktok-audience",
               "blog/how-to-get-more-facebook-followers",
-              "blog/tiktok-banned",
               "blog/most-popular-social-media",
               "blog/best-times-to-post-on-instagram",
               "blog/best-times-to-post-on-linkedin",
@@ -197,33 +195,7 @@
             "pages": [
               "blog/get-money-from-instagram",
               "blog/get-your-money-from-twitter",
-              "blog/how-to-get-customer-insights",
-              "blog/marketing-in-the-future",
-              "blog/seo-and-ads-managment",
-              "blog/product-design-by-zalando",
-              "blog/is-data-science-dead",
-              "blog/real-cost-of-cloud"
-            ]
-          },
-          {
-            "group": "Opinion & Culture",
-            "pages": [
-              "blog/linkedin-is-cringe",
-              "blog/all-my-homies-hate-blizzard",
-              "blog/cloud-seeding-is-funny",
-              "blog/ai-interview-are-here",
-              "blog/ai-regulations",
-              "blog/google-borrowed-chatgpt-data",
-              "blog/stop-using-loops-now",
-              "blog/what-is-mojo",
-              "blog/what-is-quantum-computing",
-              "blog/dopamine-detox",
-              "blog/books-can-change-you",
-              "blog/mental-health-and-social-media",
-              "blog/why-we-think-in-the-shower",
-              "blog/you-are-an-addict",
-              "blog/working-burnout",
-              "blog/why-solanda-is-next-big-thing"
+              "blog/how-to-get-customer-insights"
             ]
           }
         ]
