@@ -26,6 +26,19 @@ Instagram is very strict here.
 **Don't try to cheat.** If you upload a 16:9 (landscape) video as a Reel, it might technically "work" but it will look terrible (awkwardly cropped) or be rejected entirely. Your marketing team will not be happy. Your users' marketing teams will not be happy. Nobody will be happy.
 </Warning>
 
+### What if I have non-standardized content?
+
+Instagram feed Posts must fall within a specific aspect ratio range (4:5 to 1.91:1). If your users upload wide landscape photos or tall portrait shots that fall outside this range, you have two automatic correction options instead of rejecting the upload outright:
+
+| Option | Field | Behavior |
+| :--- | :--- | :--- |
+| Fit | `autoFitImage: true` | Adds padding around the image to fit the target ratio. No pixels are lost. The same way Instagram does this natively. |
+| Crop | `autoCropImage: true` | Center-crops the image to fit the target ratio. No padding, but edges are cut. |
+
+<Warning>
+These two options are mutually exclusive. Sending both as `true` will fail validation. They only apply to `type: "POST"` and have no effect on Reels or Stories.
+</Warning>
+
 ### Stories vs. Reels vs. Posts
 *   **Stories** are ephemeral. They disappear after 24 hours. Great for FOMO content.
 *   **Reels** are for growth. They're public, discoverable, and the algorithm loves them.
@@ -34,6 +47,125 @@ Instagram is very strict here.
 ### Media Limits
 
 See [Platform Limits](/api-reference/limits#instagram) for the full breakdown of file sizes, resolutions, and aspect ratios.
+
+### Text & Field Limits
+
+| Field | Limit |
+| :--- | :--- |
+| `text` | Max 2,000 characters |
+| `collaborators` | Max 3 usernames, each max 30 chars |
+| `tagged` | Max 20 users per media, username max 30 chars |
+| `carouselItems` | Max 10 items |
+| `locationId` | Max 64 characters |
+
+### Instagram Misc Endpoints
+
+#### `GET /misc/instagram/tags`
+- Purpose: business discovery by username (public profile data for discoverable business/creator accounts).
+- Important: works only when the Instagram account is connected via `FACEBOOK` login flow.
+- If the account is connected via direct `INSTAGRAM` method, API returns explicit `400` with reconnection guidance.
+- Private accounts and some non-business/non-creator accounts may not be discoverable and can return `exists: false`.
+- In our tests, business discovery can sometimes return `false` for accounts that are still valid for publishing tags. In other words: lookup may fail, while tagging that same username in publish payload can still work.
+
+#### `GET /misc/instagram/locations`
+- Purpose: search Facebook Pages with physical location data and return IDs for `data.INSTAGRAM.locationId`.
+- Important: works only for Instagram accounts connected via `FACEBOOK` method.
+- Uses the account page token (`socialAccount.accessToken`).
+- Missing page permissions/features (for example `pages_read_engagement`) return explicit `400` with actionable message.
+
+<Note>
+Meta location search can be inconsistent. If you hit the permission/error path, there is usually nothing we can reliably fix from API side right now (this behavior is widely reported in Meta developer threads). The good news: `locationId` tagging itself still works when you already have a valid location/page ID, so known IDs found externally can still be used in publish payloads. We hope this endpoint becomes stable for all accounts over time.
+</Note>
+
+### Publishing Payload & Validation Rules
+
+#### `locationId` mapping
+- `data.INSTAGRAM.locationId` is mapped to `location_id` in Instagram publish payload.
+- Supported in single image, reel/single-video flow, and carousel parent container.
+
+#### `shareToFeed`
+- Accepted only for reel-like payloads:
+  - `type = REEL`, or
+  - `type = POST` with exactly one video upload.
+- Rejected for image posts, carousels, and stories (`400`).
+
+#### Person tags (`tagged`)
+- Reel/single-video: provide usernames only (no `x`/`y` coordinates).
+- Single image: each tagged user must include `x` and `y` in range `0-1`.
+- Carousel: top-level `tagged` is rejected; use `carouselItems[].tagged` per item.
+- Carousel video item: person tags are not supported and are rejected.
+
+#### Carousel item binding
+- `carouselItems` is allowed only for real carousel posts (at least 2 uploads).
+- Every `carouselItems[].uploadId` must exist in provided `uploadIds`.
+- Use each `uploadId` only once in `carouselItems`.
+
+```json
+{
+  "socialAccountTypes": ["INSTAGRAM"],
+  "data": {
+    "INSTAGRAM": {
+      "type": "POST",
+      "text": "Carousel with per-item tags",
+      "uploadIds": ["upl_img_1", "upl_img_2", "upl_vid_1"],
+      "carouselItems": [
+        {
+          "uploadId": "upl_img_1",
+          "tagged": [{ "username": "alice", "x": 0.25, "y": 0.4 }]
+        },
+        {
+          "uploadId": "upl_img_2",
+          "tagged": [{ "username": "bob", "x": 0.6, "y": 0.35 }]
+        },
+        {
+          "uploadId": "upl_vid_1"
+        }
+      ]
+    }
+  }
+}
+```
+
+#### Story constraints
+- Stories do not support `collaborators`.
+- Stories do not support `locationId`.
+
+#### Collaborators behavior
+- Collaborators are normalized before publish (`@` stripped, trim, lowercase).
+- Automatic fallback retry without unavailable collaborators was removed.
+- Retry behavior now follows standard BullMQ worker retry policy.
+
+#### Trial Reels
+
+Trial reels are shared only with non-followers first. If the content performs well, it can be graduated to a regular reel that appears to everyone.
+
+Send `data.INSTAGRAM.trialParams.graduationStrategy` in the publish payload:
+
+| Value | Behavior |
+| :--- | :--- |
+| `MANUAL` | The trial reel stays in trial until you manually graduate it from the native Instagram app. |
+| `SS_PERFORMANCE` | Instagram automatically graduates the reel if it meets a performance threshold. |
+
+Requirements and caveats:
+- Only valid for `type: "REEL"`. Ignored for Posts and Stories.
+- Requires a public professional (Creator or Business) account with at least around 1,000 followers. Instagram has not published an official threshold and some users report access starting at 200 followers.
+- Not all professional accounts will have access to this feature regardless of follower count.
+
+```json
+{
+  "socialAccountTypes": ["INSTAGRAM"],
+  "data": {
+    "INSTAGRAM": {
+      "type": "REEL",
+      "text": "Testing this reel with non-followers first",
+      "uploadIds": ["upl_vid_1"],
+      "trialParams": {
+        "graduationStrategy": "SS_PERFORMANCE"
+      }
+    }
+  }
+}
+```
 
 ---
 

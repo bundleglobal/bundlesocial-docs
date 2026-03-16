@@ -6,28 +6,44 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
-<Update label="2026-02-28">
-Improved disconnect check.
+<Update label="2026-03-10">
+Instagram Trial Reels with `trialParams.graduationStrategy`.
+
+Instagram `autoFitImage` and `autoCropImage` for non-standard aspect ratios.
+
+LinkedIn article preview via `link` field.
+
+`disableAutoLogin` flag for Facebook, Instagram, and TikTok OAuth flows.
+</Update>
+
+<Update label="2026-03-06">
+Instagram location search endpoint.
+
+Instagram business discovery restrictions for direct connections.
+
+Instagram payload validation updates.
 </Update>
 
 <Update label="2026-02-28">
-TikTok Commercial Music Library - browse trending tracks and attach music to video and photo posts via `musicSoundInfo`. [Docs](/api-reference/platforms/tiktok-music)
+Improved disconnect check.
 
-Google Business Reviews - import reviews and reply to them via API. Async import flow with monthly limits per tier. [Docs](/api-reference/platforms/google-business-reviews)
+TikTok Commercial Music Library. [Docs](/api-reference/platforms/tiktok-music)
 
-Remote disconnection detection - we check all connected accounts every 6 hours and send `social-account.updated` webhooks when tokens die. Configurable grace period via `deleteAccountAfter`. [Docs](/api-reference/webhooks#remote-disconnection-detection)
+Google Business Reviews.
 
-Unset channel - clear the selected page/channel without disconnecting OAuth. Switch Facebook Pages, LinkedIn Company Pages, YouTube channels, etc. without re-auth. [Docs](/api-reference/connect-social-accounts#unset-channel-switch-pages)
+Remote disconnection detection.
 
-Twitter reply settings - control who can reply to your tweets (`EVERYONE`, `FOLLOWING`, `MENTIONED_USERS`, `SUBSCRIBERS`, `VERIFIED`). [Docs](/api-reference/platforms/twitter#reply-settings)
+Unset channel without re-auth.
 
-YouTube raw analytics - age/gender demographics and country-level view data for videos. [Docs](/api-reference/platforms/youtube#raw-analytics---demographics--audience-data)
+Twitter reply settings.
 
-Import filtering - filter imports by `surface` (grid, non-grid, stories) and `mediaType` (video, image). Carousel/gallery media now captured in `extraData.media[]` with `importCarousels` flag. [Docs](/api-reference/import-posts)
+YouTube raw analytics demographics.
 
-Analytics for imported posts - ongoing analytics refresh for imported posts (not just initial snapshot). Uses `importedPostId` in analytics endpoints.
+Import filtering by surface and media type with carousel support.
 
-Data retention cleanup - analytics now hard-deleted after 30 days. Imported posts cleaned after 30 days. Webhook logs after 7 days. [Docs](/api-reference/data-retention)
+Analytics for imported posts.
+
+Data retention cleanup.
 </Update>
 
 <Update label="2026-01-07">
