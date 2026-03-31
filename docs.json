@@ -42,6 +42,7 @@
               "api-reference/limits",
               "api-reference/rate-limits",
               "api-reference/import-posts",
+              "api-reference/bulk-posts-csv",
               "api-reference/upload-content",
               "api-reference/errors"
             ]

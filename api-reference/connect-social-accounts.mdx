@@ -93,6 +93,23 @@ When `true`, the OAuth URL includes a platform-specific flag that forces the use
 Use this when your users connect accounts on behalf of clients or manage multiple accounts from the same browser. Without it, the OAuth popup re-connects whichever account was last logged in, with no chance to pick a different one.
 </Warning>
 
+### withBusinessScope (Facebook & Instagram)
+
+**Facebook** and **Instagram** (when using the Facebook / Instagram Business login path) only. Optional boolean on **`POST /api/v1/social-account/connect`**. Defaults to `false` if you omit it-behavior matches how things worked before this option existed.
+
+The **create portal link** endpoint does not take this flag; it is only on the **connect** body for custom integrations.
+
+| Value | What happens |
+| :--- | :--- |
+| `true` | Facebook **Business** login flow: OAuth uses the broader Meta scope set (includes `business_management`, `ads_management`, `ads_read` among the permissions we request). |
+| `false` | **Standard** connection flow: lighter scope set, same as “classic” Facebook Page connections. |
+
+<Warning>
+Some **Facebook Pages** and **Instagram** accounts only appear in the page/account picker when the connection was made **with business scope**. If something is missing from the list, reconnect using the **other** method (`withBusinessScope` flipped) before assuming the picker is wrong. This usually comes down to Meta’s visibility rules, not a haunted UI.
+</Warning>
+
+If a connection goes bad, the social accounts screen offers **Reauthenticate** when our checks detect it-use that instead of disconnecting everything when you only need a fresh OAuth handshake.
+
 ---
 
 ## Handling Callbacks

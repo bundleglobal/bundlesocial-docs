@@ -38,6 +38,8 @@ If you are constructing raw text mentions, you need to use this format. Our API 
 
 Video max size is **1 GB** (not 200 MB - that was an old API limitation). Documents must be PDF format, max 100 MB.
 
+**GIFs** are supported-upload animated GIFs like other image media for LinkedIn posts.
+
 See [Platform Limits](/api-reference/limits#linkedin) for the full breakdown.
 
 ### Text & Field Limits
@@ -117,6 +119,10 @@ For general analytics concepts (refresh rates, data retention, what "Returns 0" 
 | `comments` | Comments | |
 | `shares` | Reposts | |
 | `saves` | - | Returns `0` (not provided by LinkedIn API) |
+
+### Raw analytics and reactions
+
+[Raw analytics](/api-reference/analytics#raw-analytics-data) for LinkedIn retain **reaction** breakdowns from the platform (per reaction type) where available. Our standard post schema still exposes a single aggregated likes/reactions-style metric; use raw data when you need the full split.
 
 ### Quirks
 
