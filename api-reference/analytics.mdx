@@ -118,6 +118,7 @@ In addition to the parsed analytics data described above, raw analytics data is 
 - Platform-specific metrics that may not be mapped to our standard schema
 - Additional metadata and context provided by the platform
 - Detailed breakdowns (e.g., audience demographics, engagement by time period, etc.)
+- **LinkedIn:** reaction-type breakdowns (our normalized `likes` field is a single aggregate; raw payloads retain per-reaction detail where the API provides it)
 
 Raw analytics can be useful for advanced analysis or when you need access to platform-specific metrics that aren't included in the standardized analytics format. Note that raw data structure and fields vary significantly between platforms - because every platform is a special snowflake.
 

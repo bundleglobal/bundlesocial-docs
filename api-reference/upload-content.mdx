@@ -99,6 +99,20 @@ Returns the `id` immediately.
 
 ---
 
+## Upload from a URL (dashboard)
+
+In the **bundle.social** app you can add media by pasting a **public HTTP(S) URL** instead of uploading a file from disk. We download the asset and register it like any other upload.
+
+| Detail | Value |
+| :--- | :--- |
+| Download timeout | **60 seconds** |
+| Best for | Small and medium files (typical short-form / feed content) |
+| May fail | Very large files (e.g. ~100 MB) often hit timeout or upstream limits-use [resumable upload](#method-1-resumable-upload-the-pro-way) for big video instead |
+
+This path is optimized for “here is a CDN link” workflows, not for shipping feature-length films through DNS.
+
+---
+
 ## Supported Formats & Limits
 
 | Type | Formats | Max Size |
