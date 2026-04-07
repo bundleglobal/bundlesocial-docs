@@ -23,6 +23,18 @@ Besides posts, you can read and update **Business Profile** data for the team's 
 
 Reviews stay on a separate flow: [Google Business Reviews](/api-reference/platforms/google-business-reviews).
 
+## Feature availability by category and location
+
+Google Business capabilities are not identical for every profile. Some fields or endpoints can be unavailable depending on category, country/region, and location-level eligibility.
+
+- **Attributes** differ by category and region. Build updates from available definitions first.
+- **Service list** is only available for eligible categories/locations.
+- **Food menus** are available mostly for restaurant-like categories and can be disabled for a specific location.
+- **Place action links** and allowed `placeActionType` values can vary by profile setup and category.
+- **Profile media** categories and moderation behavior can vary by profile type.
+
+Recommended flow for most integrations: **GET/list first**, then send **PATCH/POST** with values confirmed by Google for that exact location.
+
 ## Supported Content Types
 
 *   **Standard Posts:** Regular text updates with optional image.

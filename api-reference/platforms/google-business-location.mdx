@@ -41,6 +41,7 @@ The response shape follows Google's API (we pass through the payload). Use it to
 **Endpoint:** `PATCH /api/v1/misc/google-business/location`
 
 Only the top-level keys you include in the **update payload** are sent to Google. Only the fields listed below participate. Send **at least one** patchable field.
+The API automatically determines which provided fields should be updated.
 
 ### Patchable fields
 
@@ -64,6 +65,15 @@ Only the top-level keys you include in the **update payload** are sent to Google
 | Field | Description |
 | :--- | :--- |
 | `validateOnly` | If `true`, Google validates the request without applying the change. |
+
+### Useful metadata for feature eligibility
+
+Google location metadata can indicate whether certain feature families are available for this location. In particular:
+
+- `metadata.canModifyServiceList` controls service-list edit eligibility.
+- `metadata.canHaveFoodMenus` controls food-menu eligibility.
+
+Read `metadata` through `GET /location` before enabling related editing UI.
 
 ### Example: title, description, and hours (anonymized)
 

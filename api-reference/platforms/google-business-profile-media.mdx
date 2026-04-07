@@ -9,6 +9,8 @@ keywords: ["google business photos api", "gbp media", "google business profile p
 
 These endpoints manage **media items** attached to the selected Business Profile location (photos and some videos). They complement post images: profile media appears in the **Photos** area of the profile, not only inside a single post.
 
+Media capabilities are partially category/profile dependent. Some categories or media types may be limited by Google policy, moderation, or profile eligibility.
+
 **Base path:** `/api/v1/misc/google-business`
 
 ---
@@ -54,6 +56,8 @@ Use after you uploaded a file through the standard [upload](/api-reference/uploa
 | `uploadId` | Yes | From your completed upload. |
 | `category` | No | One of: `CATEGORY_UNSPECIFIED`, `COVER`, `PROFILE`, `LOGO`, `EXTERIOR`, `INTERIOR`, `PRODUCT`, `AT_WORK`, `FOOD_AND_DRINK`, `MENU`, `COMMON_AREA`, `ROOMS`, `TEAMS`, `ADDITIONAL` (default behavior may treat unspecified as `ADDITIONAL`). |
 | `description` | No | Max 2000 characters. |
+
+Some `category` values may be less relevant or not applied consistently for specific business categories. If unsure, list current media first and mirror categories already used by Google on that location.
 
 ### Example
 

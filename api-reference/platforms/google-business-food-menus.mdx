@@ -9,6 +9,8 @@ keywords: ["google business menu api", "gbp food menu", "google business food me
 
 **Food menus** apply to many restaurant and food categories. Google may disable the feature for a given location. In that case GET and PATCH return an error explaining that food menus are not available.
 
+Availability and accepted menu structure can differ by category, region, and profile eligibility.
+
 **Base path:** `/api/v1/misc/google-business`
 
 ---
@@ -35,6 +37,10 @@ keywords: ["google business menu api", "gbp food menu", "google business food me
 | `menus` | Optional | Array of menu objects (sections, items, prices) as defined by Google's food menu schema. |
 
 The location should have food menus enabled (`canHaveFoodMenus`). Otherwise the API responds with an error.
+
+Best practice: fetch current menus first and edit from returned objects, because some nested fields can be accepted/rejected depending on the location's Google configuration.
+
+If your UI allows menu editing, fetch `metadata` from `GET /location` and gate editing by `metadata.canHaveFoodMenus`.
 
 ### Example (minimal structure)
 

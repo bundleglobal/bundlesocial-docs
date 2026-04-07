@@ -9,6 +9,8 @@ keywords: ["google business services", "gbp service list", "business profile ser
 
 The **service list** is a structured set of services with optional pricing that appears on eligible profiles (Google enables this per **category** and account capabilities). If the location cannot use service lists, the API returns a clear client error instead of empty data.
 
+Not every business category supports service list editing, and allowed service object shapes can vary by location setup.
+
 **Base path:** `/api/v1/misc/google-business`
 
 ---
@@ -36,6 +38,10 @@ Response follows Google's shape: typically `name` for the resource and `serviceI
 | `serviceItems` | Optional | Array of service objects. Use the same structure Google returns from GET, with fields you want to set or replace per Google's rules. |
 
 The location must allow edits to the service list (`canModifyServiceList` in Google's metadata). Otherwise you receive a validation error explaining that the feature is not available for that location.
+
+Best practice: read the current list first and patch from those objects instead of constructing service items from scratch.
+
+If your UI allows service editing, fetch `metadata` from `GET /location` and gate editing by `metadata.canModifyServiceList`.
 
 ### Example
 

@@ -7,7 +7,13 @@ keywords: ["google business attributes", "gbp attributes", "business profile att
 "og:description": "Get, list available, and update Google Business Profile attributes."
 ---
 
-**Attributes** are structured facts Google shows on the profile (for example payments, accessibility, services). Valid attribute IDs and value types depend on **primary category** and region. Use **list available** to discover what Google allows for the connected location, then **get** current values and **patch** updates.
+**Attributes** are structured facts Google shows on the profile (for example payments, accessibility, services). Valid attribute IDs and value types depend on **primary category** and region. The same attribute payload can work for one location and fail for another.
+
+Use this order for reliable updates:
+
+1. **List available** to discover allowed definitions for the selected location.
+2. **Get current attributes** to inspect current value shapes.
+3. **Patch** only supported names and values.
 
 **Base path:** `/api/v1/misc/google-business`
 
@@ -33,7 +39,7 @@ Response includes `attributes`: an array of objects. Each item has a `name` (for
 | Enum (multi) | `"repeatedEnumValue": { "setValues": ["TOKEN", ...] }` | Allowed tokens come from **list available** for that attribute. |
 | URL list | `"uriValues": ["https://..."]` | When the attribute stores links. |
 
-Always confirm the expected shape for a given `name` via **list available** or **get** before you build your UI.
+Always confirm the expected shape for a given `name` via **list available** or **get** before you build your UI. Do not assume that every boolean/enum/url-style field is valid for every category.
 
 ---
 
@@ -52,6 +58,14 @@ Use this to build dropdowns or validation in your product. Google returns defini
 | `pageToken` | No | Pagination token from a previous response. |
 
 Response includes `attributes` (definition objects) and optional `nextPageToken`.
+
+### Google-side selection context
+
+Google's attribute catalog is context-sensitive. Availability depends on location/category/region, and can change over time.
+
+- In Google APIs, attribute metadata is selected using location/category and localization context.
+- In this API, `teamId` selects the connected location context, while optional `languageCode` and `regionCode` help localize/filter definitions.
+- Treat this endpoint as the source of truth for what can be patched now.
 
 ---
 
