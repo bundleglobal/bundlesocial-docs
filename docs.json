@@ -74,6 +74,13 @@
                 "group": "Google Business",
                 "pages": [
                   "api-reference/platforms/google-business",
+                  "api-reference/platforms/google-business-location",
+                  "api-reference/platforms/google-business-hours",
+                  "api-reference/platforms/google-business-attributes",
+                  "api-reference/platforms/google-business-service-list",
+                  "api-reference/platforms/google-business-food-menus",
+                  "api-reference/platforms/google-business-place-action-links",
+                  "api-reference/platforms/google-business-profile-media",
                   "api-reference/platforms/google-business-reviews"
                 ]
               }

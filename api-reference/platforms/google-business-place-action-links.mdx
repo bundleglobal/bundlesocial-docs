@@ -1,0 +1,108 @@
+---
+title: Google Business Place action links
+description: "List, create, update, and delete action links such as ordering, reservations, or appointments on the profile."
+icon: google
+keywords: ["google business place actions", "gbp action links", "food ordering link google business"]
+"og:title": "Google Business Place Action Links API"
+"og:description": "Manage place action links for Google Business Profile."
+---
+
+**Place action links** are URLs shown on the profile for actions like **order online**, **book**, or **reserve**. Google validates URLs and types. Use list to read existing links and obtain resource **names** for update or delete.
+
+**Base path:** `/api/v1/misc/google-business`
+
+---
+
+## `placeActionType` values
+
+| Value | Typical use |
+| :--- | :--- |
+| `APPOINTMENT` | Generic appointment booking. |
+| `ONLINE_APPOINTMENT` | Online appointment booking. |
+| `DINING_RESERVATION` | Table reservations. |
+| `FOOD_ORDERING` | Order food. |
+| `FOOD_DELIVERY` | Delivery. |
+| `FOOD_TAKEOUT` | Takeout. |
+| `SHOP_ONLINE` | E-commerce or online shopping. |
+
+---
+
+## List links
+
+**Endpoint:** `GET /api/v1/misc/google-business/location/place-action-links`
+
+| Query | Required | Description |
+| :--- | :--- | :--- |
+| `teamId` | Yes | Team identifier. |
+| `pageSize` | No | 1 to 100. |
+| `pageToken` | No | Pagination. |
+
+Response: `placeActionLinks` array and optional `nextPageToken`. Each link may include `name`, `uri`, `placeActionType`, `isPreferred`.
+
+---
+
+## Create link
+
+**Endpoint:** `POST /api/v1/misc/google-business/location/place-action-links`
+
+Either send a full `placeActionLink` object, or send **`uri` and `placeActionType`** at the top level (plus optional `isPreferred`). The API rejects the request if neither a nested `placeActionLink` nor both `uri` and `placeActionType` are provided.
+
+### Example: top-level shorthand
+
+```json
+{
+  "teamId": "team_123",
+  "uri": "https://example.com/order",
+  "placeActionType": "FOOD_ORDERING",
+  "isPreferred": true
+}
+```
+
+---
+
+## Update link
+
+**Endpoint:** `PATCH /api/v1/misc/google-business/location/place-action-links`
+
+| Field | Required | Description |
+| :--- | :--- | :--- |
+| `teamId` | Yes | Team identifier. |
+| `name` | Yes | Full resource name from Google, must contain `/placeActionLinks/`. |
+| `fields` | Yes | Subset of the **update payload** to apply: `uri`, `placeActionType`, `isPreferred` (one or more). |
+| `uri` | Optional | New URL. |
+| `placeActionType` | Optional | New type. |
+| `isPreferred` | Optional | Mark as preferred when multiple links exist. |
+| `placeActionLink` | Optional | Alternative: full object payload instead of piecewise fields. |
+
+### Example
+
+```json
+{
+  "teamId": "team_123",
+  "name": "locations/12345678901234567890/placeActionLinks/abcdef",
+  "fields": ["uri", "isPreferred"],
+  "uri": "https://example.com/new-order",
+  "isPreferred": true
+}
+```
+
+---
+
+## Delete link
+
+**Endpoint:** `DELETE /api/v1/misc/google-business/location/place-action-links`
+
+```json
+{
+  "teamId": "team_123",
+  "name": "locations/12345678901234567890/placeActionLinks/abcdef"
+}
+```
+
+`name` must be the full Google resource name including `/placeActionLinks/`.
+
+---
+
+## Related
+
+*   [Profile media](/api-reference/platforms/google-business-profile-media) for listing photos and videos on the profile.
