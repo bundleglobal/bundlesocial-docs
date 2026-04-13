@@ -64,12 +64,73 @@ These are **daily limits per social account** within a team. Each connected soci
 **Example:** You're on the Pro tier and have 5 teams, each connected to TikTok. Each team can post up to 10 TikToks per day independently. That's 50 TikToks total across your org per day. The limit is per team, per platform, per day - not shared.
 </Note>
 
-### Monthly post limits (organization-wide)
+### Commenting daily limits per platform per tier
+
+Daily caps per team, per platform, for comments created via the API.
+
+| Platform | FREE | PRO | BUSINESS |
+| -------- | ---- | --- | -------- |
+| TWITTER  | 3 | 15 | 15 |
+| FACEBOOK  | 3 | 50 | 100 |
+| INSTAGRAM  | 3 | 50 | 100 |
+| LINKEDIN  | 3 | 18 | 24 |
+| YOUTUBE  | 3 | 10 | 15 |
+| TIKTOK  | 3 | 10 | 15 |
+| THREADS  | 3 | 200 | 250 |
+| PINTEREST  | 3 | 24 | 36 |
+| REDDIT  | 3 | 24 | 36 |
+| DISCORD  | 3 | 100 | 200 |
+| SLACK  | 3 | 100 | 200 |
+| MASTODON  | 3 | 50 | 100 |
+| BLUESKY  | 3 | 50 | 100 |
+| GOOGLE_BUSINESS  | 3 | 20 | 40 |
+
+### Monthly organization-wide limits
 
 On top of daily limits, there are monthly caps across the entire organization:
 
-| Tier | Monthly Posts |
-| ---- | ------------- |
-| FREE | 10 |
-| PRO | 10,000 |
-| BUSINESS | 100,000 |
+| Tier | Monthly Posts | Monthly Comments | Monthly Uploads |
+| ---- | ------------- | ---------------- | --------------- |
+| FREE | 20 | 50 | 200 |
+| PRO | 10,000 | 5,000 | 100,000 |
+| BUSINESS | 100,000 | 50,000 | 1,000,000 |
+
+---
+
+## Import Limits
+
+Limits that apply when importing historical content from connected social accounts.
+
+### Post history imports (monthly, per social account)
+
+Maximum posts imported from each connected social account per month. Counter resets on the 1st of each month.
+
+| Tier | Posts / account / month |
+| ---- | ----------------------- |
+| FREE | 5 |
+| PRO | 100 |
+| BUSINESS | 500 |
+
+A single post-history import request is additionally capped at **100 posts** (hard cap, not overridable).
+
+### Comment imports (per post)
+
+Maximum comments stored per post on each import run. Imports always run — the cap just truncates to the newest N comments before storage. No monthly window, no counter.
+
+| Tier | Comments / post / import |
+| ---- | ------------------------ |
+| FREE | 25 |
+| PRO | 200 |
+| BUSINESS | 1,000 |
+
+### Google review imports (monthly, per social account)
+
+Maximum Google reviews imported from each connected Google Business Profile per month. Counter resets on the 1st of each month.
+
+| Tier | Reviews / account / month |
+| ---- | ------------------------- |
+| FREE | 5 |
+| PRO | 200 |
+| BUSINESS | 200 |
+
+A single Google review import request is additionally capped at **250 reviews** (hard cap, not overridable).
