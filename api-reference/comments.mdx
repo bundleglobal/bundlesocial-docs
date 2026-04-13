@@ -1,0 +1,304 @@
+---
+title: Comments
+description: Import comments from published posts, show them in your app, and reply in the right thread.
+keywords: ["comments api", "import comments", "reply to comments", "comment threads"]
+"og:title": "Comments API - Import, Render, and Reply"
+"og:description": "Learn how to import comments, rebuild thread hierarchy, and reply to imported comments using bundle.social."
+icon: comments
+---
+
+<Note>
+You can't import comments for imported posts (future thing, maybe)
+</Note>
+
+With the Comments API you can:
+
+- import comments from a published post,
+- display comments as a real thread,
+- reply to imported comments on the original platform,
+- keep your comments list fresh after new activity.
+
+## Supported Platforms
+
+Comment import is available for:
+
+- `FACEBOOK`
+- `INSTAGRAM`
+- `LINKEDIN`
+- `YOUTUBE`
+- `TIKTOK`
+- `REDDIT`
+- `THREADS`
+- `MASTODON`
+- `BLUESKY`
+
+<Note>
+Twitter / X is intentionally not supported in this import flow. If you have spare 5k drop it in.
+</Note>
+
+---
+
+## Before You Start
+
+Use this quick checklist first:
+
+1. You already connected a social account to the team.
+2. You already published a post on that platform through bundle.social.
+3. You have:
+   - `teamId`
+   - `postId`
+   - `socialAccountType`
+
+If one of these is missing, import will fail with validation error.
+
+---
+
+## Flow of comments API
+
+Think about import as a small background job:
+
+1. User clicks "Import comments".
+2. Your app starts the import job on bundle.
+3. Your app checks status every 5/10 seconds (if you do a while loop I will post used F-150 on marketplace with your phone number).
+4. When completed, your app fetches comments and renders the thread.
+
+### Step 1: Start Import
+
+**Endpoint:** `POST /api/v1/comment/import`
+
+```json
+{
+  "teamId": "team_123",
+  "postId": "post_123",
+  "socialAccountType": "INSTAGRAM"
+}
+```
+
+### Why Import Can Be Rejected
+
+Import start can return validation errors if:
+
+- post does not belong to this team,
+- post is not published to selected platform yet,
+- this team has no connected account for that platform,
+- there is already an active import for this same post and platform.
+
+If import is already running, you get `409`.
+
+### Step 2: Track Progress
+
+**Endpoints:**
+
+- `GET /api/v1/comment/import?teamId=...&postId=...`
+- `GET /api/v1/comment/import/:importId`
+
+Use these statuses for user-facing UI:
+
+| Status | What to show to user |
+| :--- | :--- |
+| `PENDING` | "Waiting in queue" |
+| `FETCHING` | "Importing comments..." |
+| `RETRYING` | "Retrying after temporary issue" |
+| `RATE_LIMITED` | "Platform limit reached. We will retry automatically." |
+| `COMPLETED` | "Import complete" |
+| `FAILED` | "Import failed. Try again later." |
+| `SKIPPED` | "Import skipped" |
+
+### Step 3: Get Imported Comments
+
+**Endpoint:** `GET /api/v1/comment/import/comments`
+
+Query params:
+
+- `teamId` (required)
+- `postId` (required)
+- `platform` (optional)
+- `socialAccountId` (optional)
+- `limit`, `offset`
+
+Example response:
+
+```json
+{
+  "items": [
+    {
+      "id": "fetched_1",
+      "platform": "INSTAGRAM",
+      "externalId": "18001234567890",
+      "externalParentId": null,
+      "text": "Top level comment",
+      "authorName": "janedoe",
+      "likesCount": 12,
+      "repliesCount": 2,
+      "publishedAt": "2026-04-13T09:30:00.000Z"
+    },
+    {
+      "id": "fetched_2",
+      "platform": "INSTAGRAM",
+      "externalId": "18001234567999",
+      "externalParentId": "18001234567890",
+      "text": "Reply comment",
+      "authorName": "bundle_user",
+      "likesCount": 1,
+      "repliesCount": 0,
+      "publishedAt": "2026-04-13T09:35:00.000Z"
+    }
+  ],
+  "total": 2
+}
+```
+
+---
+
+## What Exactly Gets Imported
+
+Each imported comment includes:
+
+- `externalId`: unique platform comment ID.
+- `externalParentId`: parent comment ID on platform, or `null` for top-level.
+- `externalPostId`: platform post ID.
+- author metadata: `authorName`, `authorExternalId`, `authorProfileUrl`, `authorAvatarUrl`.
+- content and stats: `text`, `likesCount`, `repliesCount`, `publishedAt`.
+
+Important detail:
+
+- the API returns a flat list,
+- your app rebuilds thread hierarchy using `externalParentId`.
+
+---
+
+## How To Display Comments In Your App
+
+### Plain-Language Rule
+
+If `externalParentId` is empty, this is top-level comment.
+If `externalParentId` points to another `externalId`, this is a reply.
+
+### Recommended Rendering Steps
+
+1. Create `externalId -> comment` map.
+2. Group comments by `externalParentId`.
+3. Start from root comments.
+4. Attach children recursively.
+
+```ts
+type C = { externalId: string; externalParentId: string | null };
+
+function buildTree(comments: C[]) {
+  const byId = new Map(comments.map((c) => [c.externalId, c]));
+  const byParent = new Map<string | null, C[]>();
+
+  for (const c of comments) {
+    const arr = byParent.get(c.externalParentId) ?? [];
+    arr.push(c);
+    byParent.set(c.externalParentId, arr);
+  }
+
+  const roots = comments.filter((c) => c.externalParentId === null || !byId.has(c.externalParentId));
+
+  const visit = (node: C): any => ({
+    ...node,
+    children: (byParent.get(node.externalId) ?? []).map(visit),
+  });
+
+  return roots.map(visit);
+}
+```
+
+<Note>
+Sometimes platform APIs do not return full parent mapping for every nested reply. If parent is missing, treat this comment as root and still show it.
+</Note>
+
+---
+
+## Replying To Imported Comments
+
+To reply to imported comment, create normal comment with `fetchedParentCommentId`.
+
+**Endpoint:** `POST /api/v1/comment`
+
+Minimal body:
+
+```json
+{
+  "teamId": "team_123",
+  "fetchedParentCommentId": "fetched_1",
+  "text": "Thanks for your comment!"
+}
+```
+
+### What Happens After You Send Reply
+
+1. API resolves correct platform and post from fetched parent.
+2. New comment is saved with `SCHEDULED` status.
+3. Queue publishes it to platform.
+4. Status becomes `POSTED` or `ERROR`.
+
+
+## Limits Explained
+
+### Per Import Storage Limit (Per Post)
+
+Import always runs, but stored comments are capped for each run.
+
+| Tier | Max stored comments per post import |
+| :--- | :--- |
+| FREE | 25 |
+| PRO | 200 |
+| BUSINESS | 1000 |
+
+How this works in practice:
+
+- if platform has 900 comments and your cap is 200,
+- import completes successfully,
+- newest 200 are stored in this run.
+
+### Is There a Monthly Comment Import Quota?
+
+No.
+
+Comment import does not use monthly counters. Limit is per run and per post.
+
+### Reply Text Limits By Platform
+
+| Platform | Max text length |
+| :--- | :--- |
+| FACEBOOK | 8000 |
+| INSTAGRAM | 2200 |
+| LINKEDIN | 1250 |
+| YOUTUBE | 10000 |
+| TIKTOK | 150 |
+| REDDIT | 10000 |
+| THREADS | 500 |
+| MASTODON | 500 |
+| BLUESKY | 30000 |
+
+---
+
+
+For global API rate limits, see [Rate Limits](/api-reference/rate-limits).
+
+---
+
+## Quick FAQ
+
+### "Why comments list is empty?"
+
+Most common reasons:
+
+- post was not published to selected platform,
+- import still running,
+- no comments yet on that post.
+
+### "Why I see comment without parent?"
+
+Because parent mapping from platform was not returned in this fetch window. Show as root and keep it visible.
+
+### "Do I need webhooks for comment import?"
+
+No. Comment import is pull-based. You trigger it and then fetch results.
+
+### "Will you have webhooks for this?"
+
+For live comment nortification? No, kinda not our limitation.
+For import status, yes in the future.

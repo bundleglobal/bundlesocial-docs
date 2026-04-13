@@ -14,6 +14,8 @@ Empty dashboards are sad. Use the History Import API to fetch existing content f
 - `extraData` is now normalized as `extraData.media[]`.
 - For platforms/endpoints that do not expose direct media URLs (e.g. current YouTube import path), `extraData` is `null`.
 
+Need comment import and replies? See [Comments API](/api-reference/comments).
+
 ## How it works
 This is an **asynchronous** job. You don't get the posts instantly.
 1.  **Start:** You trigger a job ("Go fetch 50 posts from Instagram").

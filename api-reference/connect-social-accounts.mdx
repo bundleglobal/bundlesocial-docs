@@ -23,6 +23,7 @@ Test it in [Swagger](https://api.bundle.social/swagger#/socialAccount/socialAcco
 | `redirectUrl` | Yes | The URL to redirect to after clicking the back button. |
 | `socialAccountTypes` | Yes | The social account types to connect (e.g. `['INSTAGRAM', 'LINKEDIN']`). |
 | `disableAutoLogin` | No | Facebook, Instagram (Facebook method), and TikTok only. When `true`, bypasses the platform's automatic "you're already logged in" shortcut and forces the user to explicitly pick which account to connect. |
+| `withBusinessScope` | No | Facebook and Instagram (Facebook login path) only. When you set this to `true` or `false`, the hosted connect page skips the business vs standard scope chooser and uses your value. When you omit it, users see the same chooser as on a normal connect flow. |
 | `logoUrl` | No | The URL of the logo to display on the top of the page. |
 | `userLogoUrl` | No | The URL of the user logo/avatar to display. |
 | `userName` | No | The name of the user to display. |
@@ -95,9 +96,12 @@ Use this when your users connect accounts on behalf of clients or manage multipl
 
 ### withBusinessScope (Facebook & Instagram)
 
-**Facebook** and **Instagram** (when using the Facebook / Instagram Business login path) only. Optional boolean on **`POST /api/v1/social-account/connect`**. Defaults to `false` if you omit it-behavior matches how things worked before this option existed.
+**Facebook** and **Instagram** (when using the Facebook login path for Instagram) only.
 
-The **create portal link** endpoint does not take this flag; it is only on the **connect** body for custom integrations.
+You can set this flag in **both** places:
+
+1. **`POST /api/v1/social-account/connect`** (custom UI). Optional boolean. If you omit it, it defaults to `false`, same as before this option existed.
+2. **`POST /api/v1/social-account/create-portal-link`** (hosted UI). Optional boolean. It is stored in the signed portal token. The hosted `/connect` page reads it and passes it into the same connect logic as a custom client. If you omit it on the portal link, users still pick **business** vs **standard** on the hosted page.
 
 | Value | What happens |
 | :--- | :--- |
