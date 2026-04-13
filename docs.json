@@ -44,7 +44,8 @@
               "api-reference/import-posts",
               "api-reference/bulk-posts-csv",
               "api-reference/upload-content",
-              "api-reference/errors"
+              "api-reference/errors",
+              "api-reference/comments"
             ]
           },
           {
@@ -56,6 +57,7 @@
               "api-reference/platforms/linkedin",
               {
                 "group": "TikTok",
+                "icon": "tiktok",
                 "pages": [
                   "api-reference/platforms/tiktok",
                   "api-reference/platforms/tiktok-music"
@@ -72,8 +74,16 @@
               "api-reference/platforms/slack",
               {
                 "group": "Google Business",
+                "icon": "google",
                 "pages": [
                   "api-reference/platforms/google-business",
+                  "api-reference/platforms/google-business-location",
+                  "api-reference/platforms/google-business-hours",
+                  "api-reference/platforms/google-business-attributes",
+                  "api-reference/platforms/google-business-service-list",
+                  "api-reference/platforms/google-business-food-menus",
+                  "api-reference/platforms/google-business-place-action-links",
+                  "api-reference/platforms/google-business-profile-media",
                   "api-reference/platforms/google-business-reviews"
                 ]
               }

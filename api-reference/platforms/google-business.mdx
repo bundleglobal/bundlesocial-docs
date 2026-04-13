@@ -9,6 +9,32 @@ keywords: ["google business api", "google my business api", "google business pro
 
 Google Business Profile (formerly Google My Business) lets you post updates that appear in Google Search and Maps. It's not social media in the traditional sense, but it's great for local businesses.
 
+## Location, profile, and Maps data
+
+Besides posts, you can read and update **Business Profile** data for the team's selected location (hours, attributes, services, food menus, action links, profile media). These use `/api/v1/misc/google-business` with the same API key as the rest of the public API.
+
+*   [Location & profile](/api-reference/platforms/google-business-location) (GET/PATCH location fields and read field selection)
+*   [Hours](/api-reference/platforms/google-business-hours) (regular, special, more hours)
+*   [Attributes](/api-reference/platforms/google-business-attributes)
+*   [Service list](/api-reference/platforms/google-business-service-list)
+*   [Food menus](/api-reference/platforms/google-business-food-menus)
+*   [Place action links](/api-reference/platforms/google-business-place-action-links)
+*   [Profile media](/api-reference/platforms/google-business-profile-media)
+
+Reviews stay on a separate flow: [Google Business Reviews](/api-reference/platforms/google-business-reviews).
+
+## Feature availability by category and location
+
+Google Business capabilities are not identical for every profile. Some fields or endpoints can be unavailable depending on category, country/region, and location-level eligibility.
+
+- **Attributes** differ by category and region. Build updates from available definitions first.
+- **Service list** is only available for eligible categories/locations.
+- **Food menus** are available mostly for restaurant-like categories and can be disabled for a specific location.
+- **Place action links** and allowed `placeActionType` values can vary by profile setup and category.
+- **Profile media** categories and moderation behavior can vary by profile type.
+
+Recommended flow for most integrations: **GET/list first**, then send **PATCH/POST** with values confirmed by Google for that exact location.
+
 ## Supported Content Types
 
 *   **Standard Posts:** Regular text updates with optional image.
