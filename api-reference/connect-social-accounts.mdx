@@ -23,6 +23,7 @@ Test it in [Swagger](https://api.bundle.social/swagger#/socialAccount/socialAcco
 | `redirectUrl` | Yes | The URL to redirect to after clicking the back button. |
 | `socialAccountTypes` | Yes | The social account types to connect (e.g. `['INSTAGRAM', 'LINKEDIN']`). |
 | `disableAutoLogin` | No | Facebook, Instagram (Facebook method), and TikTok only. When `true`, bypasses the platform's automatic "you're already logged in" shortcut and forces the user to explicitly pick which account to connect. |
+| `forceBrowserOAuth` | No | Instagram only. When `true`, direct Instagram connections on phones try to use browser OAuth instead of the Instagram app flow, avoiding the iOS deep-link issue. |
 | `withBusinessScope` | No | Facebook and Instagram (Facebook login path) only. When you set this to `true` or `false`, the hosted connect page skips the business vs standard scope chooser and uses your value. When you omit it, users see the same chooser as on a normal connect flow. |
 | `logoUrl` | No | The URL of the logo to display on the top of the page. |
 | `userLogoUrl` | No | The URL of the user logo/avatar to display. |
@@ -93,6 +94,21 @@ When `true`, the OAuth URL includes a platform-specific flag that forces the use
 <Warning>
 Use this when your users connect accounts on behalf of clients or manage multiple accounts from the same browser. Without it, the OAuth popup re-connects whichever account was last logged in, with no chance to pick a different one.
 </Warning>
+
+### forceBrowserOAuth
+
+Supported for **Instagram direct OAuth**.
+
+When `true`, direct Instagram connections on phones try to open the browser OAuth flow instead of the Instagram app flow. This is useful when the Instagram iOS app deep-link flow gets stuck or returns users without completing authorization.
+
+You can set it in both places:
+
+1. **`POST /api/v1/social-account/connect`** (custom UI). Optional boolean.
+2. **`POST /api/v1/social-account/create-portal-link`** (hosted UI). Optional boolean stored in the signed portal token.
+
+<Note>
+This is separate from `disableAutoLogin`. `forceBrowserOAuth` changes which Instagram OAuth surface we try to use; `disableAutoLogin` asks the provider to avoid silently reusing the current logged-in session where supported.
+</Note>
 
 ### withBusinessScope (Facebook & Instagram)
 

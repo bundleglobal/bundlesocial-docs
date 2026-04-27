@@ -32,6 +32,7 @@
             "group": "API Documentation",
             "pages": [
               "api-reference/introduction",
+              "api-reference/health",
               "api-reference/openapi",
               "api-reference/sdk",
               "api-reference/connect-social-accounts",
@@ -53,7 +54,14 @@
             "pages": [
               "api-reference/platforms/index",
               "api-reference/platforms/instagram",
-              "api-reference/platforms/facebook",
+              {
+                "group": "Facebook",
+                "icon": "facebook",
+                "pages": [
+                  "api-reference/platforms/facebook",
+                  "api-reference/platforms/facebook-page-reviews"
+                ]
+              },
               "api-reference/platforms/linkedin",
               {
                 "group": "TikTok",
