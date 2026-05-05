@@ -193,7 +193,7 @@
         },
         {
           "anchor": "Github",
-          "href": "https://github.com/bundlesocial",
+          "href": "https://github.com/bundleglobal",
           "icon": "github"
         },
         {
@@ -235,6 +235,13 @@
       "twitter": "https://twitter.com/bundle_social",
       "github": "https://www.github.com/bundlesocial",
       "linkedin": "https://www.linkedin.com/company/bundlesocial"
+    }
+  },
+  "errors": {
+    "404": {
+      "redirect": false,
+      "title": "Page not found",
+      "description": "We couldn't find the page you're looking for. Head [back to the homepage](/welcome), explore the [API Reference](/api-reference/introduction), or check the [FAQ](/faq)."
     }
   }
 }
