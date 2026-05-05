@@ -222,8 +222,10 @@
     }
   },
   "seo": {
-    "indexing": "navigable",
+    "indexing": "all",
     "metatags": {
+      "robots": "index, follow",
+      "googlebot": "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
       "og:image": "https://bundle.social/og.png",
       "og:site_name": "bundle.social Documentation",
       "twitter:site": "@bundle_social",
