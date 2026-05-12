@@ -1,0 +1,97 @@
+---
+title: MCP Server
+description: Drive bundle.social from Claude, Cursor and other Model Context Protocol clients.
+icon: plug
+keywords: ["mcp server social media", "model context protocol social media", "bundle.social mcp", "claude social media", "cursor social media mcp"]
+---
+
+`bundlesocial-mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes the bundle.social operations as MCP tools — so Claude Desktop, Claude Code, Cursor and any other MCP client can post, schedule, list and analyze content across 14+ platforms.
+
+It ships as a **local stdio server** (`npx bundlesocial-mcp`). A hosted remote server at `mcp.bundle.social` is on the roadmap.
+
+<CardGroup cols={2}>
+  <Card title="npm: bundlesocial-mcp" icon="npm" href="https://www.npmjs.com/package/bundlesocial-mcp">
+    `npx bundlesocial-mcp`
+  </Card>
+  <Card title="MCP Inspector" icon="magnifying-glass" href="https://github.com/modelcontextprotocol/inspector">
+    `npx @modelcontextprotocol/inspector npx bundlesocial-mcp`
+  </Card>
+</CardGroup>
+
+## Tools
+
+| Tool | Description |
+|---|---|
+| `list_integrations` | List connected social accounts (ids, platform types, channels). |
+| `list_integration_tools` / `trigger_integration_tool` | List & call read-only helpers — subreddit flairs/requirements, YouTube categories/playlists/regions, LinkedIn mentions, Instagram locations, Google Business categories, TikTok trending music. |
+| `create_post` / `schedule_post` | Publish now (or as a draft) / schedule for a future date. |
+| `update_post` / `retry_post` | Update a post (only changed fields) / re-attempt one that ended in `ERROR`. |
+| `list_posts` / `get_post` / `delete_post` | List with filters / fetch / delete posts. |
+| `create_comment` / `list_comments` / `get_comment` / `delete_comment` | Comment on a post (pass `content` multiple times for a chain) / list / fetch / delete comments. |
+| `upload_media` | Upload an image/video/document from a URL (or local path in stdio mode). |
+| `get_post_analytics` / `get_analytics_summary` | Per-post engagement / org-level usage + per-integration snapshots. |
+
+Errors come back as `{ "error": { "code", "message", "details"? } }` with `isError: true`. The per-platform fields for posts are documented in [Platform parameters](/api-reference/platform-parameters).
+
+## Configuration
+
+Reads `BUNDLESOCIAL_API_KEY` (required), `BUNDLESOCIAL_TEAM_ID` (optional — needed only if your org has more than one team) and `BUNDLESOCIAL_API_URL` (optional). Get an API key in the [dashboard](https://bundle.social/dashboard/organization/api-keys).
+
+<Tabs>
+  <Tab title="Claude Desktop">
+    `claude_desktop_config.json` (macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`):
+    ```json
+    {
+      "mcpServers": {
+        "bundlesocial": {
+          "command": "npx",
+          "args": ["-y", "bundlesocial-mcp"],
+          "env": { "BUNDLESOCIAL_API_KEY": "sk_live_..." }
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Claude Code">
+    ```bash
+    claude mcp add bundlesocial --env BUNDLESOCIAL_API_KEY=sk_live_... -- npx -y bundlesocial-mcp
+    ```
+    Or in `.mcp.json`:
+    ```json
+    {
+      "mcpServers": {
+        "bundlesocial": {
+          "command": "npx",
+          "args": ["-y", "bundlesocial-mcp"],
+          "env": { "BUNDLESOCIAL_API_KEY": "sk_live_..." }
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Cursor">
+    `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project):
+    ```json
+    {
+      "mcpServers": {
+        "bundlesocial": {
+          "command": "npx",
+          "args": ["-y", "bundlesocial-mcp"],
+          "env": { "BUNDLESOCIAL_API_KEY": "sk_live_..." }
+        }
+      }
+    }
+    ```
+  </Tab>
+</Tabs>
+
+## Example prompts
+
+- "List my connected social accounts via bundle.social."
+- "Post 'We just shipped dark mode 🌙' to X and Bluesky."
+- "Schedule a LinkedIn post for next Monday 9am UTC announcing the launch."
+- "Post to r/test on Reddit — first check the subreddit's requirements and flairs, then post with the right flair."
+- "Reply to post `post_abc123` with a 3-comment thread on LinkedIn."
+- "How did post `post_abc123` perform?"
+
+Also see: [CLI](/api-reference/cli) · [SDK](/api-reference/sdk).

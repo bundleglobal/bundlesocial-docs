@@ -1,0 +1,98 @@
+---
+title: CLI
+description: Post to 14+ social platforms from your shell, CI, cron or an AI agent.
+icon: terminal
+keywords: ["social media cli", "bundle.social cli", "social media command line", "agent social media cli", "post to social media terminal"]
+---
+
+`bundlesocial-cli` is a thin, scriptable wrapper over the [bundle.social SDK](/api-reference/sdk). It prints **JSON to stdout by default** (one object per command) and human status to stderr — easy for scripts and AI agents to parse.
+
+<CardGroup cols={2}>
+  <Card title="npm: bundlesocial-cli" icon="npm" href="https://www.npmjs.com/package/bundlesocial-cli">
+    `npx bundlesocial-cli --help`
+  </Card>
+  <Card title="OpenClaw / agent skill" icon="robot" href="https://www.npmjs.com/package/bundlesocial-cli">
+    `npx skills add bundleglobal/bundlesocial-cli`
+  </Card>
+</CardGroup>
+
+## Install
+
+```bash
+npx bundlesocial-cli --help     # one-off
+npm install -g bundlesocial-cli # global → `bundle-social`
+```
+
+Requires Node.js 20+.
+
+## Authenticate
+
+Create an API key in the [dashboard](https://bundle.social/dashboard/organization/api-keys), then:
+
+```bash
+export BUNDLESOCIAL_API_KEY="sk_live_..."
+# optional, if your org has more than one team:
+export BUNDLESOCIAL_TEAM_ID="team_..."
+# optional, for self-hosted/staging:
+export BUNDLESOCIAL_API_URL="https://api.bundle.social"
+
+bundle-social doctor    # sanity-check the setup
+```
+
+Every env var also has a flag: `--api-key`, `--team-id`, `--api-url` (work before or after the command).
+
+## Commands
+
+| Command | What it does |
+|---|---|
+| `integrations:list` | List connected social accounts (ids, platform types, channels). |
+| `integrations:tools` | List the read-only platform helper tools. |
+| `integrations:trigger <method>` | Fetch values the API needs — subreddit flairs/requirements, YouTube categories/playlists, LinkedIn mentions, Instagram locations, Google Business categories, TikTok trending music. |
+| `posts:create` | Publish a post immediately (or `--draft`). |
+| `posts:schedule` | Schedule a post for a future ISO-8601 `--date`. |
+| `posts:update <id>` | Update a post — only the fields you pass change. |
+| `posts:list` | List recent posts with filters. |
+| `posts:get <id>` / `posts:delete <id>` / `posts:retry <id>` | Fetch / delete / re-attempt a post. |
+| `comments:create` | Comment on a post; repeat `-c` for a chain of replies (X-style thread via comments). |
+| `comments:list` / `comments:get <id>` / `comments:delete <id>` | List / fetch / delete comments. |
+| `media:upload <path-or-url>` | Upload an image/video/document; returns the upload object. |
+| `analytics:post <id>` | Engagement metrics for one post. |
+| `analytics:summary` | Org-level usage quotas + latest per-integration analytics snapshot. |
+| `doctor` | Diagnostic JSON: API key, connectivity, integrations, quotas. |
+
+Run `bundle-social <command> --help` for the full option list.
+
+### Examples
+
+```bash
+# text post to X and Bluesky
+bundle-social posts:create -c "We just shipped dark mode 🌙" -i x -i bluesky
+
+# TikTok video with the required privacy level
+bundle-social posts:create -c "BTS" -i tiktok -m ./demo.mp4 \
+  --platform-settings '{"TIKTOK":{"privacy":"PUBLIC_TO_EVERYONE"}}'
+
+# schedule a thread: post, then add replies as comments
+POST=$(bundle-social posts:create -i linkedin -c "1/ A thread 🧵")
+ID=$(printf '%s' "$POST" | jq -r .id)
+bundle-social comments:create --post-id "$ID" -c "2/ more…" -c "3/ even more…"
+
+# Reddit, done right: check requirements + flairs first
+bundle-social integrations:trigger reddit:requirements --data '{"subreddit":"r/test"}'
+bundle-social integrations:trigger reddit:flairs --data '{"subreddit":"r/test"}'
+bundle-social posts:create --data '{"REDDIT":{"sr":"r/test","text":"Title","flairId":"<id>","uploadIds":[]}}'
+```
+
+The per-platform fields you can put under `--platform-settings` / `--data` are documented in [Platform parameters](/api-reference/platform-parameters).
+
+## Output contract (for scripts & agents)
+
+- **stdout** = exactly one JSON value per command (or a table with `--pretty`). Pipe it to `jq`.
+- **stderr** = human progress + `--pretty` error lines. Never parse stderr.
+- On error: exit code `1` and `{ "error": { "code", "message", "details"? } }` on stdout.
+
+<Note>
+The CLI ships with a `SKILL.md` (OpenClaw / agent skill), a `PROVIDER_SETTINGS.md` (exhaustive per-platform field reference) and an `examples/` directory of ready-to-run `data` JSON templates and shell recipes — see the [repo](https://github.com/bundleglobal/bundlesocial-cli).
+</Note>
+
+Also see: [MCP server](/api-reference/mcp) · [SDK](/api-reference/sdk) · [Examples](/api-reference/examples).

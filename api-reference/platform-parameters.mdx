@@ -1,0 +1,202 @@
+---
+title: Platform parameters
+description: Every per-platform field you can put under data.<PLATFORM> when creating a post.
+icon: sliders
+keywords: ["social media api parameters", "platform specific fields", "post data api", "tiktok privacy api", "reddit flair api", "youtube madeforkids api"]
+---
+
+When you create or update a post, `data` is keyed by platform — `data.TWITTER`, `data.TIKTOK`, etc. Each platform accepts its own set of fields. This page is the field reference for all of them. (For connecting accounts and platform quirks, see the per-platform pages under **Platforms** in the sidebar.)
+
+- `uploadIds` are ids returned by [upload-content](/api-reference/upload-content).
+- `thumbnail` (where present) is a public URL of an image already uploaded to bundle.social — use it as a video cover when an offset isn't enough.
+- **Bold** = required for that platform.
+
+<Note>
+The [CLI](/api-reference/cli) builds `data` for you: `--content` → `text`, `-m` → `uploadIds`, `--platform-settings '{"<P>":{...}}'` → merged into `data.<P>`. The same fields apply to the [SDK](/api-reference/sdk) and the [MCP server](/api-reference/mcp).
+</Note>
+
+## X / Twitter — `data.TWITTER`
+
+| Field | Type | Notes |
+|---|---|---|
+| `text` | string | ~280 chars (more if the account is X Premium). |
+| `uploadIds` | string[] | Up to 4 images **or** 1 video/GIF. |
+| `replySettings` | `EVERYONE` \| `FOLLOWING` \| `MENTIONED_USERS` \| `SUBSCRIBERS` \| `VERIFIED` | Who can reply. |
+
+Threads: publish the first tweet, then add the rest as [comments](/api-reference/comments) on that post. No analytics surface for X.
+
+## Bluesky — `data.BLUESKY`
+
+| Field | Type | Notes |
+|---|---|---|
+| `text` | string | ~300 chars. |
+| `uploadIds` | string[] | Up to 4 images, or 1 video (set `videoAlt`). |
+| `tags` | string[] | Extra hashtags (without `#`), up to 8. |
+| `labels` | (`!no-unauthenticated` \| `porn` \| `sexual` \| `nudity` \| `graphic-media`)[] | Self-labels / content warnings. |
+| `quoteUri` | string | AT-URI of a post to quote. |
+| `externalUrl` / `externalTitle` / `externalDescription` | string | External link card. |
+| `videoAlt` | string | Alt text for a video embed. |
+
+## Mastodon — `data.MASTODON`
+
+| Field | Type | Notes |
+|---|---|---|
+| `text` | string | Length depends on the connected instance (often ~500). |
+| `uploadIds` | string[] | Up to 4 images **or** 1 video. |
+| `privacy` | `PUBLIC` \| `UNLISTED` \| `PRIVATE` \| `DIRECT` | Visibility. |
+| `spoiler` | string | Content-warning text. |
+| `thumbnail` | string (URL) | Video cover. |
+
+## Threads — `data.THREADS`
+
+| Field | Type | Notes |
+|---|---|---|
+| `text` | string | ~500 chars. |
+| `uploadIds` | string[] | Up to ~10 images, or 1 video. |
+| `mediaItems` | `{ uploadId, altText? }[]` | Per-image alt text. |
+
+## LinkedIn — `data.LINKEDIN`
+
+| Field | Type | Notes |
+|---|---|---|
+| **`text`** | string | Required. ~3000 chars. Personal profile or company page depending on the connected account. |
+| `uploadIds` | string[] | Images, a single video, or a document/PDF. |
+| `link` | string (URL) | Article-preview post. |
+| `mediaTitle` | string | Title for a video/document post. |
+| `privacy` | `CONNECTIONS` \| `PUBLIC` \| `LOGGED_IN` \| `CONTAINER` | Visibility. |
+| `hideFromFeed` | boolean | Don't show in the main feed. |
+| `disableReshare` | boolean | Disallow resharing. |
+
+Mentions: discover URNs with `trigger_integration_tool` / `integrations:trigger linkedin:mentions` and put them in `text`.
+
+## Facebook (Page) — `data.FACEBOOK`
+
+| Field | Type | Notes |
+|---|---|---|
+| `type` | `POST` \| `REEL` \| `STORY` | Default `POST`. |
+| `text` | string | Caption / message. |
+| `uploadIds` | string[] | Images, or a single video. |
+| `mediaItems` | `{ uploadId, altText? }[]` | Per-image alt text. |
+| `link` | string (URL) | Link attachment — `type: POST` only. |
+| `mediaTitle` | string | Video title — `type: POST` with a video only. |
+| `thumbnail` | string (URL) | Video cover. |
+| `nativeScheduleTime` | string (ISO 8601, local) | Schedule in Meta's scheduler instead of now; max 30 days ahead. |
+
+## Instagram — `data.INSTAGRAM`
+
+| Field | Type | Notes |
+|---|---|---|
+| `type` | `POST` \| `REEL` \| `STORY` | `POST` = image / carousel / feed video; `REEL` = video; `STORY` = image or short video. |
+| `text` | string | Caption. |
+| `uploadIds` | string[] | Single image/video. Square ≥1080×1080 or 4:5; Reels 9:16, ≤90s. |
+| `altText` | string | Alt text for a single-image post. |
+| `carouselItems` | `{ uploadId, altText?, tagged?: { username, x, y }[] }[]` | Carousel slides (`type: POST`). |
+| `thumbnailOffset` | number (ms) | Video cover frame. |
+| `thumbnail` | string (URL) | Video cover (alternative to offset). |
+| `shareToFeed` | boolean | Reels only — also show in the Feed tab. |
+| `collaborators` | string[] | Usernames to invite as collaborators. |
+| `tagged` | `{ username, x?, y? }[]` | People tags for a single-image post. |
+| `locationId` | string | Discover with `integrations:trigger instagram:locations`. |
+| `autoFitImage` / `autoCropImage` | boolean | Auto-fit/crop to a valid aspect ratio. |
+| `trialParams` | `{ graduationStrategy: "MANUAL" \| "SS_PERFORMANCE" }` | Reels only — trial reels shown to non-followers first. |
+
+## TikTok — `data.TIKTOK`
+
+| Field | Type | Notes |
+|---|---|---|
+| `type` | `VIDEO` \| `IMAGE` | `VIDEO` = 1 video; `IMAGE` = photo carousel. |
+| **`privacy`** | `PUBLIC_TO_EVERYONE` \| `MUTUAL_FOLLOW_FRIENDS` \| `FOLLOWER_OF_CREATOR` \| `SELF_ONLY` | Effectively required by TikTok. |
+| `text` | string | Caption. |
+| `uploadIds` | string[] | Video, or photos for `type: IMAGE`. Video: MP4/MOV/WEBM, ≥540p, 9:16 recommended, ≤~10 min. |
+| `photoCoverIndex` | number | Cover photo index (`type: IMAGE`). |
+| `thumbnailOffset` | number (ms) | Video cover frame. |
+| `thumbnail` | string (URL) | Video cover. |
+| `isBrandContent` / `isOrganicBrandContent` | boolean | Disclosure flags. |
+| `disableComments` / `disableDuet` / `disableStitch` | boolean | Interaction restrictions. |
+| `isAiGenerated` | boolean | Mark AI-generated. |
+| `autoAddMusic` | boolean | Let TikTok add music to photos. |
+| `autoScale` | boolean | Auto-scale the video. |
+| `uploadToDraft` | boolean | Upload as a TikTok draft. |
+| `musicSoundInfo` | `{ musicSoundId, musicSoundVolume?, musicSoundStart?, musicSoundEnd?, videoOriginalSoundVolume? }` | Commercial music — `song_clip_id` from `integrations:trigger tiktok:trending-music`; volumes 0–100; start/end in ms. |
+
+## YouTube — `data.YOUTUBE`
+
+| Field | Type | Notes |
+|---|---|---|
+| `type` | `VIDEO` \| `SHORT` | `SHORT` = vertical ≤60s. |
+| `uploadIds` | string[] | One video. |
+| `text` | string | The video **title** (the CLI's `--title` maps here). |
+| `description` | string | Video description. |
+| `thumbnail` | string (URL) | Custom thumbnail (`type: VIDEO`). |
+| `privacy` | `PUBLIC` \| `UNLISTED` \| `PRIVATE` | Visibility. |
+| `madeForKids` | boolean | Required-ish — YouTube needs you to declare this. |
+| `containsSyntheticMedia` | boolean | Mark AI-generated content. |
+| `hasPaidProductPlacement` | boolean | Declare paid placements. |
+
+Categories: `integrations:trigger youtube:categories --data '{"regionCode":"US"}'`; playlists: `youtube:playlists`.
+
+## Reddit — `data.REDDIT`
+
+| Field | Type | Notes |
+|---|---|---|
+| **`sr`** | string | Subreddit (`r/name`) or `u/username`. |
+| **`text`** | string | The post title for link/text posts. |
+| `description` | string | Body for a self post. |
+| `uploadIds` | string[] | An image or video. |
+| `link` | string (URL) | Link-post target. |
+| `nsfw` | boolean | Mark NSFW. |
+| `flairId` | string | Required if the subreddit requires a flair — options via `integrations:trigger reddit:flairs`. |
+
+Run `integrations:trigger reddit:requirements --data '{"subreddit":"r/<sub>"}'` first to learn limits and whether a flair is required.
+
+## Discord — `data.DISCORD`
+
+| Field | Type | Notes |
+|---|---|---|
+| **`channelId`** | string | A connected server channel (a "channel" id — see `integrations:list`). |
+| `text` | string | Message content, ≤2000 chars. |
+| `uploadIds` | string[] | Attachments. |
+| `username` / `avatarUrl` | string | Override the displayed author (webhook). |
+
+## Slack — `data.SLACK`
+
+| Field | Type | Notes |
+|---|---|---|
+| **`channelId`** | string | A connected workspace channel (a "channel" id — see `integrations:list`). |
+| `text` | string | Message text. |
+| `uploadIds` | string[] | Attachments. |
+| `username` / `avatarUrl` | string | Override the displayed author. |
+
+## Google Business Profile — `data.GOOGLE_BUSINESS`
+
+| Field | Type | Notes |
+|---|---|---|
+| `text` | string | Update body. |
+| `uploadIds` | string[] | Images/videos. |
+| `topicType` | `STANDARD` \| `EVENT` \| `OFFER` \| `ALERT` | Post kind. |
+| `languageCode` | string | `en` / `en-US`. |
+| `callToActionType` | `BOOK` \| `ORDER` \| `SHOP` \| `LEARN_MORE` \| `SIGN_UP` \| `CALL` | CTA button. |
+| `callToActionUrl` | string (URL) | CTA target. |
+| `eventTitle` / `eventStartDate` / `eventEndDate` | string | For `topicType: EVENT`. |
+| `offerCouponCode` / `offerRedeemOnlineUrl` / `offerTermsConditions` | string | For `topicType: OFFER`. |
+| `alertType` | `COVID_19` | For `topicType: ALERT`. |
+
+Manage the location via the `misc.googleBusiness*` SDK methods / `integrations:trigger gbp:location`, `gbp:categories`.
+
+## Pinterest — `data.PINTEREST`
+
+| Field | Type | Notes |
+|---|---|---|
+| **`boardName`** | string | The board to pin to. |
+| `uploadIds` | string[] | One image (or video). |
+| `text` | string | Pin title. |
+| `description` | string | Pin description. |
+| `link` | string (URL) | Where the Pin links to. |
+| `altText` | string | Image alt text. |
+| `note` | string | Private note (not public). |
+| `thumbnail` | string (URL) | Cover image. |
+| `dominantColor` | string | Hex placeholder color. |
+
+## Media notes
+
+Images: JPG / PNG / WEBP / GIF. Video: MP4 / MOV / WEBM. [Upload media](/api-reference/upload-content) first, then put ids in `uploadIds` (and `carouselItems[].uploadId` / `mediaItems[].uploadId`). Large videos may sit in `PROCESSING` after upload before going `POSTED`.
