@@ -43,24 +43,64 @@ Every env var also has a flag: `--api-key`, `--team-id`, `--api-url` (work befor
 
 ## Commands
 
+Run `bundle-social <command> --help` for the full option list of any command. The CLI covers the whole bundle.social API surface (the platform-specific edit/delete-after-publish helpers live under `integrations:trigger`).
+
+**Posts**
+
 | Command | What it does |
 |---|---|
-| `integrations:list` | List connected social accounts (ids, platform types, channels). |
-| `integrations:tools` | List the read-only platform helper tools. |
-| `integrations:trigger <method>` | Fetch values the API needs — subreddit flairs/requirements, YouTube categories/playlists, LinkedIn mentions, Instagram locations, Google Business categories, TikTok trending music. |
 | `posts:create` | Publish a post immediately (or `--draft`). |
 | `posts:schedule` | Schedule a post for a future ISO-8601 `--date`. |
 | `posts:update <id>` | Update a post — only the fields you pass change. |
 | `posts:list` | List recent posts with filters. |
 | `posts:get <id>` / `posts:delete <id>` / `posts:retry <id>` | Fetch / delete / re-attempt a post. |
+| `posts:import` … | Import post history from a connected account: `posts:import`, `posts:imports`, `posts:import:get <importId>`, `posts:import:posts`, `posts:import:delete-posts`, `posts:import:retry <importId>`. |
+| `posts:csv` … | Bulk-schedule from a CSV: `posts:csv --file <path>`, `posts:csv:list`, `posts:csv:get <importId>`, `posts:csv:status <importId>`, `posts:csv:rows <importId>`. |
+
+**Comments**
+
+| Command | What it does |
+|---|---|
 | `comments:create` | Comment on a post; repeat `-c` for a chain of replies (X-style thread via comments). |
 | `comments:list` / `comments:get <id>` / `comments:delete <id>` | List / fetch / delete comments. |
-| `media:upload <path-or-url>` | Upload an image/video/document; returns the upload object. |
-| `analytics:post <id>` | Engagement metrics for one post. |
-| `analytics:summary` | Org-level usage quotas + latest per-integration analytics snapshot. |
-| `doctor` | Diagnostic JSON: API key, connectivity, integrations, quotas. |
+| `comments:import` … | Pull existing comments for a post: `comments:import`, `comments:imports`, `comments:import:get <importId>`, `comments:import:comments`. |
 
-Run `bundle-social <command> --help` for the full option list.
+**Media**
+
+| Command | What it does |
+|---|---|
+| `media:upload <path-or-url>` | Upload an image/video/document; returns the upload object. |
+| `media:upload-large <path>` | Chunked upload for large files (>~90 MB). |
+| `media:list` / `media:get <id>` / `media:delete <id>` / `media:delete-many` | List / fetch / delete uploads. |
+
+**Integrations (social accounts)**
+
+| Command | What it does |
+|---|---|
+| `integrations:list` | List connected social accounts (ids, platform types, channels). |
+| `integrations:tools` / `integrations:trigger <method>` | List & call the read-only platform helpers — subreddit flairs/requirements, YouTube categories/playlists/regions, LinkedIn mentions, Instagram locations, Google Business categories, TikTok trending music. |
+| `integrations:connect` / `integrations:disconnect` | Start an OAuth connect flow / disconnect an account. |
+| `integrations:portal-link` | Create a hosted portal link for end users to connect accounts. |
+| `integrations:set-channel` / `integrations:unset-channel` / `integrations:refresh-channels` | Pick / clear / refresh the channel (page, board, server channel) for an account. |
+| `integrations:check` / `integrations:refresh-profile` / `integrations:by-type <type>` / `integrations:copy` / `integrations:to-delete` | Connection check, profile refresh, lookup by platform, copy between teams, list accounts pending deletion. |
+
+**Analytics**
+
+| Command | What it does |
+|---|---|
+| `analytics:post <id>` | Engagement metrics for one post (`--raw` for the unprocessed payload). |
+| `analytics:account` | Latest analytics for a connected account by `-p <platform>` (`--raw` for the unprocessed payload). |
+| `analytics:bulk` | Engagement metrics for several posts (`--post-id` repeatable). |
+| `analytics:refresh` | Force a fresh pull — `--post-id` for a post, otherwise `-p <platform>` for an account. |
+| `analytics:summary` | Org-level usage quotas + latest per-integration analytics snapshot. |
+
+**Teams, organization & diagnostics**
+
+| Command | What it does |
+|---|---|
+| `teams:list` / `teams:get <id>` / `teams:create` / `teams:update <id>` / `teams:delete <id>` | Manage teams. |
+| `org:get` / `org:usage` | Your organization, and posts/comments/uploads/imports usage & quotas. |
+| `doctor` | Diagnostic JSON: API key, connectivity, organization API access, team selection, integrations, quotas. |
 
 ### Examples
 

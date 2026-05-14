@@ -5,7 +5,7 @@ icon: plug
 keywords: ["mcp server social media", "model context protocol social media", "bundle.social mcp", "claude social media", "cursor social media mcp"]
 ---
 
-`bundlesocial-mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes the bundle.social operations as MCP tools — so Claude Desktop, Claude Code, Cursor and any other MCP client can post, schedule, list and analyze content across 14+ platforms.
+`bundlesocial-mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes the bundle.social operations as MCP tools — so Claude Desktop, Claude Code, Cursor and any other MCP client can post, schedule, import, analyze content and manage connected accounts across 14+ platforms.
 
 It ships as a **local stdio server** (`npx bundlesocial-mcp`). A hosted remote server at `mcp.bundle.social` is on the roadmap.
 
@@ -20,16 +20,66 @@ It ships as a **local stdio server** (`npx bundlesocial-mcp`). A hosted remote s
 
 ## Tools
 
+The server covers the whole bundle.social API (the platform-specific edit/delete-after-publish helpers are reached via `trigger_integration_tool`).
+
+**Diagnostics & discovery**
+
 | Tool | Description |
 |---|---|
+| `check_setup` | Diagnostic JSON: API key, connectivity, organization API access, team selection, integrations, quotas. |
 | `list_integrations` | List connected social accounts (ids, platform types, channels). |
-| `list_integration_tools` / `trigger_integration_tool` | List & call read-only helpers — subreddit flairs/requirements, YouTube categories/playlists/regions, LinkedIn mentions, Instagram locations, Google Business categories, TikTok trending music. |
+| `list_integration_tools` / `trigger_integration_tool` | List & call read-only platform helpers — subreddit flairs/requirements, YouTube categories/playlists/regions, LinkedIn mentions, Instagram locations, Google Business categories, TikTok trending music. |
+
+**Posts**
+
+| Tool | Description |
+|---|---|
 | `create_post` / `schedule_post` | Publish now (or as a draft) / schedule for a future date. |
 | `update_post` / `retry_post` | Update a post (only changed fields) / re-attempt one that ended in `ERROR`. |
 | `list_posts` / `get_post` / `delete_post` | List with filters / fetch / delete posts. |
+| `create_post_import` … | Import post history from a connected account: `create_post_import`, `list_post_imports`, `get_post_import`, `list_imported_posts`, `delete_imported_posts`, `retry_post_import`. |
+| `create_post_csv_import` … | Bulk-schedule from a CSV (URL or local file): `create_post_csv_import`, `list_post_csv_imports`, `get_post_csv_import`, `get_post_csv_import_status`, `get_post_csv_import_rows`. |
+
+**Comments**
+
+| Tool | Description |
+|---|---|
 | `create_comment` / `list_comments` / `get_comment` / `delete_comment` | Comment on a post (pass `content` multiple times for a chain) / list / fetch / delete comments. |
-| `upload_media` | Upload an image/video/document from a URL (or local path in stdio mode). |
-| `get_post_analytics` / `get_analytics_summary` | Per-post engagement / org-level usage + per-integration snapshots. |
+| `create_comment_import` … | Pull existing comments for a post: `create_comment_import`, `list_comment_imports`, `get_comment_import`, `list_imported_comments`. |
+
+**Media**
+
+| Tool | Description |
+|---|---|
+| `upload_media` | Upload an image/video/document from a URL (or local path in stdio mode); auto-chunks large local files. |
+| `init_large_upload` / `finalize_large_upload` | Low-level chunked-upload primitives (for manual control). |
+| `list_media` / `get_media` / `delete_media` / `delete_media_many` | List / fetch / delete uploads. |
+
+**Integrations (social accounts)**
+
+| Tool | Description |
+|---|---|
+| `connect_integration` / `disconnect_integration` | Start an OAuth connect flow (returns a URL) / disconnect an account. |
+| `create_integration_portal_link` | Hosted portal link for end users to connect accounts. |
+| `set_integration_channel` / `unset_integration_channel` / `refresh_integration_channels` | Pick / clear / refresh the channel (page, board, server channel) for an account. |
+| `check_integration_connection` / `refresh_integration_profile` / `get_integration_by_type` / `copy_integration` / `list_integrations_to_delete` | Connection check, profile refresh, lookup by platform, copy between teams, list accounts pending deletion. |
+
+**Analytics**
+
+| Tool | Description |
+|---|---|
+| `get_post_analytics` | Per-post engagement metrics (`raw: true` for the unprocessed payload). |
+| `get_account_analytics` | Latest analytics for a connected account by `platform` (`raw: true` for the unprocessed payload). |
+| `get_bulk_post_analytics` | Engagement metrics for several posts at once. |
+| `refresh_analytics` | Force a fresh pull — by `postId` for a post, otherwise `platform` for an account. |
+| `get_analytics_summary` | Org-level usage quotas + latest per-integration analytics snapshot. |
+
+**Teams & organization**
+
+| Tool | Description |
+|---|---|
+| `list_teams` / `get_team` / `create_team` / `update_team` / `delete_team` | Manage teams. |
+| `get_organization` / `get_usage` | Your organization, and posts/comments/uploads/imports usage & quotas. |
 
 Errors come back as `{ "error": { "code", "message", "details"? } }` with `isError: true`. The per-platform fields for posts are documented in [Platform parameters](/api-reference/platform-parameters).
 
