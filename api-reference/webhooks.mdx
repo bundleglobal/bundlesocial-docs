@@ -190,16 +190,16 @@ So if your server is down, we'll try 3 times with increasing delays. After that,
 
 ### Auto-Disable (The Safety Net)
 
-If your webhook endpoint fails **50 consecutive times** within a **24-hour window**, we automatically disable it. This protects both of us - we stop wasting resources, and you stop missing events you don't know about.
+If your webhook endpoint goes **7 days without a single successful delivery**, we automatically disable it. This protects both of us - we stop wasting resources, and you stop missing events you don't know about.
 
 When this happens:
-- Your webhook is marked as **disabled**
-- We stop sending events to that URL
-- You can re-enable it from the dashboard or API (this resets the failure counter)
+- Your webhook is marked as **disabled** and we stop sending events to that URL
+- We send an **email to the organization owner** and create an **in-app notification** in the dashboard, both linking to the webhooks page
+- You can re-enable it from the dashboard or API, which resets the 7-day window (so a single failure right after re-enabling won't immediately disable it again)
 - On the next successful delivery, the failure counter resets to 0
 
 <Warning>
-**Don't let your endpoint go down for too long.** 50 consecutive failures is generous, but if your server is having a bad day, re-enable manually once it's back. Events that happened while disabled are gone - we don't replay them.
+**Don't let your endpoint stay broken for too long.** If your server is having a bad week, re-enable manually once it's back. Events that happened while disabled are gone - we don't replay them.
 </Warning>
 
 ### Resending Events
@@ -285,4 +285,4 @@ When an account is scheduled for deletion, `deleteOn` tells you exactly when it 
 2. **Be idempotent.** We might deliver the same event twice in rare cases (retries, race conditions). Use the event ID to deduplicate.
 3. **Verify signatures.** Always. No exceptions. Even in development. See the [SDK](/api-reference/sdk) for built-in signature verification, or check the [Swagger](/api-reference/openapi) for the raw details.
 4. **Use HTTPS.** We only send webhooks to HTTPS URLs. Sorry, `http://localhost` works via ngrok though.
-5. **Monitor your failures.** If you're getting close to 50 consecutive failures, fix your endpoint before we disable it.
+5. **Monitor your failures.** If your endpoint has been failing for days with no successful deliveries, fix it before the 7-day auto-disable kicks in. You'll get an email + dashboard notification when it does, but catching it sooner is better.
