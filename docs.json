@@ -245,5 +245,12 @@
       "title": "Page not found",
       "description": "We couldn't find the page you're looking for. Head [back to the homepage](/welcome), explore the [API Reference](/api-reference/introduction), or check the [FAQ](/faq)."
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/blog/:slug",
+      "destination": "https://bundle.social/blog/:slug",
+      "permanent": true
+    }
+  ]
 }
