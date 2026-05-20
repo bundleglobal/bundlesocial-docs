@@ -119,6 +119,7 @@
             "group": "Getting Started",
             "pages": [
               "knowledge/index",
+              "knowledge/organization/what-is-an-organization",
               "knowledge/teams/what-are-teams",
               "knowledge/posts/create-first-post",
               "knowledge/posts/media-library",
