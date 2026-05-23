@@ -49,6 +49,40 @@ See [Platform Limits](/api-reference/limits#threads) for more details.
 
 ---
 
+## Post Options
+
+Send Threads-specific options inside `data.THREADS`.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `text` | `string` | Post text. Max 500 characters. |
+| `uploadIds` | `string[]` | Up to 10 uploaded media files. Images and videos can be mixed. |
+| `mediaItems` | `array` | Optional per-media metadata. Use it to attach `altText` to image uploads. |
+
+```json
+{
+  "teamId": "team_123",
+  "title": "Threads launch post",
+  "status": "SCHEDULED",
+  "postDate": "2026-06-01T15:00:00.000Z",
+  "socialAccountTypes": ["THREADS"],
+  "data": {
+    "THREADS": {
+      "text": "A quick launch note",
+      "uploadIds": ["upload_image_123"],
+      "mediaItems": [
+        {
+          "uploadId": "upload_image_123",
+          "altText": "Product screen on a phone"
+        }
+      ]
+    }
+  }
+}
+```
+
+---
+
 ## Analytics
 
 For general analytics concepts (refresh rates, data retention, what "Returns 0" means), see the [Analytics Overview](/api-reference/analytics).
@@ -87,3 +121,33 @@ For general analytics concepts (refresh rates, data retention, what "Returns 0" 
 - Shares include both reposts and quotes - we don't split them.
 - For profile analytics: the impressions field internally contains quote counts and impressionsUnique contains repost counts. This is how the Threads API returns data.
 - Following count is not available through the Threads API.
+
+### Raw Analytics
+
+Threads profile raw analytics are stored as the metrics we get back from Threads, plus a post count.
+
+```json
+{
+  "likes": 420,
+  "replies": 38,
+  "views": 12400,
+  "followers_count": 3100,
+  "reposts": 55,
+  "quotes": 12,
+  "allProfilePosts": 84
+}
+```
+
+Post raw analytics store the Threads media/post payload we fetched for that item.
+
+```json
+{
+  "id": "17890000000000000",
+  "media_type": "IMAGE",
+  "media_product_type": "THREADS",
+  "permalink": "https://www.threads.net/@example/post/abc",
+  "username": "example",
+  "text": "A quick launch note",
+  "timestamp": "2026-04-26T10:30:00+0000"
+}
+```

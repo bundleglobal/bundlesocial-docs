@@ -35,6 +35,35 @@ See [Platform Limits](/api-reference/limits#twitter--x) for the full breakdown.
 
 ---
 
+## Post Options
+
+Send X-specific options inside `data.TWITTER`.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `text` | `string` | Tweet text. Character limit depends on the account subscription tier. |
+| `uploadIds` | `string[]` | Up to 4 uploaded media files. Images and videos can be mixed. |
+| `replySettings` | `enum` | Controls who can reply. See the values below. |
+
+```json
+{
+  "teamId": "team_123",
+  "title": "X announcement",
+  "status": "SCHEDULED",
+  "postDate": "2026-06-01T15:00:00.000Z",
+  "socialAccountTypes": ["TWITTER"],
+  "data": {
+    "TWITTER": {
+      "text": "Launching today",
+      "uploadIds": ["upload_image_123"],
+      "replySettings": "MENTIONED_USERS"
+    }
+  }
+}
+```
+
+---
+
 ## Reply Settings
 
 You can control who's allowed to reply to your tweets. Set `replySettings` in the `data.TWITTER` object when creating a post.

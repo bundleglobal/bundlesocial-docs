@@ -26,7 +26,7 @@ Instagram is very strict here.
 **Don't try to cheat.** If you upload a 16:9 (landscape) video as a Reel, it might technically "work" but it will look terrible (awkwardly cropped) or be rejected entirely. Your marketing team will not be happy. Your users' marketing teams will not be happy. Nobody will be happy.
 </Warning>
 
-### What if I have non-standardized content?
+### What if I have non-standard content?
 
 Instagram feed Posts must fall within a specific aspect ratio range (4:5 to 1.91:1). If your users upload wide landscape photos or tall portrait shots that fall outside this range, you have two automatic correction options instead of rejecting the upload outright:
 
@@ -63,7 +63,63 @@ See [Platform Limits](/api-reference/limits#instagram) for the full breakdown of
 **Alt text** is supported on image posts. Use it when you need screen-reader-friendly descriptions beyond the caption in `text`.
 </Note>
 
+---
+
+## Post Options
+
+Send Instagram-specific options inside `data.INSTAGRAM`.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `type` | `enum` | `POST`, `REEL`, or `STORY`. Default: `POST`. |
+| `text` | `string` | Caption. Max 2,000 characters. |
+| `uploadIds` | `string[]` | Uploaded media IDs. Posts support 1-10 files, Reels and Stories require 1 file. |
+| `altText` | `string` | Accessibility text for a single image post. |
+| `thumbnailOffset` | `number` | Video cover frame offset in milliseconds. |
+| `thumbnail` | `string` | Optional thumbnail image URL uploaded through bundle.social. |
+| `shareToFeed` | `boolean` | Reels only. Controls whether the Reel can also appear in the feed. |
+| `collaborators` | `string[]` | Up to 3 usernames. Not supported for Stories. |
+| `autoFitImage` | `boolean` | Feed posts only. Adds padding to fit Instagram aspect ratio requirements. |
+| `autoCropImage` | `boolean` | Feed posts only. Crops to fit Instagram aspect ratio requirements. |
+| `tagged` | `array` | Person tags. Images need `x`/`y`; Reels use usernames only. |
+| `carouselItems` | `array` | Per-item metadata for carousel posts, including `uploadId`, `altText`, and image tags. |
+| `locationId` | `string` | Facebook Page/location ID to tag on posts or Reels. Not supported for Stories. |
+| `trialParams` | `object` | Trial Reels settings. Reels only. |
+| `musicSoundInfo` | `object` | Instagram audio settings for Reels. Requires Instagram connected via Facebook Login. |
+
+```json
+{
+  "teamId": "team_123",
+  "title": "Instagram Reel launch",
+  "status": "SCHEDULED",
+  "postDate": "2026-06-01T15:00:00.000Z",
+  "socialAccountTypes": ["INSTAGRAM"],
+  "data": {
+    "INSTAGRAM": {
+      "type": "REEL",
+      "text": "Launching today",
+      "uploadIds": ["upload_video_123"],
+      "shareToFeed": true,
+      "thumbnailOffset": 1500,
+      "collaborators": ["creator_one"],
+      "locationId": "1234567890",
+      "musicSoundInfo": {
+        "musicSoundId": "ig_audio_123",
+        "musicSoundVolume": 80,
+        "videoOriginalSoundVolume": 20
+      }
+    }
+  }
+}
+```
+
+<Warning>
+`autoFitImage` and `autoCropImage` are mutually exclusive. `musicSoundInfo` works only for `type: "REEL"` and only when the Instagram account is connected through Facebook Login.
+</Warning>
+
 ### Instagram Misc Endpoints
+
+Instagram audio search for Reels is documented separately: [Instagram Music Library](/api-reference/platforms/instagram-music).
 
 #### `GET /misc/instagram/tags`
 - Purpose: business discovery by username (public profile data for discoverable business/creator accounts).
@@ -180,7 +236,7 @@ For general analytics concepts (refresh rates, data retention, what "Returns 0" 
 
 ### Refresh Rate & Limits
 *   **Default Refresh:** Every 24 hours.
-*   **Force Refresh:** Available (max `Teams × 5` per day).
+*   **Force Refresh:** Available (max `Teams x 5` per day).
 *   **Data Retention:** 30 days. [Details](/api-reference/data-retention).
 
 ### Profile Analytics
@@ -214,7 +270,7 @@ For general analytics concepts (refresh rates, data retention, what "Returns 0" 
 
 ### Raw Analytics - Demographics & Audience Data
 
-Instagram provides some of the richest demographic data via raw analytics. Here's what the raw payload looks like when enabled for your organization:
+Instagram provides detailed demographic data via raw analytics. Here's what the raw payload looks like when enabled for your organization:
 
 ```json
 {

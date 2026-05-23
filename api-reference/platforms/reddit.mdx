@@ -56,6 +56,41 @@ See [Platform Limits](/api-reference/limits#reddit) for more details.
 
 ---
 
+## Post Options
+
+Send Reddit-specific options inside `data.REDDIT`.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `sr` | `string` | Required. Subreddit name such as `r/productivity` or profile target such as `u/username`. |
+| `text` | `string` | Required. Reddit post title. Max 300 characters. |
+| `description` | `string` | Body text for text posts. Max 30,000 characters. |
+| `uploadIds` | `string[]` | Media attachments. One image/video for media posts, or up to 10 images for galleries if the subreddit allows it. |
+| `link` | `string` | URL for link posts. Max 2,048 characters. |
+| `nsfw` | `boolean` | Marks the post as NSFW. Default: `false`. |
+| `flairId` | `string` | Flair ID. Required when the subreddit requires a flair. |
+
+```json
+{
+  "teamId": "team_123",
+  "title": "Reddit discussion",
+  "status": "SCHEDULED",
+  "postDate": "2026-06-01T15:00:00.000Z",
+  "socialAccountTypes": ["REDDIT"],
+  "data": {
+    "REDDIT": {
+      "sr": "r/productivity",
+      "text": "What changed the most in your planning workflow?",
+      "description": "We are collecting practical examples from teams.",
+      "nsfw": false,
+      "flairId": "flair_123"
+    }
+  }
+}
+```
+
+---
+
 ## Analytics
 
 For general analytics concepts (refresh rates, data retention, what "Returns 0" means), see the [Analytics Overview](/api-reference/analytics).
@@ -86,3 +121,31 @@ Reddit does not provide profile-level analytics through their API. Everything re
 - View counts exist for some posts but are not guaranteed.
 - No impressions or reach metrics. Reddit's API simply doesn't provide them.
 - Upvotes/downvotes are the primary engagement signals.
+
+### Raw Analytics
+
+Reddit profile raw analytics are limited to karma fields.
+
+```json
+{
+  "total_karma": 18420,
+  "comment_karma": 6400,
+  "awarder_karma": 120
+}
+```
+
+Reddit post raw analytics store the submission payload returned by Reddit.
+
+```json
+{
+  "id": "abc123",
+  "subreddit": "productivity",
+  "title": "What changed the most in your planning workflow?",
+  "ups": 420,
+  "downs": 12,
+  "num_comments": 88,
+  "num_crossposts": 4,
+  "view_count": 12400,
+  "permalink": "/r/productivity/comments/abc123/example/"
+}
+```

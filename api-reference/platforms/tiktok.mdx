@@ -1,18 +1,18 @@
 ---
 title: TikTok
-description: "The viral machine. Watch out for music copyright, privacy settings, and JPG-only photo mode."
+description: "The viral machine. Watch out for music copyright, privacy settings, and image-format rules for photo mode."
 icon: tiktok
 keywords: ["tiktok api", "tiktok video api", "tiktok video upload api", "social media api", "tiktok analytics", "tiktok automation", "tiktok post scheduling"]
 "og:title": "TikTok API Integration - Video Upload & Analytics"
-"og:description": "TikTok API guide: Video uploads, photo mode (JPG only), music copyright, privacy settings, and rich analytics data."
+"og:description": "TikTok API guide: Video uploads, photo mode image rules, music copyright, privacy settings, and analytics data."
 ---
 
-TikTok is the place for short-form video. The API is powerful but comes with specific restrictions around music, privacy, and image formats that will surprise you.
+TikTok is the place for short-form video. The API has specific restrictions around music, privacy, and image formats that will surprise you.
 
 ## Supported Content Types
 
 *   **Videos:** 1 video, up to 10 minutes. The bread and butter.
-*   **Photo Mode (Images):** 1-10 images. **JPG/JPEG only.** Max **20 MB per image**. If you're thinking "surely PNG works too" - it doesn't.
+*   **Photo Mode (Images):** 1-10 images. **JPG, JPEG, or WebP only.** Max **20 MB per image**. PNG will be rejected.
 
 ## Quirks & Gotchas
 
@@ -23,17 +23,17 @@ If you set a video's privacy to `SELF_ONLY` (Private), the API **cannot** return
 
 ### Music & Copyright
 TikTok is extremely strict about music rights.
-*   **Commercial Music Library (CML):** We expose TikTok's pre-cleared music via [TikTok Music](/api-reference/platforms/tiktok-music) – trending tracks, genres, `song_clip_id` for publish. No copyright roulette.
+*   **Commercial Music Library (CML):** We expose TikTok's pre-cleared music via [TikTok Music](/api-reference/platforms/tiktok-music): trending tracks, genres, and `song_clip_id` for publish. No copyright roulette.
 *   **Trending Audio:** You generally **cannot** use TikTok's in-app "trending audio" library directly via API.
 *   **Royalty-Free:** You can use the `autoAddMusic` flag to let TikTok assign royalty-free music, but you lose control over the specific track. It's a gamble.
 *   **Best Practice:** Use CML for controlled music, or burn your audio into the video file before uploading.
 
 ### Image Format (Photo Mode)
-TikTok only accepts **JPG** and **JPEG** files for Photo Mode posts. PNG, WebP, and everything else will be rejected. Convert before uploading. Each image must be under **20 MB**.
+TikTok accepts **JPG**, **JPEG**, and **WebP** files for Photo Mode posts. PNG and other formats will be rejected. Convert before uploading. Each image must be under **20 MB**.
 
 ### Image sizing (Photo Mode)
 
-For **IMAGE** posts, if photos are larger than **1920×1080** (or unusually tall/wide relative to that canvas), we may **auto-scale** them server-side so delivery matches what TikTok expects. You do not need to pre-shrink assets in every case-we handle the boring resizing when it helps.
+For **IMAGE** posts, if photos are larger than **1920x1080** (or unusually tall/wide relative to that canvas), we may **auto-scale** them server-side so delivery matches what TikTok expects. You do not need to pre-shrink assets in every case. We handle the resizing when it helps.
 
 ### The REVIEW Status
 TikTok is the most common platform to put posts into a `REVIEW` status. This means TikTok wants to review the content before publishing. We periodically re-check and re-attempt publishing. Tell your users to be patient.
@@ -50,11 +50,63 @@ See [Platform Limits](/api-reference/limits#tiktok) for the full breakdown.
 
 ---
 
+## Post Options
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `type` | `VIDEO` \| `IMAGE` | Defaults to `VIDEO`. `IMAGE` is TikTok Photo Mode. |
+| `text` | `string` | Caption text. Max 2,200 characters. |
+| `uploadIds` | `string[]` | One video, or 1-10 Photo Mode images. |
+| `thumbnail` | `string` | URL to an uploaded thumbnail image. |
+| `privacy` | `SELF_ONLY` \| `PUBLIC_TO_EVERYONE` \| `MUTUAL_FOLLOW_FRIENDS` \| `FOLLOWER_OF_CREATOR` | TikTok visibility setting. |
+| `photoCoverIndex` | `number` | Zero-based cover image index for Photo Mode. |
+| `isBrandContent` | `boolean` | Paid partnership promoting a third-party business. |
+| `isOrganicBrandContent` | `boolean` | Content promoting the creator's own business. |
+| `disableComments` | `boolean` | Disable comments. |
+| `disableDuet` | `boolean` | Disable Duets. |
+| `disableStitch` | `boolean` | Disable Stitches. |
+| `thumbnailOffset` | `number` | Video cover frame offset in milliseconds. |
+| `isAiGenerated` | `boolean` | Mark AI-generated content. |
+| `autoAddMusic` | `boolean` | Let TikTok add music to Photo Mode posts. |
+| `autoScale` | `boolean` | For `IMAGE` posts only. Scale oversized images server-side. |
+| `uploadToDraft` | `boolean` | Upload as TikTok draft/inbox item. |
+| `musicSoundInfo` | `object` | CML music settings. See [TikTok Music](/api-reference/platforms/tiktok-music). |
+
+<Warning>
+Use `uploadToDraft` only when the user really wants TikTok draft handling. Draft uploads can cause massive publish delays. The video might show up in minutes, or it might take hours.
+
+TikTok's answer is traffic: some days are faster, some days are worse. If your product needs predictable publishing, publish directly instead of using drafts.
+</Warning>
+
+```json
+{
+  "teamId": "team_123",
+  "title": "TikTok launch video",
+  "status": "SCHEDULED",
+  "postDate": "2026-06-01T15:00:00.000Z",
+  "socialAccountTypes": ["TIKTOK"],
+  "data": {
+    "TIKTOK": {
+      "type": "VIDEO",
+      "text": "Launch day",
+      "uploadIds": ["upl_vid_1"],
+      "privacy": "PUBLIC_TO_EVERYONE",
+      "disableComments": false,
+      "disableDuet": false,
+      "disableStitch": false,
+      "isAiGenerated": false
+    }
+  }
+}
+```
+
+---
+
 ## Analytics
 
 For general analytics concepts (refresh rates, data retention, what "Returns 0" means), see the [Analytics Overview](/api-reference/analytics).
 
-TikTok provides some of the richest analytics data among all platforms. Demographics, audience splits, the works. Check the raw analytics for the detailed breakdowns.
+TikTok provides detailed analytics data: demographics, audience splits, watch metrics, the works. Check the raw analytics for the detailed breakdowns.
 
 ### Profile Analytics
 **Period:** Rolling window (30 days). Aggregated from daily metrics.
@@ -93,7 +145,7 @@ TikTok provides some of the richest analytics data among all platforms. Demograp
 
 ### Raw Analytics - Demographics & Audience Data
 
-TikTok provides rich audience and engagement data via raw analytics. Here's what the raw payload looks like when enabled for your organization:
+TikTok provides audience and engagement data via raw analytics. Here's what the raw payload looks like when enabled for your organization:
 
 #### Account-Level Raw Data
 

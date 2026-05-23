@@ -5,7 +5,7 @@ icon: chart-mixed
 keywords: ["social media analytics api", "analytics api", "social media metrics", "cross-platform analytics", "analytics rate limits"]
 ---
 
-Everything you need to know about analytics before you dive into the [platform-specific pages](/api-reference/platforms/index). This page covers the cross-cutting concepts - refresh rates, rate limits, data retention, and why some numbers are zero.
+Everything you need to know about analytics before you read the [platform-specific pages](/api-reference/platforms/index). This page covers refresh rates, rate limits, data retention, and why some numbers are zero.
 
 For platform-specific metrics and quirks, see each platform's dedicated page.
 
@@ -15,13 +15,19 @@ For platform-specific metrics and quirks, see each platform's dedicated page.
 
 ### Default Refresh
 
-Analytics are automatically refreshed every **24 hours**. You don't need to do anything - we handle it. No cron jobs, no manual triggers, just vibes.
+Analytics are automatically refreshed every **24 hours**. You don't need to run your own refresh job for standard analytics updates.
 
 ### Force Refresh
 
-You can request analytics to be refreshed immediately by calling the analytics endpoint with a `force` parameter.
+You can request analytics to be refreshed immediately by calling the analytics force refresh endpoints.
 
-However, force refresh requests are rate limited to `number of teams × 5` per day. Per organization. No exceptions.
+| Target | Endpoint | Body |
+| :--- | :--- | :--- |
+| Social account analytics | `POST /api/v1/analytics/social-account/force` | `{ "teamId": "...", "platformType": "INSTAGRAM" }` |
+| Post analytics | `POST /api/v1/analytics/post/force` | `{ "postId": "...", "platformType": "INSTAGRAM" }` |
+| Imported post analytics | `POST /api/v1/analytics/post/force` | `{ "importedPostId": "..." }` |
+
+However, force refresh requests are rate limited to `number of teams x 5` per day. Per organization. No exceptions.
 
 You may ask why?
 
@@ -38,11 +44,11 @@ while (true) {
 We had such cases. We are not joking. Someone actually did this in production.
 
 <Note>
-**Rate Limit Formula**: Maximum force refresh requests per day = `number of teams × 5`
+**Rate Limit Formula**: Maximum force refresh requests per day = `number of teams x 5`
 
-For example, if you have 10 teams, you can make up to 50 force refresh requests per day. Post analytics have the same limit: `teams × 5`.
+For example, if you have 10 teams, you can make up to 50 force refresh requests per day. Post analytics have the same limit: `teams x 5`.
 
-Exceeds? You get a `429 Too Many Requests`. Come back tomorrow.
+If you exceed the limit, the API returns `429 Too Many Requests`.
 </Note>
 
 ### Custom Refresh Periods
@@ -51,9 +57,7 @@ By default, analytics are automatically refreshed every **24 hours**. However, w
 
 **Important**: If you require a higher refresh rate (e.g., every 15 minutes for large organizations), there may be additional charges due to increased data costs.
 
-We will discuss these costs with you directly to determine the best solution for your use case. Nothing expensive/outlandish etc... we are not evil.
-
-Maybe you will need to skip on one OF subscription but you know, economy...
+We will discuss these costs with you directly to determine the best solution for your use case.
 
 ---
 
@@ -63,7 +67,7 @@ We retain analytics data for **30 days** from the date of creation. After that, 
 
 If your team needs yearly or long-term history, we recommend fetching and storing the data daily on your end. Build a cron job, pipe it to your database, and sleep well at night.
 
-This retention period is fixed and will not be extended. Maybe we are evil?
+This retention period is fixed and is not extended automatically. Maybe we are evil?
 
 <Warning>
 **30 days.** That's it. If you need analytics from 3 months ago and you didn't save them, we can't help you. We told you. Right here. In this doc. That you're reading right now.
@@ -93,34 +97,110 @@ For the full breakdown of what we retain and for how long (not just analytics), 
 
 ## Understanding Analytics
 
-This is what we return to you in aggregated form. It ain't much but it's honest work.
+This is what we return in the standard analytics schema.
 
 ### Rolling Window
 
 Analytics show aggregated data over a fixed time period (e.g., last 30 days) that updates as time progresses. Each time you view analytics, you see data for the most recent period.
 
-Think of it like a conveyor belt - old data falls off the end, new data gets added at the front.
+Older data falls out of the window as newer data is added.
 
 ### Lifetime
 
 Analytics show a snapshot of cumulative totals from when the post or profile was created up to the current moment. These values represent the current state and will continue to grow over time.
 
-Think of it like an odometer - it only goes up.
-
-Nothing new. But now you know the vocabulary.
+These values usually only increase, unless the platform removes or recalculates engagement.
 
 ---
 
 ## Raw Analytics Data
 
-In addition to the parsed analytics data described above, raw analytics data is also available via the dedicated raw endpoints. Raw analytics contain the unparsed, original data returned directly from each platform's API. This includes:
+In addition to the parsed analytics data described above, raw analytics data is available through dedicated raw endpoints. Raw analytics contain the raw payload we store for the snapshot. Depending on the platform, this can be the original API response, a flat metric object built from platform insights, or a platform payload plus a computed summary. This includes:
 
 - Platform-specific metrics that may not be mapped to our standard schema
 - Additional metadata and context provided by the platform
 - Detailed breakdowns (e.g., audience demographics, engagement by time period, etc.)
 - **LinkedIn:** reaction-type breakdowns (our normalized `likes` field is a single aggregate; raw payloads retain per-reaction detail where the API provides it)
 
-Raw analytics can be useful for advanced analysis or when you need access to platform-specific metrics that aren't included in the standardized analytics format. Note that raw data structure and fields vary significantly between platforms - because every platform is a special snowflake.
+Raw analytics are useful when you need platform-specific metrics that are not included in the standard analytics format. Raw data structure and fields vary significantly between platforms.
+
+### Raw Endpoints
+
+| Target | Endpoint | Query |
+| :--- | :--- | :--- |
+| Social account raw analytics | `GET /api/v1/analytics/social-account/raw` | `teamId`, `platformType` |
+| Post raw analytics | `GET /api/v1/analytics/post/raw` | `postId` + `platformType`, or `importedPostId` |
+
+```http
+GET /api/v1/analytics/social-account/raw?teamId=team_123&platformType=FACEBOOK
+```
+
+```http
+GET /api/v1/analytics/post/raw?postId=post_123&platformType=FACEBOOK
+```
+
+```http
+GET /api/v1/analytics/post/raw?importedPostId=profile_post_123
+```
+
+Raw responses use the same wrapper shape as parsed analytics, but each item includes a platform-specific `raw` object. Social account raw responses return `socialAccount` and `items[]`; post raw responses return `post`, optional `profilePost`, and `items[]`.
+
+```json
+{
+  "socialAccount": {
+    "id": "sa_123",
+    "type": "INSTAGRAM",
+    "teamId": "team_123"
+  },
+  "items": [
+    {
+      "id": "raw_123",
+      "socialAccountId": "sa_123",
+      "analyticsId": "analytics_123",
+      "raw": {
+        "platformSpecificPayload": {}
+      },
+      "forced": false,
+      "createdAt": "2026-04-27T10:00:00.000Z",
+      "updatedAt": "2026-04-27T10:00:00.000Z",
+      "deletedAt": null
+    }
+  ]
+}
+```
+
+For exact raw payload examples, use the platform pages:
+
+- [Instagram raw analytics](/api-reference/platforms/instagram#raw-analytics-demographics--audience-data)
+- [Facebook raw analytics](/api-reference/platforms/facebook#raw-analytics)
+- [LinkedIn raw analytics](/api-reference/platforms/linkedin#raw-analytics)
+- [TikTok raw analytics](/api-reference/platforms/tiktok#raw-analytics-demographics--audience-data)
+- [YouTube raw analytics](/api-reference/platforms/youtube#raw-analytics-demographics--audience-data)
+- [Threads raw analytics](/api-reference/platforms/threads#raw-analytics)
+- [Pinterest raw analytics](/api-reference/platforms/pinterest#raw-analytics)
+- [Reddit raw analytics](/api-reference/platforms/reddit#raw-analytics)
+- [Mastodon raw analytics](/api-reference/platforms/mastodon#raw-analytics)
+- [Bluesky raw analytics](/api-reference/platforms/bluesky#raw-analytics)
+- [Google Business raw analytics](/api-reference/platforms/google-business#raw-analytics)
+
+### Raw Availability By Platform
+
+| Platform | Profile raw | Post raw | Typical contents |
+| :--- | :--- | :--- | :--- |
+| Instagram | Yes | Yes | Account info, daily totals, demographics, media insights |
+| Facebook | Yes | Yes | Page info, page insights, demographic insights, reaction/video/post insight metrics |
+| LinkedIn | Yes | Yes | Member/org analytics, share statistics, reaction breakdowns where available |
+| TikTok | Yes | Yes | Account metrics, audience splits, video watch and source metrics |
+| YouTube | Yes | Yes | Channel/video statistics, video demographics where available |
+| Threads | Yes | Yes | Profile/media insights returned by Threads |
+| Pinterest | Yes | Yes | User/pin analytics and lifetime metric payloads |
+| Reddit | Limited | Limited | Listing data and engagement fields returned by Reddit |
+| Mastodon | Limited | Limited | Account/status payloads with basic engagement |
+| Bluesky | Limited | Limited | Actor/post payloads and calculated engagement inputs |
+| Google Business | Yes | No post raw | Location info, daily metrics, computed summary |
+| Twitter/X | No | No | Analytics endpoints are not available for X |
+| Discord | No | No | Messaging platform; no analytics API |
+| Slack | No | No | Messaging platform; no analytics API |
 
 <Info>
 Raw data is subject to the same **30-day retention** as parsed analytics. If you need it long-term, fetch and store it yourself.
@@ -150,7 +230,7 @@ A quick reference for what each platform gives us (and what it doesn't).
 | [Bluesky](/api-reference/platforms/bluesky) | Snapshot | Lifetime | Most metrics return 0 - impressions are calculated |
 | [Discord](/api-reference/platforms/discord) | N/A | N/A | No analytics |
 | [Slack](/api-reference/platforms/slack) | N/A | N/A | No analytics |
-| [Google Business](/api-reference/platforms/google-business) | Rolling | Lifetime | Limited engagement metrics |
+| [Google Business](/api-reference/platforms/google-business) | Rolling (30d) | N/A | Profile/location raw analytics only; post analytics are not returned |
 
 ---
 

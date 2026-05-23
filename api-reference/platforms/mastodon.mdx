@@ -46,6 +46,37 @@ See [Platform Limits](/api-reference/limits#mastodon) for more details.
 
 ---
 
+## Post Options
+
+Send Mastodon-specific options inside `data.MASTODON`.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `text` | `string` | Status text. Instance limits vary; bundle.social accepts up to 30,000 characters. |
+| `uploadIds` | `string[]` | Up to 4 uploaded media files. Only 1 video is allowed. |
+| `thumbnail` | `string` | Optional thumbnail image URL uploaded through bundle.social. |
+| `privacy` | `enum` | `PUBLIC`, `UNLISTED`, `PRIVATE`, or `DIRECT`. |
+| `spoiler` | `string` | Content warning text. Max 50 characters. |
+
+```json
+{
+  "teamId": "team_123",
+  "title": "Mastodon update",
+  "status": "SCHEDULED",
+  "postDate": "2026-06-01T15:00:00.000Z",
+  "socialAccountTypes": ["MASTODON"],
+  "data": {
+    "MASTODON": {
+      "text": "Shipping a small but useful update today.",
+      "privacy": "PUBLIC",
+      "spoiler": "Product update"
+    }
+  }
+}
+```
+
+---
+
 ## Analytics
 
 For general analytics concepts (refresh rates, data retention, what "Returns 0" means), see the [Analytics Overview](/api-reference/analytics).
@@ -86,3 +117,33 @@ Mastodon has very limited analytics capabilities. Being decentralized means ther
 - Only basic engagement metrics (favourites, replies, reblogs) are available per post.
 - Profile-level engagement is not aggregated by Mastodon's API.
 - This is by design, not a bug. Privacy-focused platform = limited tracking.
+
+### Raw Analytics
+
+Mastodon profile raw analytics store the account payload we fetched from the instance.
+
+```json
+{
+  "id": "10987654321",
+  "username": "example",
+  "acct": "example@mastodon.social",
+  "display_name": "Example",
+  "statuses_count": 240,
+  "followers_count": 1800,
+  "following_count": 220
+}
+```
+
+Mastodon post raw analytics store the status payload.
+
+```json
+{
+  "id": "1122334455",
+  "url": "https://mastodon.social/@example/1122334455",
+  "content": "<p>Shipping a small update today.</p>",
+  "replies_count": 12,
+  "reblogs_count": 34,
+  "favourites_count": 91,
+  "created_at": "2026-04-26T10:30:00.000Z"
+}
+```

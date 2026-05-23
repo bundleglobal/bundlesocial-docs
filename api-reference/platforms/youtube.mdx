@@ -7,7 +7,7 @@ keywords: ["youtube api", "youtube shorts api", "youtube upload api", "youtube a
 "og:description": "YouTube API guide: Upload videos and Shorts, Made for Kids flag (COPPA), analytics, and video requirements."
 ---
 
-YouTube is a beast. It handles both traditional long-form videos and Shorts (vertical video). The API is powerful but comes with legal requirements you can't ignore.
+YouTube handles both traditional long-form videos and Shorts (vertical video). The API comes with legal requirements you can't ignore.
 
 ## Supported Content Types
 
@@ -30,7 +30,7 @@ There is no special "upload as Short" button. YouTube decides for you based on t
 If your video meets these criteria, it becomes a Short. If it doesn't, it's a regular video.
 
 ### YouTube Title is Required
-Unlike most platforms where you just need text, YouTube requires a **title** (`data.YOUTUBE.title`). If you forget it, the post will fail.
+Unlike most platforms where you just need text, YouTube treats `data.YOUTUBE.text` as the **video title**. If you leave it empty, YouTube can reject the upload.
 
 ### Media Limits
 
@@ -42,6 +42,46 @@ See [Platform Limits](/api-reference/limits#youtube) for the full breakdown.
 | :--- | :--- |
 | `text` (video title) | Max 100 characters |
 | `description` | Max 5,000 characters |
+
+---
+
+## Post Options
+
+Send YouTube-specific options inside `data.YOUTUBE`.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `type` | `enum` | `VIDEO` or `SHORT`. Default: `SHORT`. |
+| `uploadIds` | `string[]` | Required. One uploaded video. |
+| `text` | `string` | Video title. Max 100 characters. |
+| `description` | `string` | Video description. Max 5,000 characters. |
+| `thumbnail` | `string` | Optional thumbnail image URL uploaded through bundle.social. |
+| `privacy` | `enum` | `PRIVATE`, `PUBLIC`, or `UNLISTED`. Default sent to YouTube is public if omitted. |
+| `madeForKids` | `boolean` | Required by YouTube policy. Set `true` when the video is made for children. |
+| `containsSyntheticMedia` | `boolean` | Set `true` when the video contains AI-generated or synthetic content. |
+| `hasPaidProductPlacement` | `boolean` | Set `true` when the video contains paid product placement. |
+
+```json
+{
+  "teamId": "team_123",
+  "title": "YouTube launch video",
+  "status": "SCHEDULED",
+  "postDate": "2026-06-01T15:00:00.000Z",
+  "socialAccountTypes": ["YOUTUBE"],
+  "data": {
+    "YOUTUBE": {
+      "type": "VIDEO",
+      "uploadIds": ["upload_video_123"],
+      "text": "Product launch walkthrough",
+      "description": "A full walkthrough of the new release.",
+      "privacy": "PUBLIC",
+      "madeForKids": false,
+      "containsSyntheticMedia": false,
+      "hasPaidProductPlacement": false
+    }
+  }
+}
+```
 
 ---
 

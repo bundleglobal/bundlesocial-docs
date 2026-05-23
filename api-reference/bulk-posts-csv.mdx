@@ -7,7 +7,7 @@ keywords: ["bulk post", "csv import", "bulk scheduling", "batch post", "csv uplo
 icon: table-cells
 ---
 
-Got 200 posts to schedule? Don't loop `POST /post` like a maniac. Upload a CSV and let us handle it.
+Got 200 posts to schedule? Upload a CSV instead of creating every post with a separate `POST /post` request.
 
 Each row in the CSV becomes one post. Multiple platforms per row, multiple teams, media referenced by URL - one bad row won't block the rest.
 
@@ -183,12 +183,61 @@ Each row is one post. Column names map to post fields:
 | Column | Required | Description |
 | :--- | :--- | :--- |
 | `teamId` | Yes | Which team this post belongs to |
+| `title` | Yes | Internal post title shown in bundle.social |
+| `postDate` | Yes | ISO 8601 date-time with timezone, for example `2026-04-05T10:00:00Z` |
+| `status` | Yes | `DRAFT` or `SCHEDULED` |
 | `socialAccountTypes` | Yes | Comma-separated platforms (e.g. `INSTAGRAM,TIKTOK,LINKEDIN`) |
 | `text` | - | Post body text |
-| `postDate` | - | ISO 8601 date for scheduling (omit for immediate) |
 | `*MediaUrls` | - | Platform-specific media URLs (e.g. `instagramMediaUrls`, `tiktokMediaUrls`) |
 
 Media is referenced by **URL** - we download and process it for you. No need to upload files first with `/upload`.
+
+Use `#` to separate multiple media URLs or list-like values inside one cell:
+
+```csv
+instagramMediaUrls
+https://cdn.example.com/1.jpg#https://cdn.example.com/2.jpg
+```
+
+### Platform Media URL Columns
+
+| Platform | Column |
+| :--- | :--- |
+| Facebook | `facebookMediaUrls` |
+| Instagram | `instagramMediaUrls` |
+| TikTok | `tiktokMediaUrls` |
+| YouTube | `youtubeMediaUrls` |
+| LinkedIn | `linkedinMediaUrls` |
+| Pinterest | `pinterestMediaUrls` |
+| Reddit | `redditMediaUrls` |
+| Threads | `threadsMediaUrls` |
+| Twitter / X | `twitterMediaUrls` |
+| Mastodon | `mastodonMediaUrls` |
+| Bluesky | `blueskyMediaUrls` |
+| Discord | `discordMediaUrls` |
+| Slack | `slackMediaUrls` |
+| Google Business | `googleBusinessMediaUrls` |
+
+### Common Platform Columns
+
+| Platform | Columns |
+| :--- | :--- |
+| Facebook | `facebookType`, `facebookText`, `facebookLink`, `facebookThumbnail`, `facebookMediaTitle`, `facebookNativeScheduleTime` |
+| Instagram | `instagramType`, `instagramText`, `instagramThumbnailOffset`, `instagramThumbnail`, `instagramShareToFeed`, `instagramCollaborators`, `instagramAutoFitImage`, `instagramAutoCropImage`, `instagramTagged`, `instagramCarouselItems`, `instagramLocationId`, `instagramTrialParamsGraduationStrategy`, `instagramMusicSoundId`, `instagramMusicSoundVolume`, `instagramVideoOriginalSoundVolume` |
+| TikTok | `tiktokType`, `tiktokText`, `tiktokThumbnail`, `tiktokPrivacy`, `tiktokIsBrandContent`, `tiktokIsOrganicBrandContent`, `tiktokDisableComments`, `tiktokDisableDuet`, `tiktokDisableStitch`, `tiktokThumbnailOffset`, `tiktokIsAiGenerated`, `tiktokAutoAddMusic`, `tiktokAutoScale`, `tiktokUploadToDraft`, `tiktokPhotoCoverIndex`, `tiktokMusicSoundId`, `tiktokMusicSoundVolume`, `tiktokMusicSoundStart`, `tiktokMusicSoundEnd`, `tiktokVideoOriginalSoundVolume` |
+| YouTube | `youtubeType`, `youtubeTitle`, `youtubeDescription`, `youtubeThumbnail`, `youtubePrivacy`, `youtubeMadeForKids`, `youtubeContainsSyntheticMedia`, `youtubeHasPaidProductPlacement` |
+| LinkedIn | `linkedinText`, `linkedinLink`, `linkedinThumbnail`, `linkedinMediaTitle`, `linkedinPrivacy`, `linkedinHideFromFeed`, `linkedinDisableReshare` |
+| Pinterest | `pinterestBoardName`, `pinterestTitle`, `pinterestDescription`, `pinterestLink`, `pinterestThumbnail`, `pinterestAltText`, `pinterestNote`, `pinterestDominantColor` |
+| Reddit | `redditSubreddit`, `redditText`, `redditDescription`, `redditLink`, `redditNsfw`, `redditFlairId` |
+| Threads | `threadsText` |
+| Twitter / X | `twitterText`, `twitterReplySettings` |
+| Mastodon | `mastodonText`, `mastodonPrivacy`, `mastodonThumbnail`, `mastodonSpoiler` |
+| Bluesky | `blueskyText`, `blueskyTags`, `blueskyLabels`, `blueskyQuoteUri`, `blueskyExternalUrl`, `blueskyExternalTitle`, `blueskyExternalDescription`, `blueskyVideoAlt` |
+| Discord | `discordChannelId`, `discordText`, `discordUsername`, `discordAvatarUrl` |
+| Slack | `slackChannelId`, `slackText`, `slackUsername`, `slackAvatarUrl` |
+| Google Business | `googleBusinessText`, `googleBusinessTopicType`, `googleBusinessLanguageCode`, `googleBusinessCallToActionType`, `googleBusinessCallToActionUrl`, `googleBusinessEventTitle`, `googleBusinessEventStartDate`, `googleBusinessEventEndDate`, `googleBusinessOfferCouponCode`, `googleBusinessOfferRedeemOnlineUrl`, `googleBusinessOfferTermsConditions`, `googleBusinessAlertType` |
+
+Boolean columns must be `TRUE` or `FALSE`. Enum-like columns are case-insensitive in practice because we normalize them to uppercase before validation.
 
 <Tip>
 Download a CSV template from the bundle.social dashboard under the **Bulk Post** section to see all available columns and example values.

@@ -35,7 +35,18 @@
               "api-reference/health",
               "api-reference/openapi",
               "api-reference/sdk",
-              "api-reference/connect-social-accounts",
+              {
+                "group": "Connect Social Accounts",
+                "icon": "plug",
+                "pages": [
+                  "api-reference/connect-social-accounts",
+                  "api-reference/connect-social-accounts/hosted-flow",
+                  "api-reference/connect-social-accounts/custom-ui-flow",
+                  "api-reference/connect-social-accounts/channel-management",
+                  "api-reference/connect-social-accounts/oauth-options",
+                  "api-reference/connect-social-accounts/callbacks"
+                ]
+              },
               "api-reference/webhooks",
               "api-reference/examples",
               "api-reference/analytics",
@@ -53,7 +64,14 @@
             "group": "Platforms",
             "pages": [
               "api-reference/platforms/index",
-              "api-reference/platforms/instagram",
+              {
+                "group": "Instagram",
+                "icon": "instagram",
+                "pages": [
+                  "api-reference/platforms/instagram",
+                  "api-reference/platforms/instagram-music"
+                ]
+              },
               {
                 "group": "Facebook",
                 "icon": "facebook",
@@ -138,8 +156,12 @@
               "knowledge/social-accounts/linkedin",
               "knowledge/social-accounts/pinterest",
               "knowledge/social-accounts/reddit",
+              "knowledge/social-accounts/threads",
+              "knowledge/social-accounts/mastodon",
+              "knowledge/social-accounts/bluesky",
               "knowledge/social-accounts/discord",
-              "knowledge/social-accounts/slack"
+              "knowledge/social-accounts/slack",
+              "knowledge/social-accounts/google-business"
             ]
           }
         ]
