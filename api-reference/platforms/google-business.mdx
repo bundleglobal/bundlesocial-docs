@@ -105,6 +105,7 @@ Full guide: [Google Business Reviews](/api-reference/platforms/google-business-r
 | `languageCode` | `string` | Language code (e.g., `en`, `en-US`). Default: `en`. |
 | `callToActionType` | `enum` | CTA button: `BOOK`, `ORDER`, `SHOP`, `LEARN_MORE`, `SIGN_UP`, `CALL`. |
 | `callToActionUrl` | `string` | URL for the CTA button. |
+| `alertType` | `enum` | Alert type for `ALERT` posts. Currently only `COVID_19`. |
 
 ### Event-Specific Fields
 
@@ -131,23 +132,70 @@ For general analytics concepts (refresh rates, data retention, what "Returns 0" 
 Google Business provides basic analytics for your business location. Don't expect Instagram-level data here.
 
 ### Profile Analytics
-**Period:** Rolling window.
+**Period:** Rolling 30-day window.
 
 | Metric | Description | Note |
 | :--- | :--- | :--- |
-| `impressions` | Profile views | How many times your profile was viewed |
-| `views` | Profile views | Same as impressions |
+| `impressions` | Total Business Profile impressions | Sum of desktop/mobile Search and Maps impressions |
+| `impressionsUnique` | - | Returns `0` (not provided by Google Business Profile API) |
+| `views` | - | Returns `0` in the standard response |
+| `viewsUnique` | - | Returns `0` (not provided by Google Business Profile API) |
+| `likes` | - | Returns `0` (not applicable) |
+| `comments` | - | Returns `0` (not applicable) |
+| `postCount` | - | Returns `0` |
 | `followers` | - | Returns `0` (not applicable) |
+| `following` | - | Returns `0` (not applicable) |
+
+The raw analytics response also includes a summary with `websiteClicks`, `callClicks`, `directionRequests`, and `conversations`.
 
 ### Post Analytics
-**Period:** Lifetime.
 
-| Metric | Description | Note |
-| :--- | :--- | :--- |
-| `impressions` | Post views | |
-| `views` | Post views | Same as impressions |
-| `likes` | - | Returns `0` (not tracked by Google) |
-| `comments` | - | Returns `0` (not tracked by Google) |
+Google Business post analytics are **not currently returned** through our API. The standard post analytics endpoint returns no Google Business post rows, and raw post analytics are not available for Google Business.
+
+Use profile/location raw analytics when you need Google Business performance data.
+
+### Raw Analytics
+
+Google Business currently exposes profile/location raw analytics, not individual post raw analytics.
+
+```json
+{
+  "locationInfo": {
+    "name": "locations/1234567890",
+    "title": "Example Shop",
+    "metadata": {
+      "mapsUri": "https://maps.google.com/..."
+    }
+  },
+  "dailyMetrics": {
+    "multiDailyMetricTimeSeries": [
+      {
+        "dailyMetricTimeSeries": [
+          {
+            "dailyMetric": "BUSINESS_IMPRESSIONS_DESKTOP_SEARCH",
+            "timeSeries": {
+              "points": [
+                { "date": { "year": 2026, "month": 4, "day": 26 }, "value": "420" }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "summary": {
+    "impressionsTotal": 12420,
+    "websiteClicks": 182,
+    "callClicks": 31,
+    "directionRequests": 77,
+    "conversations": 9
+  },
+  "range": {
+    "start": "2026-03-28",
+    "end": "2026-04-27"
+  }
+}
+```
 
 ---
 
@@ -157,6 +205,10 @@ Google Business provides basic analytics for your business location. Don't expec
 
 ```javascript
 await bundle.post.create({
+  teamId: "team_123",
+  title: "Holiday hours",
+  status: "SCHEDULED",
+  postDate: "2026-06-01T15:00:00.000Z",
   socialAccountTypes: ["GOOGLE_BUSINESS"],
   data: {
     GOOGLE_BUSINESS: {
@@ -172,6 +224,10 @@ await bundle.post.create({
 
 ```javascript
 await bundle.post.create({
+  teamId: "team_123",
+  title: "Grand opening",
+  status: "SCHEDULED",
+  postDate: "2026-06-01T15:00:00.000Z",
   socialAccountTypes: ["GOOGLE_BUSINESS"],
   data: {
     GOOGLE_BUSINESS: {
@@ -191,6 +247,10 @@ await bundle.post.create({
 
 ```javascript
 await bundle.post.create({
+  teamId: "team_123",
+  title: "Welcome offer",
+  status: "SCHEDULED",
+  postDate: "2026-06-01T15:00:00.000Z",
   socialAccountTypes: ["GOOGLE_BUSINESS"],
   data: {
     GOOGLE_BUSINESS: {

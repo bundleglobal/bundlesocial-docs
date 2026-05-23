@@ -7,7 +7,7 @@ keywords: ["import social media posts", "post history import", "social media api
 icon: file-import
 ---
 
-Empty dashboards are sad. Use the History Import API to fetch existing content from connected accounts.
+Use the History Import API to fetch existing content from connected accounts and populate your dashboard with past posts.
 
 - You can filter imports by **surface** and **media type**.
 - You can request richer media metadata in `extraData` (when platform returns direct media URLs).
@@ -53,7 +53,7 @@ Platform APIs are inconsistent. Some filters/surfaces may return no data on spec
 **Limits:**
 *   **Free:** 5 posts / month (Demo mode)
 *   **Pro:** 100 posts / month
-*   **Business:** 250 posts / month
+*   **Business:** 500 posts / month
 
 <Note>
 **Why limits?** Historical imports are expensive on API tokens. We have to be stingy here to keep the service cheap for everyone.
@@ -80,7 +80,7 @@ This is controlled by an organization-level setting. When enabled:
 <Warning>
 Ongoing analytics for imported posts means we're making additional API calls to platforms for posts that weren't created through bundle.social. 
 
-Want to enable this? [Contact us](https://bundle.social/contact) and we'll set it up for your organization, but there will be some fee tho ❤️
+Want to enable this? [Contact us](https://bundle.social/contact) and we'll set it up for your organization. Additional platform usage fees may apply.
 </Warning>
 
 ---
@@ -92,7 +92,7 @@ You'll see a list of jobs with statuses:
 *   `PENDING`: In queue.
 *   `FETCHING_POSTS`: Talking to Instagram...
 *   `COMPLETED`: Done!
-*   `FAILED`: Something exploded.
+*   `FAILED`: Import failed after retries.
 *   `RATE_LIMITED`: Platform said "slow down". We paused it for you.
 
 ---

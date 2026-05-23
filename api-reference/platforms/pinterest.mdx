@@ -15,8 +15,8 @@ Pinterest is about discovery, not just a feed. People come here to find ideas an
 
 ## Quirks & Gotchas
 
-### Board ID is Required
-You can't pin to thin air. Every Pinterest post needs a `boardId`. Get available boards from the social account data.
+### Board Name is Required
+You can't pin to thin air. Every Pinterest post needs `boardName`. Use a board from `socialAccount.channels`.
 
 ### Terminology
 *   **Likes** are often referred to as **Saves** or **Reactions** depending on context. We normalize them in our schema.
@@ -43,7 +43,42 @@ See [Platform Limits](/api-reference/limits#pinterest) for more details.
 | `link` | Max 2,048 characters |
 | `altText` | Max 500 characters |
 | `note` | Max 500 characters |
-| `boardName` | Required |
+| `boardName` | Required. Use a board name from `socialAccount.channels`. |
+
+---
+
+## Post Options
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `boardName` | `string` | **Required.** Board name from `socialAccount.channels`. |
+| `text` | `string` | Pin title. Max 100 characters. |
+| `description` | `string` | Pin description. Max 800 characters. |
+| `uploadIds` | `string[]` | One image or video upload. |
+| `thumbnail` | `string` | URL to an uploaded thumbnail image. |
+| `link` | `string` | Destination URL. Max 2,048 characters. |
+| `altText` | `string` | Image alt text. Max 500 characters. |
+| `note` | `string` | Private note. Max 500 characters. |
+| `dominantColor` | `string` | Hex color used while the image loads. |
+
+```json
+{
+  "teamId": "team_123",
+  "title": "Pinterest spring collection",
+  "status": "SCHEDULED",
+  "postDate": "2026-06-01T15:00:00.000Z",
+  "socialAccountTypes": ["PINTEREST"],
+  "data": {
+    "PINTEREST": {
+      "boardName": "Product ideas",
+      "text": "New spring collection",
+      "description": "A clean, bright look for small teams",
+      "uploadIds": ["upl_img_1"],
+      "link": "https://example.com/spring"
+    }
+  }
+}
+```
 
 ---
 
@@ -85,3 +120,40 @@ For general analytics concepts (refresh rates, data retention, what "Returns 0" 
 - Profile-level comments are not available through the Pinterest API.
 - Shares are not a concept Pinterest tracks.
 - Post analytics use a mixed approach: some metrics are rolling window, others are lifetime. It's confusing, but it's what Pinterest gives us.
+
+### Raw Analytics
+
+Pinterest profile raw analytics include the user analytics payload, follower list, and following list we used to build the standard numbers.
+
+```json
+{
+  "analytics": {
+    "summary_metrics": {
+      "IMPRESSION": 54000,
+      "SAVE": 820,
+      "VIDEO_START": 9100
+    }
+  },
+  "followers": {
+    "items": [{ "username": "follower_1" }]
+  },
+  "following": {
+    "items": [{ "username": "brand_1" }]
+  }
+}
+```
+
+Pinterest post raw analytics store the Pin analytics response for the requested date range.
+
+```json
+{
+  "externalId": "1234567890",
+  "summary_metrics": {
+    "IMPRESSION": 6400,
+    "SAVE": 94,
+    "PIN_CLICK": 220,
+    "OUTBOUND_CLICK": 58,
+    "VIDEO_START": 0
+  }
+}
+```

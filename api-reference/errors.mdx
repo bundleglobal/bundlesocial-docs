@@ -184,9 +184,9 @@ Error validating access token: Sessions for the user are not allowed because the
 Any of the pages_read_engagement, pages_manage_metadata, pages_read_user_content, pages_manage_ads, pages_show_list or pages_messaging permission(s) must be granted before impersonating a user's page.
 ```
 
-**Why this happens:** The connected account does not have the required permission, scope, or page access to publish this content.
+**Why this happens:** Meta rejected the publish because the current token no longer has effective permission to publish as the selected Page. This often happens when the same Meta user connects multiple bundle.social teams and selects only one Page during each OAuth flow. Meta can overwrite page grants for the Bundle app at the Meta-user level, so one team can still look connected while Meta has removed its Page grant remotely.
 
-**What the user should do:** Ask the user to reconnect the account and approve all permissions. For page publishing, confirm the user has the required page role or admin access.
+**What the user should do:** Ask the user to reconnect the Meta account. In the Facebook OAuth screen, they should select all Pages and Instagram accounts they manage. Then choose the correct Page or Instagram channel inside bundle.social for that team and retry the failed post.
 
 ---
 
@@ -465,17 +465,17 @@ Du hast die maximal zulässige Anzahl an durch die Content Publishing API veröf
 
 **Error key:** `missing_platform_permission`
 
-**Platform code(s):** `Meta:10`, `Meta:190`
+**Platform code(s):** `HTTP:400`, `Meta:10`, `Meta:190`, `Meta:200`
 
 **Message we received:**
 
 ```text
-Application does not have permission for this action
+Any of the pages_read_engagement, pages_manage_metadata, pages_read_user_content, pages_manage_ads, pages_show_list or pages_messaging permission(s) must be granted before impersonating a user's page.
 ```
 
-**Why this happens:** The connected account does not have the required permission, scope, or page access to publish this content.
+**Why this happens:** Meta rejected the publish because the current token no longer has effective permission to publish as the selected Page linked to the Instagram account. This often happens when the same Meta user connects multiple bundle.social teams and selects only one Page or Instagram account during each OAuth flow. Meta can overwrite page grants for the Bundle app at the Meta-user level, so one team can still look connected while Meta has removed its Page grant remotely.
 
-**What the user should do:** Ask the user to reconnect the account and approve all permissions. For page publishing, confirm the user has the required page role or admin access.
+**What the user should do:** Ask the user to reconnect the Meta account. In the Facebook OAuth screen, they should select all Pages and Instagram accounts they manage. Then choose the correct Page or Instagram channel inside bundle.social for that team and retry the failed post.
 
 ---
 

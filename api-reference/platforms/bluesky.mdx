@@ -46,6 +46,43 @@ Bluesky has minimal media restrictions compared to other platforms. See [Platfor
 
 ---
 
+## Post Options
+
+Send Bluesky-specific options inside `data.BLUESKY`.
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `text` | `string` | Post text. Max 300 characters. |
+| `uploadIds` | `string[]` | Up to 4 uploaded media files. |
+| `tags` | `string[]` | Extra hashtags without `#`. Up to 8 tags, max 64 characters each. |
+| `labels` | `enum[]` | Self-labels: `!no-unauthenticated`, `porn`, `sexual`, `nudity`, `graphic-media`. |
+| `quoteUri` | `string` | AT-URI of a post to quote, for example `at://did.../app.bsky.feed.post/<rkey>`. |
+| `externalUrl` | `string` | URL for an external link card. |
+| `externalTitle` | `string` | Link card title. Max 300 characters. |
+| `externalDescription` | `string` | Link card description. Max 1,000 characters. |
+| `videoAlt` | `string` | Alt text for the video embed. Max 10,000 characters. |
+
+```json
+{
+  "teamId": "team_123",
+  "title": "Bluesky link card",
+  "status": "SCHEDULED",
+  "postDate": "2026-06-01T15:00:00.000Z",
+  "socialAccountTypes": ["BLUESKY"],
+  "data": {
+    "BLUESKY": {
+      "text": "New release notes are live",
+      "tags": ["release", "product"],
+      "externalUrl": "https://example.com/release-notes",
+      "externalTitle": "Release notes",
+      "externalDescription": "What shipped this week."
+    }
+  }
+}
+```
+
+---
+
 ## Analytics
 
 For general analytics concepts (refresh rates, data retention, what "Returns 0" means), see the [Analytics Overview](/api-reference/analytics).
@@ -83,3 +120,38 @@ For general analytics concepts (refresh rates, data retention, what "Returns 0" 
 - No true impression or view metrics. We derive impressions from total engagement - it's the best we can do.
 - Profile-level engagement is not available. Only follower/following counts and post count.
 - As Bluesky's API evolves, we'll add new metrics as they become available.
+
+### Raw Analytics
+
+Bluesky profile raw analytics store the actor profile payload.
+
+```json
+{
+  "profile": {
+    "did": "did:plc:abc123",
+    "handle": "example.bsky.social",
+    "displayName": "Example",
+    "followersCount": 4200,
+    "followsCount": 310,
+    "postsCount": 180
+  }
+}
+```
+
+Bluesky post raw analytics store the post object returned by AT Protocol.
+
+```json
+{
+  "post": {
+    "uri": "at://did:plc:abc123/app.bsky.feed.post/3kabc",
+    "cid": "bafy...",
+    "author": {
+      "handle": "example.bsky.social"
+    },
+    "likeCount": 120,
+    "replyCount": 18,
+    "repostCount": 34,
+    "quoteCount": 7
+  }
+}
+```

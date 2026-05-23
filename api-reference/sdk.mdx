@@ -46,6 +46,9 @@ const upload = await bundle.upload.uploadCreate({
 await bundle.post.postCreate({
   requestBody: {
     teamId: 'team_123',
+    title: 'Vibing cat',
+    status: 'SCHEDULED',
+    postDate: '2026-12-25T10:00:00.000Z',
     socialAccountTypes: ['TIKTOK', 'YOUTUBE'],
     data: {
       TIKTOK: {

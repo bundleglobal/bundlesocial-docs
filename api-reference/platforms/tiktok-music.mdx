@@ -21,7 +21,7 @@ Returns up to 100 trending tracks. Filter by genre and time window.
 | :--- | :--- | :--- | :--- |
 | `teamId` | string | required | Your team ID |
 | `genre` | string | `"POP"` | Genre filter. See [supported genres](#supported-genres) below |
-| `dateRange` | string | `"7DAY"` | `1DAY`, `7DAY`, or `30DAY` – how far back to rank popularity |
+| `dateRange` | string | `"7DAY"` | `1DAY`, `7DAY`, or `30DAY`. How far back to rank popularity |
 
 ### Response Shape
 
@@ -74,16 +74,16 @@ When creating a post with `data.TIKTOK.musicSoundInfo`, you pass the **`song_cli
 | **IMAGE** | **Only `musicSoundId`.** No volume, no start/end. Photos get one knob: which track. That's it. |
 
 <Note>
-For IMAGE posts, pass *only* `musicSoundId`. If you send `musicSoundVolume`, `musicSoundStart`, etc., TikTok's API will reject the request. We strip those fields server-side for IMAGE type so you don't have to remember – but if you're building a form, don't show volume/trim controls for photo posts.
+For IMAGE posts, pass *only* `musicSoundId`. If you send `musicSoundVolume`, `musicSoundStart`, etc., TikTok's API will reject the request. We strip those fields server-side for IMAGE type so you don't have to remember. If you're building a form, don't show volume/trim controls for photo posts.
 </Note>
 
 ### Video: Volume & Trim
 
 For videos, you get real control:
 
-* **`musicSoundVolume`** (0–100): How loud the music is.
-* **`videoOriginalSoundVolume`** (0–100): How loud the original video audio (your voice, etc.) is.
-* **`musicSoundStart`** / **`musicSoundEnd`** (ms): Trim the track. Start at 100ms, end at 30000ms – you get that slice. If `musicSoundEnd` is 0 or ≤ `musicSoundStart`, we don't send it (TikTok would reject it). Omit both for the full track.
+* **`musicSoundVolume`** (0-100): How loud the music is.
+* **`videoOriginalSoundVolume`** (0-100): How loud the original video audio (your voice, etc.) is.
+* **`musicSoundStart`** / **`musicSoundEnd`** (ms): Trim the track. Start at 100ms, end at 30000ms. If `musicSoundEnd` is 0 or less than or equal to `musicSoundStart`, we don't send it (TikTok would reject it). Omit both for the full track.
 
 So yeah, you can make the music louder than your voice, or the other way around.
 
@@ -94,12 +94,12 @@ Here's the thing: **draft uploads don't persist your music choice.**
 When you set `uploadToDraft: true`, TikTok uploads the post to the creator's drafts. Success. But TikTok's draft flow doesn't store which track you picked.
 
 <Important>
-**If music choice matters, don't use drafts.** Publish directly (or schedule) so the track is baked in. Drafts are for "save for later" – not "save this exact audio mix for later."
+**If music choice matters, don't use drafts.** Publish directly (or schedule) so the track is baked in. Drafts are for "save for later", not "save this exact audio mix for later."
 </Important>
 
 ## INBOX status (Draft Success)
 
-When you upload as draft, TikTok sometimes returns diffrent status instead of `PUBLISH_COMPLETE`. That means: "we put it in the creator's inbox as a draft, all good." We treat that as success when `uploadToDraft` is true. If you're not using drafts and you get this, something odd happened – reach out.
+When you upload as draft, TikTok sometimes returns a different status instead of `PUBLISH_COMPLETE`. That means: "we put it in the creator's inbox as a draft, all good." We treat that as success when `uploadToDraft` is true. If you're not using drafts and you get this, something odd happened. Reach out.
 
 ## Quick Reference
 
@@ -112,4 +112,4 @@ When you upload as draft, TikTok sometimes returns diffrent status instead of `P
 | Image: any music | `musicSoundId` only |
 | Drafts | Don't rely on music persisting |
 
-Need the full request/response schema? Check [Swagger](https://api.bundle.social/swagger) – the CML endpoint is under misc/tiktok.
+Need the full request/response schema? Check [Swagger](https://api.bundle.social/swagger). The CML endpoint is under misc/tiktok.
