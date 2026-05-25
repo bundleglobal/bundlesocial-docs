@@ -38,7 +38,6 @@
               "api-reference/cli",
               "api-reference/mcp",
               "api-reference/platform-parameters",
-              "api-reference/connect-social-accounts",
               {
                 "group": "Connect Social Accounts",
                 "icon": "plug",
