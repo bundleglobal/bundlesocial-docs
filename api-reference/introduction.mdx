@@ -93,3 +93,23 @@ If you're building a SaaS where each of your customers needs their own social ac
 We have sensible rate limits to protect the system. If you hit them, you'll get a `429 Too Many Requests`.
 
 Check the [Rate Limits](/api-reference/rate-limits) page for the full breakdown - including burst protection, per-minute caps, and daily posting limits per platform.
+
+---
+
+## Other ways to use the API
+
+You don't have to call the REST endpoints directly:
+
+<CardGroup cols={3}>
+  <Card title="SDK" icon="box-open" href="/api-reference/sdk">
+    Typed TypeScript SDK, generated from OpenAPI.
+  </Card>
+  <Card title="CLI" icon="terminal" href="/api-reference/cli">
+    `bundlesocial-cli` — JSON in, JSON out. For shells, CI, cron and AI agents.
+  </Card>
+  <Card title="MCP server" icon="plug" href="/api-reference/mcp">
+    `bundlesocial-mcp` — for Claude Desktop / Claude Code / Cursor and other MCP clients.
+  </Card>
+</CardGroup>
+
+The per-platform fields you put in a post's `data` are documented in [Platform parameters](/api-reference/platform-parameters).
