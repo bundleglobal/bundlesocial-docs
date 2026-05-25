@@ -51,6 +51,38 @@ See [Platform Limits](/api-reference/limits#linkedin) for the full breakdown.
 
 ---
 
+## Post Options
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `text` | `string` | **Required.** Post text. Max 3,000 characters. |
+| `uploadIds` | `string[]` | Images, one video, one PDF document, or GIF media. Media types cannot be freely mixed. |
+| `link` | `string` | Optional URL for LinkedIn article preview posts. Ignored when media uploads are present. |
+| `thumbnail` | `string` | URL to an uploaded thumbnail image. |
+| `mediaTitle` | `string` | Title for video or document posts. Max 200 characters. |
+| `privacy` | `CONNECTIONS` \| `PUBLIC` \| `LOGGED_IN` \| `CONTAINER` | Visibility setting. |
+| `hideFromFeed` | `boolean` | Hide from the main feed where LinkedIn supports it. |
+| `disableReshare` | `boolean` | Disable resharing where LinkedIn supports it. |
+
+```json
+{
+  "teamId": "team_123",
+  "title": "LinkedIn reporting update",
+  "status": "SCHEDULED",
+  "postDate": "2026-06-01T15:00:00.000Z",
+  "socialAccountTypes": ["LINKEDIN"],
+  "data": {
+    "LINKEDIN": {
+      "text": "We shipped a new reporting workflow",
+      "privacy": "PUBLIC",
+      "link": "https://example.com/reporting"
+    }
+  }
+}
+```
+
+---
+
 ## Analytics
 
 For general analytics concepts (refresh rates, data retention, what "Returns 0" means), see the [Analytics Overview](/api-reference/analytics).
@@ -120,9 +152,44 @@ For general analytics concepts (refresh rates, data retention, what "Returns 0" 
 | `shares` | Reposts | |
 | `saves` | - | Returns `0` (not provided by LinkedIn API) |
 
-### Raw analytics and reactions
+### Raw Analytics
 
-[Raw analytics](/api-reference/analytics#raw-analytics-data) for LinkedIn retain **reaction** breakdowns from the platform (per reaction type) where available. Our standard post schema still exposes a single aggregated likes/reactions-style metric; use raw data when you need the full split.
+Raw analytics for LinkedIn retain **reaction** breakdowns from the platform (per reaction type) where available. Our standard post schema still exposes a single aggregated likes/reactions-style metric; use raw data when you need the full split.
+
+#### Post Raw Example
+
+```json
+{
+  "shareStatistics": {
+    "impressionCount": 23800,
+    "uniqueImpressionsCount": 17120,
+    "clickCount": 640,
+    "likeCount": 312,
+    "commentCount": 28,
+    "shareCount": 17,
+    "engagement": 997
+  },
+  "interactions": {
+    "reactions": [
+      {
+        "reactionType": "LIKE",
+        "actor": "urn:li:person:abc123",
+        "actorDisplayName": "Jane Doe"
+      },
+      {
+        "reactionType": "PRAISE",
+        "actor": "urn:li:organization:12345",
+        "actorDisplayName": "Example Company"
+      }
+    ]
+  },
+  "availability": {
+    "reactions": {
+      "available": true
+    }
+  }
+}
+```
 
 ### Quirks
 

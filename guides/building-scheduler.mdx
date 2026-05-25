@@ -138,33 +138,30 @@ Here's where it gets interesting. You can create a post as a **draft** or **sche
 ```typescript
 const post = await bundlesocial.post.create({
   teamId: 'team_abc',
-  socialAccountIds: ['instagram_123', 'tiktok_456'],
-  text: "Launching something big tomorrow. Stay tuned.",
-  uploadIds: ['upload_789'],
+  title: "Launching something big",
+  status: "SCHEDULED",
+  socialAccountTypes: ['INSTAGRAM', 'TIKTOK'],
 
-  // THE IMPORTANT PART
+  // UTC ISO string
   postDate: "2026-12-25T10:00:00.000Z", // UTC ISO string
 
   // Platform-specific options
   data: {
     INSTAGRAM: {
-      type: "REEL"
+      type: "REEL",
+      text: "Launching something big tomorrow. Stay tuned.",
+      uploadIds: ['upload_789']
     },
     TIKTOK: {
-      privacyLevel: "PUBLIC_TO_EVERYONE",
-      allowComment: true,
-      allowDuet: true,
-      allowStitch: true,
+      type: "VIDEO",
+      text: "Launching something big tomorrow. Stay tuned.",
+      uploadIds: ['upload_789'],
+      privacy: "PUBLIC_TO_EVERYONE",
+      disableComments: false,
+      disableDuet: false,
+      disableStitch: false,
     }
-  },
-
-  // First comment for hashtags (keeps the caption clean)
-  comments: [
-    {
-      text: "#launch #product #exciting",
-      socialAccountIds: ['instagram_123']
-    }
-  ]
+  }
 });
 ```
 
@@ -174,15 +171,22 @@ const post = await bundlesocial.post.create({
 
 ### Save as Draft
 
-Don't set `postDate`, or set the status to `DRAFT`:
+Set `status: "DRAFT"` and pass an empty `postDate`:
 
 ```typescript
 const draft = await bundlesocial.post.create({
   teamId: 'team_abc',
-  socialAccountIds: ['instagram_123'],
-  text: "Work in progress...",
-  uploadIds: ['upload_789'],
-  // No postDate = draft
+  title: "Draft idea",
+  status: "DRAFT",
+  postDate: "",
+  socialAccountTypes: ['INSTAGRAM'],
+  data: {
+    INSTAGRAM: {
+      type: "POST",
+      text: "Work in progress...",
+      uploadIds: ['upload_789']
+    }
+  }
 });
 ```
 
@@ -194,13 +198,13 @@ Each platform has its own special fields in the `data` object. Here are the high
 
 | Platform | Key Options |
 | :--- | :--- |
-| **Instagram** | `type` (`REEL`, `STORY`, `POST`), `coverUrl`, `locationId` |
-| **TikTok** | `privacyLevel`, `allowComment`, `allowDuet`, `allowStitch`, `autoAddMusic` |
-| **YouTube** | `title` (required), `privacyStatus`, `madeForKids` (required, legal!), `categoryId` |
+| **Instagram** | `type` (`REEL`, `STORY`, `POST`), `thumbnail`, `thumbnailOffset`, `locationId` |
+| **TikTok** | `privacy`, `disableComments`, `disableDuet`, `disableStitch`, `autoAddMusic`, `uploadToDraft` |
+| **YouTube** | `text` (required title), `privacy`, `madeForKids`, `containsSyntheticMedia`, `hasPaidProductPlacement` |
 | **Facebook** | `type` (`REEL`, `STORY`, `POST`) |
-| **LinkedIn** | `visibility` |
-| **Pinterest** | `boardId` (required - you can't pin to thin air), `title`, `link` |
-| **Reddit** | `subredditName` (required), `title` (required), `flairId` |
+| **LinkedIn** | `privacy`, `hideFromFeed`, `disableReshare`, `link` |
+| **Pinterest** | `boardName` (required - use the board name from `socialAccount.channels`), `text`, `link` |
+| **Reddit** | `sr` (required, e.g. `r/example`), `text` (title), `flairId` |
 | **Discord** | `channelId` (required), `username`, `avatarUrl` |
 | **Slack** | `channelId` (required), `username`, `avatarUrl` |
 | **Google Business** | `topicType`, `callToActionType`, `callToActionUrl`, event/offer fields |
@@ -247,9 +251,8 @@ Set up a [webhook endpoint](/api-reference/webhooks) and listen for:
 
 | Event | Meaning | What To Do |
 | :--- | :--- | :--- |
-| `post.published` | Post is live | Update UI to "Published". Show permalink. |
-| `post.failed` | Post failed after all retries | Show error to user. Offer manual retry. |
-| `comment.published` | First comment posted | Update UI if you show comment status. |
+| `post.published` | Post finished processing. `data.status` tells you whether it is `POSTED` or `ERROR`. | Update UI from `data.status`; show permalink or error. |
+| `comment.published` | First comment finished processing. `data.status` tells you whether it is `POSTED` or `ERROR`. | Update UI if you show comment status. |
 
 ```typescript
 // Your webhook handler
@@ -258,11 +261,12 @@ app.post('/webhooks/bundle', (req, res) => {
 
   switch (event.type) {
     case 'post.published':
-      await updatePostStatus(event.data.postId, 'published');
-      break;
-    case 'post.failed':
-      await updatePostStatus(event.data.postId, 'failed');
-      await notifyUser(event.data.postId, event.data.error);
+      if (event.data.status === 'POSTED') {
+        await updatePostStatus(event.data.id, 'published');
+      } else if (event.data.status === 'ERROR') {
+        await updatePostStatus(event.data.id, 'failed');
+        await notifyUser(event.data.id, event.data.error);
+      }
       break;
   }
 
@@ -294,7 +298,7 @@ Don't poll every 100ms. Once every 30-60 seconds is fine. You won't miss anythin
 
 ### Error Notifications
 
-If you set `sendEmailOnError: true` when creating a post, we'll email the user when their post fails. One less thing for you to build.
+If your organization has `sendEmailOnError` enabled, we'll email the user when their post fails. One less thing for you to build.
 
 ---
 
@@ -313,10 +317,11 @@ Want to schedule 50 posts at once? Go for it. But be smart about it.
 // Space them out. Don't schedule everything for the same second.
 const posts = contentCalendar.map((item, index) => ({
   teamId: 'team_abc',
-  socialAccountIds: item.accounts,
-  text: item.text,
-  uploadIds: item.uploads,
+  title: item.title,
+  status: 'SCHEDULED',
+  socialAccountTypes: item.platforms,
   postDate: addMinutes(item.date, index * 5), // 5-minute gaps
+  data: item.data,
 }));
 
 for (const post of posts) {
@@ -340,18 +345,25 @@ We accept `postDate` in **UTC only**. Convert on your end. Every timezone bug in
 
 ### 3. First Comment Strategy
 
-Use the `comments` array to put hashtags in the first comment instead of the caption. It keeps the post clean and looks more professional.
+Use the Comment API to put hashtags in the first comment instead of the caption. It keeps the post clean and looks more professional.
 
 ```typescript
-comments: [
-  {
-    text: "#growth #mindset #grind #blessed",
-    socialAccountIds: ['instagram_123']
+await bundlesocial.comment.create({
+  teamId: 'team_abc',
+  internalPostId: post.id,
+  title: "First comment",
+  status: "SCHEDULED",
+  postDate: post.postDate,
+  socialAccountTypes: ['INSTAGRAM'],
+  data: {
+    INSTAGRAM: {
+      text: "#growth #mindset #grind #blessed"
+    }
   }
-]
+});
 ```
 
-Instagram's algorithm treats first-comment hashtags the same as caption hashtags. Your users' feeds will look better.
+Create first comments through the [Comments API](/api-reference/comments), not inside the post payload. Schedule the post first, keep the returned `post.id`, then create the comment with `internalPostId`.
 
 ### 4. Remember Data Retention
 

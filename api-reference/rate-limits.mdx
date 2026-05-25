@@ -1,6 +1,6 @@
 ---
 title: Rate Limits
-description: Easy cowboy, we have rules here.
+description: API limits, posting limits, commenting limits, and import quotas.
 icon: gauge-high
 keywords: ["api rate limits", "social media posting limits", "rate limiting", "daily posting limits"]
 "og:title": "API Rate Limits & Daily Posting Limits Explained"
@@ -71,20 +71,21 @@ Daily caps per team, per platform, for comments created via the API.
 
 | Platform | FREE | PRO | BUSINESS |
 | -------- | ---- | --- | -------- |
-| TWITTER  | 3 | 15 | 15 |
 | FACEBOOK  | 3 | 50 | 100 |
 | INSTAGRAM  | 3 | 50 | 100 |
 | LINKEDIN  | 3 | 18 | 24 |
 | YOUTUBE  | 3 | 10 | 15 |
 | TIKTOK  | 3 | 10 | 15 |
 | THREADS  | 3 | 200 | 250 |
-| PINTEREST  | 3 | 24 | 36 |
 | REDDIT  | 3 | 24 | 36 |
 | DISCORD  | 3 | 100 | 200 |
 | SLACK  | 3 | 100 | 200 |
 | MASTODON  | 3 | 50 | 100 |
 | BLUESKY  | 3 | 50 | 100 |
-| GOOGLE_BUSINESS  | 3 | 20 | 40 |
+
+<Note>
+Comment creation is currently available for Facebook, Instagram, LinkedIn, YouTube, TikTok, Reddit, Threads, Mastodon, Discord, Slack, and Bluesky. Twitter/X, Pinterest, and Google Business are not supported by the Comments API.
+</Note>
 
 ### Monthly organization-wide limits
 
@@ -116,7 +117,7 @@ A single post-history import request is additionally capped at **100 posts** (ha
 
 ### Comment imports (per post)
 
-Maximum comments stored per post on each import run. Imports always run — the cap just truncates to the newest N comments before storage. No monthly window, no counter.
+Maximum comments stored per post on each import run. Imports always run - the cap just truncates to the newest N comments before storage. No monthly window, no counter.
 
 | Tier | Comments / post / import |
 | ---- | ------------------------ |
@@ -124,14 +125,14 @@ Maximum comments stored per post on each import run. Imports always run — the 
 | PRO | 200 |
 | BUSINESS | 1,000 |
 
-### Google review imports (monthly, per social account)
+### Google review and Facebook recommendation imports (monthly, per social account)
 
-Maximum Google reviews imported from each connected Google Business Profile per month. Counter resets on the 1st of each month.
+Maximum Google reviews or Facebook Page recommendations imported from each connected social account per month. Counter resets on the 1st of each month.
 
-| Tier | Reviews / account / month |
+| Tier | Reviews or recommendations / account / month |
 | ---- | ------------------------- |
 | FREE | 5 |
 | PRO | 200 |
 | BUSINESS | 200 |
 
-A single Google review import request is additionally capped at **250 reviews** (hard cap, not overridable).
+A single import request is additionally capped at **250 reviews or recommendations** (hard cap, not overridable).

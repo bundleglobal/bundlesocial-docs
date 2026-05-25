@@ -38,12 +38,12 @@ This is an **asynchronous** job, same idea as Google Business Reviews:
 
 ### Rules & Limits
 
-*   **`count` range:** `1-100` per request.
+*   **`count` range:** `1-250` per request.
 *   **One active import per social account:** if one is already running or recently completed, you'll get `409`.
 *   **Monthly limit per social account (default):**
     *   **Free:** 5 reviews / month
-    *   **Pro:** 100 reviews / month
-    *   **Business:** 250 reviews / month
+    *   **Pro:** 200 reviews / month
+    *   **Business:** 200 reviews / month
 
 <Note>
 These are defaults. Organizations can have custom review-import limits configured.
@@ -137,8 +137,8 @@ Example response:
     }
   ],
   "total": 1,
-  "limit": 100,
-  "remainingCapacity": 99
+  "limit": 200,
+  "remainingCapacity": 176
 }
 ```
 

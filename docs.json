@@ -39,6 +39,18 @@
               "api-reference/mcp",
               "api-reference/platform-parameters",
               "api-reference/connect-social-accounts",
+              {
+                "group": "Connect Social Accounts",
+                "icon": "plug",
+                "pages": [
+                  "api-reference/connect-social-accounts",
+                  "api-reference/connect-social-accounts/hosted-flow",
+                  "api-reference/connect-social-accounts/custom-ui-flow",
+                  "api-reference/connect-social-accounts/channel-management",
+                  "api-reference/connect-social-accounts/oauth-options",
+                  "api-reference/connect-social-accounts/callbacks"
+                ]
+              },
               "api-reference/webhooks",
               "api-reference/examples",
               "api-reference/analytics",
@@ -56,7 +68,14 @@
             "group": "Platforms",
             "pages": [
               "api-reference/platforms/index",
-              "api-reference/platforms/instagram",
+              {
+                "group": "Instagram",
+                "icon": "instagram",
+                "pages": [
+                  "api-reference/platforms/instagram",
+                  "api-reference/platforms/instagram-music"
+                ]
+              },
               {
                 "group": "Facebook",
                 "icon": "facebook",
@@ -122,6 +141,7 @@
             "group": "Getting Started",
             "pages": [
               "knowledge/index",
+              "knowledge/organization/what-is-an-organization",
               "knowledge/teams/what-are-teams",
               "knowledge/posts/create-first-post",
               "knowledge/posts/media-library",
@@ -140,8 +160,12 @@
               "knowledge/social-accounts/linkedin",
               "knowledge/social-accounts/pinterest",
               "knowledge/social-accounts/reddit",
+              "knowledge/social-accounts/threads",
+              "knowledge/social-accounts/mastodon",
+              "knowledge/social-accounts/bluesky",
               "knowledge/social-accounts/discord",
-              "knowledge/social-accounts/slack"
+              "knowledge/social-accounts/slack",
+              "knowledge/social-accounts/google-business"
             ]
           }
         ]
@@ -248,5 +272,12 @@
       "title": "Page not found",
       "description": "We couldn't find the page you're looking for. Head [back to the homepage](/welcome), explore the [API Reference](/api-reference/introduction), or check the [FAQ](/faq)."
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/blog/:slug",
+      "destination": "https://bundle.social/blog/:slug",
+      "permanent": true
+    }
+  ]
 }

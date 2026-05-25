@@ -7,7 +7,7 @@ keywords: ["facebook api", "facebook pages api", "facebook reels api", "facebook
 "og:description": "Facebook API guide: Pages, Reels, Stories. Learn about token expiration, rate limits, analytics, and posting capabilities."
 ---
 
-The OG social network. It's robust, but it carries a lot of legacy baggage. And rate limits. So many rate limits.
+The OG social network. It works, but it carries a lot of legacy baggage. And rate limits. So many rate limits.
 
 ## Supported Content Types
 
@@ -56,6 +56,45 @@ See [Platform Limits](/api-reference/limits#facebook) for the full breakdown of 
 
 ---
 
+## Post Options
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `type` | `POST` \| `REEL` \| `STORY` | Defaults to `POST`. |
+| `text` | `string` | Caption/body text. Max 50,000 characters. |
+| `uploadIds` | `string[]` | Media uploaded through bundle.social. |
+| `mediaItems` | `array` | Per-upload metadata, currently used for image `altText`. Each item needs `uploadId`. |
+| `link` | `string` | URL for Page posts. Only for `type: "POST"`. |
+| `thumbnail` | `string` | URL to an uploaded thumbnail image. |
+| `mediaTitle` | `string` | Video title for `POST` video uploads. Max 255 characters. |
+| `nativeScheduleTime` | `date` | Schedule inside Meta instead of immediately publishing through bundle.social. Max 30 days ahead. |
+
+```json
+{
+  "teamId": "team_123",
+  "title": "Facebook launch post",
+  "status": "SCHEDULED",
+  "postDate": "2026-06-01T15:00:00.000Z",
+  "socialAccountTypes": ["FACEBOOK"],
+  "data": {
+    "FACEBOOK": {
+      "type": "POST",
+      "text": "New launch is live",
+      "uploadIds": ["upl_img_1"],
+      "mediaItems": [
+        {
+          "uploadId": "upl_img_1",
+          "altText": "Product screenshot showing the new dashboard"
+        }
+      ],
+      "link": "https://example.com"
+    }
+  }
+}
+```
+
+---
+
 ## Analytics
 
 For general analytics concepts (refresh rates, data retention, what "Returns 0" means), see the [Analytics Overview](/api-reference/analytics).
@@ -94,4 +133,72 @@ For general analytics concepts (refresh rates, data retention, what "Returns 0" 
 | `saves` | Total saves | |
 
 ### Reaction Aggregation
-When we say "Likes" for Facebook, we mean **all reactions** combined. Whether someone Loved it, Hated it (Anger), or Laughed at it (Haha) - it all counts as one `likes` number. We don't break down reaction types in the standard schema. If you need that granularity, check the [raw analytics data](/api-reference/analytics#raw-analytics-data).
+When we say "Likes" for Facebook, we mean **all reactions** combined. Whether someone Loved it, Hated it (Anger), or Laughed at it (Haha) - it all counts as one `likes` number. We don't break down reaction types in the standard schema. If you need that granularity, check the [raw analytics data](#raw-analytics).
+
+### Raw Analytics
+
+Facebook raw analytics include Page insight payloads for profiles and flat insight metric objects for posts. Use raw data when you need reaction-type totals such as `post_reactions_love_total`, video metrics such as `post_video_avg_time_watched`, or Page demographic payloads.
+
+#### Profile Raw Example
+
+```json
+{
+  "pageInfo": {
+    "id": "1234567890",
+    "name": "Example Page",
+    "followers_count": 12450,
+    "fan_count": 11820,
+    "link": "https://www.facebook.com/example"
+  },
+  "pageInsights": {
+    "data": [
+      {
+        "name": "page_media_view",
+        "period": "day",
+        "values": [
+          { "value": 3120, "end_time": "2026-04-26T07:00:00+0000" }
+        ]
+      },
+      {
+        "name": "page_views_total",
+        "period": "day",
+        "values": [
+          { "value": 184, "end_time": "2026-04-26T07:00:00+0000" }
+        ]
+      }
+    ]
+  },
+  "pageDemographicInsights": {
+    "data": [
+      {
+        "name": "page_fans_country",
+        "period": "lifetime",
+        "values": [
+          { "value": { "US": 4200, "GB": 860, "DE": 540 } }
+        ]
+      }
+    ]
+  }
+}
+```
+
+#### Post Raw Example
+
+```json
+{
+  "post_media_view": 14820,
+  "post_clicks": 320,
+  "post_reactions_like_total": 410,
+  "post_reactions_love_total": 92,
+  "post_reactions_wow_total": 11,
+  "post_reactions_haha_total": 18,
+  "post_reactions_anger_total": 1,
+  "post_video_views": 11200,
+  "post_video_views_unique": 9800,
+  "post_video_avg_time_watched": 7400,
+  "post_video_views_clicked_to_play": 1330,
+  "comments": 44,
+  "shares": 27,
+  "saves": 9
+}
+```

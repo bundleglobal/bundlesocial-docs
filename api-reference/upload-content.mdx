@@ -1,9 +1,9 @@
 ---
 title: Media Upload
-description: Uploading images and videos. Small files are easy, big files are robust.
+description: Upload images, videos, and documents with small or large upload flows.
 keywords: ["media upload api", "video upload", "image upload", "resumable upload", "social media upload"]
 "og:title": "Media Upload API - Upload Images & Videos with Resumable Uploads"
-"og:description": "Upload images and videos to bundle.social. Use resumable uploads for large files or simple uploads for quick media. Supports MP4, JPG, PNG, GIF, WebP."
+"og:description": "Upload images, videos, and PDFs to bundle.social. Use resumable uploads for large files or simple uploads for quick media. Supports MP4, MOV, JPG, PNG, GIF, and PDF."
 icon: cloud-arrow-up
 ---
 
@@ -26,7 +26,7 @@ Ideal for videos or anything >25MB.
 ### Step 1: Initialize
 Tell us what you're planning to upload.
 
-**Endpoint:** `POST /upload/init`
+**Endpoint:** `POST /api/v1/upload/init`
 
 ```json
 // Request
@@ -66,7 +66,7 @@ curl -X PUT "https://storage.googleapis.com/..." \
 ### Step 3: Finalize
 Tell us you're done so we can register the file in our system.
 
-**Endpoint:** `POST /upload/finalize`
+**Endpoint:** `POST /api/v1/upload/finalize`
 
 ```json
 // Request
@@ -85,10 +85,10 @@ You get an `id` (e.g., `upload_abc123`). **This is the ID you use when creating 
 
 Good for images or small clips. Uses standard `multipart/form-data`.
 
-**Endpoint:** `POST /upload/create`
+**Endpoint:** `POST /api/v1/upload`
 
 ```bash
-curl -X POST "https://api.bundle.social/upload/create" \
+curl -X POST "https://api.bundle.social/api/v1/upload" \
   -H "x-api-key: YOUR_KEY" \
   -F "file=@./meme.jpg" \
   -F "teamId=YOUR_TEAM_ID"
@@ -109,7 +109,7 @@ In the **bundle.social** app you can add media by pasting a **public HTTP(S) URL
 | Best for | Small and medium files (typical short-form / feed content) |
 | May fail | Very large files (e.g. ~100 MB) often hit timeout or upstream limits-use [resumable upload](#method-1-resumable-upload-the-pro-way) for big video instead |
 
-This path is optimized for “here is a CDN link” workflows, not for shipping feature-length films through DNS.
+This path is for files that already exist at a public URL. It is not meant for very large remote files.
 
 ---
 
@@ -117,8 +117,9 @@ This path is optimized for “here is a CDN link” workflows, not for shipping 
 
 | Type | Formats | Max Size |
 | :--- | :--- | :--- |
-| **Images** | JPG, PNG, GIF, WebP | 25 MB |
-| **Videos** | MP4 | Platform-dependent (see [Limits](/api-reference/limits)) |
+| **Images** | JPG, PNG, GIF | 25 MB |
+| **Videos** | MP4, MOV | Platform-dependent (see [Limits](/api-reference/limits)) |
+| **Documents** | PDF | 100 MB |
 
 <Note>
 The max video size depends on the platform you're posting to. TikTok allows up to 1 GB, YouTube up to 1 GB, while Discord caps at 25 MB. Check [Platform Limits](/api-reference/limits) for the exact numbers per platform.

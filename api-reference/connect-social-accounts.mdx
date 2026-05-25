@@ -1,303 +1,86 @@
 ---
 title: Connect Social Accounts
-description: Learn how to connect social accounts to bundle.social via API.
+description: Learn how OAuth, hosted connect links, custom connect flows, and channel selection work in bundle.social.
 icon: plug
 keywords: ["oauth social media", "connect social accounts", "social media integration", "oauth flow api", "social media authentication"]
 ---
 
-Connecting social accounts is the hardest part of any integration because OAuth flows are pain. We offer two ways to handle this.
+Connecting social accounts has two separate parts:
 
-## 1. The Easy Way (Hosted Flow)
+1. **OAuth:** the user grants bundle.social access to the platform account.
+2. **Channel selection:** bundle.social selects the exact Page, channel, organization, location, board, subreddit, or workspace target to use for this team.
 
-We host the UI. You just send the user to a link, they click buttons, and get redirected back to you.
+Most integration bugs happen when these steps get mixed together. OAuth says "this Meta user granted access." Channel selection says "this team should use this Facebook Page."
 
-**Endpoint:** `POST /api/v1/social-account/create-portal-link`
+<CardGroup cols={2}>
+  <Card title="Hosted Flow" icon="link" href="/api-reference/connect-social-accounts/hosted-flow">
+    Create a portal link and let bundle.social handle OAuth, pickers, language, and UI.
+  </Card>
+  <Card title="Custom UI Flow" icon="code" href="/api-reference/connect-social-accounts/custom-ui-flow">
+    Build the account picker yourself and call the connect and channel endpoints directly.
+  </Card>
+  <Card title="Channel Management" icon="shuffle" href="/api-reference/connect-social-accounts/channel-management">
+    Use `set-channel`, `refresh-channels`, and `unset-channel` for platforms with multiple targets.
+  </Card>
+  <Card title="OAuth Options" icon="key" href="/api-reference/connect-social-accounts/oauth-options">
+    Understand `disableAutoLogin`, `forceBrowserOAuth`, `withBusinessScope`, and Instagram connection methods.
+  </Card>
+  <Card title="Callback Parameters" icon="route" href="/api-reference/connect-social-accounts/callbacks">
+    Handle success and error query parameters after OAuth completes.
+  </Card>
+</CardGroup>
 
-Test it in [Swagger](https://api.bundle.social/swagger#/socialAccount/socialAccount.createPortalLink) or the [API Reference Client](/api-reference/client/socialaccount/create-portal-link).
+---
 
-### Parameters
+## Which Flow Should I Use?
 
-| Parameter | Required | Description |
+| Flow | Best for | What you build |
 | :--- | :--- | :--- |
-| `teamId` | Yes | The team ID to connect the social accounts to. |
-| `redirectUrl` | Yes | The URL to redirect to after clicking the back button. |
-| `socialAccountTypes` | Yes | The social account types to connect (e.g. `['INSTAGRAM', 'LINKEDIN']`). |
-| `disableAutoLogin` | No | Facebook, Instagram (Facebook method), and TikTok only. When `true`, bypasses the platform's automatic "you're already logged in" shortcut and forces the user to explicitly pick which account to connect. |
-| `forceBrowserOAuth` | No | Instagram only. When `true`, direct Instagram connections on phones try to use browser OAuth instead of the Instagram app flow, avoiding the iOS deep-link issue. |
-| `withBusinessScope` | No | Facebook and Instagram (Facebook login path) only. When you set this to `true` or `false`, the hosted connect page skips the business vs standard scope chooser and uses your value. When you omit it, users see the same chooser as on a normal connect flow. |
-| `logoUrl` | No | The URL of the logo to display on the top of the page. |
-| `userLogoUrl` | No | The URL of the user logo/avatar to display. |
-| `userName` | No | The name of the user to display. |
-| `goBackButtonText` | No | The text of the back button. |
-| `language` | No | The language of the page. |
-| `hidePoweredBy` | No | Whether to hide the "powered by" text. |
-| `hideGoBackButton` | No | Whether to hide the back button. |
-| `hideUserLogo` | No | Whether to hide the user logo. |
-| `hideUserName` | No | Whether to hide the user name. |
-| `hideLanguageSwitcher` | No | Whether to hide the language switcher. |
-| `showModalOnConnectSuccess` | No | Show a modal on connect success asking what to do next - go back to `redirectUrl` or close and connect more accounts. |
-| `maxSocialAccountsConnected` | No | The maximum number of social accounts that can be connected. |
-
-### Supported Languages
-
-| Code | Language |
-| :--- | :--- |
-| `en` | English |
-| `pl` | Polish |
-| `fr` | French |
-| `hi` | Hindi |
-| `sv` | Swedish |
-| `de` | German |
-| `es` | Spanish |
-| `it` | Italian |
-| `nl` | Dutch |
-| `pt` | Portuguese |
-| `ru` | Russian |
-| `tr` | Turkish |
-| `zh` | Chinese |
-
-<Warning>
-`disableAutoLogin` is designed for SaaS platforms where users manage many accounts from the same browser. Without this flag, the OAuth popup silently re-connects the last logged-in account, which is wrong when someone manages multiple clients. Enable it when your users connect accounts on behalf of others.
-</Warning>
-
-### Hosted Page Preview
-
-![Connect social account flow](/images/api-reference/connect-social-account/connect-social-account-hosted.png)
-
----
-
-## 2. The Hard Way (Custom UI)
-You build the UI. You trigger the OAuth flows. You look like a hero.
-
-### Connect Social Account Flow
-
-![Connect social account flow](/images/api-reference/connect-social-account/connect-social-account.png)
-
-For most platforms, the flow is straightforward. The exceptions are **YouTube**, **Facebook**, **Instagram**, **LinkedIn**, and **Google Business** where you need to select a channel after the initial connection.
-
-<Note>
-**Channel Selection Required:**
-- **YouTube:** Select a YouTube channel.
-- **Facebook:** Select a Facebook Page.
-- **Instagram (FACEBOOK method):** Select an Instagram account connected to a Facebook Page.
-- **Instagram (INSTAGRAM method):** No Facebook Page needed. Pass `instagramConnectionMethod: "INSTAGRAM"` in the connect body to use the direct Instagram OAuth flow.
-- **LinkedIn:** Select a LinkedIn Company Page.
-- **Google Business:** Select a business location.
-</Note>
-
-### disableAutoLogin
-
-Supported for **Facebook**, **Instagram (Facebook method)**, and **TikTok**.
-
-When `true`, the OAuth URL includes a platform-specific flag that forces the user to explicitly confirm the account rather than silently re-using the last logged-in session:
-
-<Warning>
-Use this when your users connect accounts on behalf of clients or manage multiple accounts from the same browser. Without it, the OAuth popup re-connects whichever account was last logged in, with no chance to pick a different one.
-</Warning>
-
-### forceBrowserOAuth
-
-Supported for **Instagram direct OAuth**.
-
-When `true`, direct Instagram connections on phones try to open the browser OAuth flow instead of the Instagram app flow. This is useful when the Instagram iOS app deep-link flow gets stuck or returns users without completing authorization.
-
-You can set it in both places:
-
-1. **`POST /api/v1/social-account/connect`** (custom UI). Optional boolean.
-2. **`POST /api/v1/social-account/create-portal-link`** (hosted UI). Optional boolean stored in the signed portal token.
-
-<Note>
-This is separate from `disableAutoLogin`. `forceBrowserOAuth` changes which Instagram OAuth surface we try to use; `disableAutoLogin` asks the provider to avoid silently reusing the current logged-in session where supported.
-</Note>
-
-### withBusinessScope (Facebook & Instagram)
-
-**Facebook** and **Instagram** (when using the Facebook login path for Instagram) only.
-
-You can set this flag in **both** places:
-
-1. **`POST /api/v1/social-account/connect`** (custom UI). Optional boolean. If you omit it, it defaults to `false`, same as before this option existed.
-2. **`POST /api/v1/social-account/create-portal-link`** (hosted UI). Optional boolean. It is stored in the signed portal token. The hosted `/connect` page reads it and passes it into the same connect logic as a custom client. If you omit it on the portal link, users still pick **business** vs **standard** on the hosted page.
-
-| Value | What happens |
-| :--- | :--- |
-| `true` | Facebook **Business** login flow: OAuth uses the broader Meta scope set (includes `business_management`, `ads_management`, `ads_read` among the permissions we request). |
-| `false` | **Standard** connection flow: lighter scope set, same as “classic” Facebook Page connections. |
-
-<Warning>
-Some **Facebook Pages** and **Instagram** accounts only appear in the page/account picker when the connection was made **with business scope**. If something is missing from the list, reconnect using the **other** method (`withBusinessScope` flipped) before assuming the picker is wrong. This usually comes down to Meta’s visibility rules, not a haunted UI.
-</Warning>
-
-If a connection goes bad, the social accounts screen offers **Reauthenticate** when our checks detect it-use that instead of disconnecting everything when you only need a fresh OAuth handshake.
-
----
-
-## Handling Callbacks
-
-Whether you use Hosted or Custom, the user eventually comes back to your URL with query parameters.
-
-### Success Messages
-
-We append success flags to your redirect URL:
-
-| Parameter | Message |
-| :--- | :--- |
-| `twitter-callback` | Twitter connected successfully |
-| `pinterest-callback` | Pinterest connected successfully |
-| `tiktok-callback` | TikTok connected successfully |
-| `facebook-callback` | Facebook connected successfully |
-| `instagram-callback` | Instagram connected successfully |
-| `linkedin-callback` | LinkedIn connected successfully |
-| `reddit-callback` | Reddit connected successfully |
-| `discord-callback` | Discord connected successfully |
-| `slack-callback` | Slack connected successfully |
-| `youtube-callback` | YouTube connected successfully |
-| `threads-callback` | Threads connected successfully |
-| `mastodon-callback` | Mastodon connected successfully |
-| `bluesky-callback` | Bluesky connected successfully |
-| `google-business-callback` | Google Business connected successfully |
-
-### Error Messages
-
-If things go wrong, we tell you why. Here's the complete list:
-
-#### Twitter/X
-| Parameter | Message |
-| :--- | :--- |
-| `twitter-callback` | Error connecting Twitter |
-| `twitter-not-enough-permissions` | You didn't grant all the necessary permissions |
-
-#### Pinterest
-| Parameter | Message |
-| :--- | :--- |
-| `pinterest-callback` | Error connecting Pinterest |
-| `pinterest-not-enough-permissions` | You didn't grant all the necessary permissions |
-
-#### TikTok
-| Parameter | Message |
-| :--- | :--- |
-| `tiktok-callback` | Error connecting TikTok |
-| `tiktok-not-enough-permissions` | You didn't grant all the necessary permissions |
-
-#### Facebook
-| Parameter | Message |
-| :--- | :--- |
-| `facebook-callback` | Error connecting Facebook |
-| `facebook-not-enough-pages` | You don't have enough permissions in any of your Facebook pages |
-| `facebook-not-enough-permissions` | You didn't grant all the necessary permissions |
-
-#### Instagram
-| Parameter | Message |
-| :--- | :--- |
-| `instagram-callback` | Error connecting Instagram |
-| `instagram-not-enough-accounts` | You don't have enough permissions in any of your Instagram accounts, or none of your Facebook pages has an Instagram account connected |
-| `instagram-not-enough-permissions` | You didn't grant all the necessary permissions |
-
-#### LinkedIn
-| Parameter | Message |
-| :--- | :--- |
-| `linkedin-callback` | Error connecting LinkedIn |
-| `linkedin-not-enough-channels` | You don't have enough permissions in any of your LinkedIn organizations |
-| `linkedin-not-enough-permissions` | You didn't grant all the necessary permissions |
-
-#### Reddit
-| Parameter | Message |
-| :--- | :--- |
-| `reddit-callback` | Error connecting Reddit |
-| `reddit-not-enough-permissions` | You didn't grant all the necessary permissions |
-
-#### Discord
-| Parameter | Message |
-| :--- | :--- |
-| `discord-callback` | Error connecting Discord |
-| `discord-not-enough-servers` | You don't have enough permissions in any of your Discord servers |
-| `discord-not-enough-permissions` | You didn't grant all the necessary permissions |
-
-#### Slack
-| Parameter | Message |
-| :--- | :--- |
-| `slack-callback` | Error connecting Slack |
-| `slack-not-enough-workspaces` | You don't have enough permissions in any of your Slack workspaces |
-| `slack-not-enough-permissions` | You didn't grant all the necessary permissions |
-
-#### YouTube
-| Parameter | Message |
-| :--- | :--- |
-| `youtube-callback` | Error connecting YouTube |
-| `youtube-not-enough-channels` | You don't have enough permissions in any of your YouTube channels |
-| `youtube-not-enough-permissions` | You didn't grant all the necessary permissions |
-
-#### Threads
-| Parameter | Message |
-| :--- | :--- |
-| `threads-callback` | Error connecting Threads |
-| `threads-not-enough-permissions` | You didn't grant all the necessary permissions |
-
-#### Mastodon
-| Parameter | Message |
-| :--- | :--- |
-| `mastodon-callback` | Error connecting Mastodon |
-| `mastodon-not-enough-permissions` | You didn't grant all the necessary permissions |
-
-#### Bluesky
-| Parameter | Message |
-| :--- | :--- |
-| `bluesky-callback` | Error connecting Bluesky |
-| `bluesky-not-enough-permissions` | You didn't grant all the necessary permissions |
-
-#### Google Business
-| Parameter | Message |
-| :--- | :--- |
-| `google-business-callback` | Error connecting Google Business |
-
----
+| Hosted flow | Most apps | A button that opens the portal link |
+| Custom UI flow | Apps that need a fully custom account connection UI | OAuth button, callback handling, channel picker, and reconnect states |
 
 <Tip>
-**Pro Tip:** Always handle the `not-enough-permissions` error gracefully. Tell the user: *"Hey, we need those permissions to actually post. Please try again and don't uncheck the boxes."*
+Use the hosted flow unless you have a strong reason to own the whole connection UI.
 </Tip>
 
 ---
 
-## Unset Channel (Switch Pages)
+## The Meta Rule
 
-Some platforms let your user pick from multiple pages or channels under one OAuth connection (Facebook Pages, LinkedIn Company Pages, YouTube channels, Instagram accounts via Facebook, Google Business locations). Sometimes they pick the wrong one. Or they want to switch.
+For **Facebook** and **Instagram via Facebook**, ask the user to select **all Pages and Instagram accounts they manage** in the Meta OAuth screen.
 
-Instead of disconnecting and re-authenticating from scratch, you can **unset the current channel** and let them pick a new one.
+After OAuth, choose the one Page or Instagram account for the current bundle.social team in the hosted picker or with `POST /api/v1/social-account/set-channel`.
 
-**Endpoint:** `POST /api/v1/social-account/unset-channel`
-
-```json
-{
-  "type": "FACEBOOK",
-  "teamId": "team_123"
-}
-```
-
-### Supported Platforms
-
-| Platform | Supported | Note |
-| :--- | :--- | :--- |
-| Facebook | Yes | |
-| Instagram | Yes | Only when connected via Facebook. Direct Instagram connections can't be unset. |
-| LinkedIn | Yes | |
-| YouTube | Yes | |
-| Google Business | Yes | |
-
-### What Happens
-
-1. The selected page/channel is cleared from the social account.
-2. The OAuth connection stays intact - no re-auth needed.
-3. The account is removed from all draft and scheduled posts.
-4. Posts that only had this account become drafts.
-5. `social-account.updated` and `team.updated` webhooks fire.
-
-### The Flow
-
-1. Call `POST /social-account/unset-channel` to clear the current selection.
-2. Call `POST /social-account/set-channel` with the new page/channel ID.
-
-No OAuth dance. No popup. No "please grant permissions again."
+This does **not** mean one team publishes to every Page. Meta keeps the app grant for every Page the user manages, while bundle.social stores the selected target separately per team.
 
 <Warning>
-**Unsetting removes the account from all draft and scheduled posts.** If a post only had this one account, it becomes a draft. Make sure your users know before they switch.
+If the same Meta user connects multiple bundle.social teams and selects only one Page during each OAuth flow, Meta can overwrite page grants for the bundle.social app at the Meta-user level.
+
+That can leave one team looking connected in bundle.social, while Meta has removed the Page grant remotely. Publishing can then fail with `must be granted before impersonating a user's page`.
 </Warning>
+
+Correct flow:
+
+1. Reconnect Facebook or Instagram via Facebook.
+2. In Meta OAuth, choose **Select all** or manually select every Page and Instagram account the Meta user manages.
+3. Back in bundle.social, select the one Page or Instagram account for this team.
+4. Retry the failed post.
+
+---
+
+## Platform Selection Rules
+
+| Platform | OAuth enough? | Needs `set-channel`? | Notes |
+| :--- | :--- | :--- | :--- |
+| Facebook | No | Yes | Select a Facebook Page. |
+| Instagram via Facebook | No | Yes | Select an Instagram account connected to a Facebook Page. |
+| Instagram direct OAuth | Yes | No | Pass `instagramConnectionMethod: "INSTAGRAM"` in custom UI. |
+| LinkedIn | No | Yes | Select a member profile or Company Page. |
+| YouTube | No | Yes | Select a YouTube channel. |
+| Google Business | No | Yes | Select a business location. |
+| Pinterest | Usually yes | No | Boards can be refreshed with `refresh-channels`. |
+| Reddit | Usually yes | No | Destinations can be refreshed with `refresh-channels`. |
+| Slack | Usually yes | No | Webhook channels can be refreshed with `refresh-channels`. |
+| Discord | Usually yes | No | Webhook channels can be refreshed with `refresh-channels`. |
+
+Need endpoint details? Start with [Hosted Flow](/api-reference/connect-social-accounts/hosted-flow) or [Custom UI Flow](/api-reference/connect-social-accounts/custom-ui-flow).
