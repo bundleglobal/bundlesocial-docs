@@ -14,7 +14,7 @@ You have two ways to upload files.
 2.  **Resumable Upload:** Robust, 3-step process, for big videos.
 
 <Warning>
-**Recommendation:** Always use the **Resumable Upload** for videos. It's more reliable. If a 1GB upload fails at 99% with the Simple method, you start over. With Resumable, you don't.
+**Recommendation:** Always use the **Resumable Upload** for videos. It's more reliable. If a 5GB upload fails at 99% with the Simple method, you start over. With Resumable, you don't.
 </Warning>
 
 ---
@@ -48,7 +48,7 @@ We give you a magic `url` (Pre-signed URL) and a `path`. Keep them safe.
 ```
 
 <Note>
-**The pre-signed URL expires after 10 minutes.** If you don't start uploading within that window, you'll need to initialize again. Don't go make coffee between Step 1 and Step 2.
+**The pre-signed URL expires after 30 minutes.** If you don't start uploading within that window, you'll need to initialize again.
 </Note>
 
 ### Step 2: Push the Bytes
@@ -99,17 +99,20 @@ Returns the `id` immediately.
 
 ---
 
-## Upload from a URL (dashboard)
+## Upload from a URL
 
-In the **bundle.social** app you can add media by pasting a **public HTTP(S) URL** instead of uploading a file from disk. We download the asset and register it like any other upload.
+Register media by passing a **public HTTP(S) URL** instead of uploading the bytes yourself: `POST /api/v1/upload/from-url` (also exposed in the SDKs and the MCP server). We fetch the asset **server-side** and register it like any other upload.
 
 | Detail | Value |
 | :--- | :--- |
+| Max size | **1 GB** |
 | Download timeout | **60 seconds** |
-| Best for | Small and medium files (typical short-form / feed content) |
-| May fail | Very large files (e.g. ~100 MB) often hit timeout or upstream limits-use [resumable upload](#method-1-resumable-upload-the-pro-way) for big video instead |
+| Best for | Small / medium files (typical short-form / feed content) |
+| Not for | Large videos — we fetch the file server-side and cap it at **1 GB / 60 s**. For bigger files, upload the bytes yourself with [Resumable Upload](#method-1-resumable-upload-the-pro-way) (up to 5 GB). |
 
-This path is for files that already exist at a public URL. It is not meant for very large remote files.
+<Note>
+The **1 GB / 60 s** limit applies only to URL imports, because we download the file for you. Direct uploads (Simple / Resumable) stream straight to storage and allow up to **5 GB**.
+</Note>
 
 ---
 
@@ -122,7 +125,7 @@ This path is for files that already exist at a public URL. It is not meant for v
 | **Documents** | PDF | 100 MB |
 
 <Note>
-The max video size depends on the platform you're posting to. TikTok allows up to 1 GB, YouTube up to 1 GB, while Discord caps at 25 MB. Check [Platform Limits](/api-reference/limits) for the exact numbers per platform.
+The overall upload ceiling is **5 GB** per file; the max video size also depends on the platform you're posting to. TikTok allows up to 1 GB, YouTube up to 5 GB, while Discord caps at 10 MB. Check [Platform Limits](/api-reference/limits) for the exact numbers per platform.
 </Note>
 
 <Info>

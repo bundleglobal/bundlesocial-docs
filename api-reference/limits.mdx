@@ -15,6 +15,10 @@ We validate everything before sending to the platform. If your content breaks a 
 - **Bitrate:** `(fileSize x 8) / videoLength`. Measured in bps. We show it in Mbps.
 - **File Count:** How many images/videos you can attach to a single post.
 
+<Note>
+**Upload ceiling.** Regardless of platform, the largest file we accept is **5 GB** for video, **25 MB** for images, and **100 MB** for documents (PDF). The per-platform limits below are often lower - we enforce the smaller of the two.
+</Note>
+
 ---
 
 ## Instagram
@@ -89,7 +93,7 @@ We validate everything before sending to the platform. If your content breaks a 
 | Constraint | Value |
 | :--- | :--- |
 | Files | 1 video (required) |
-| Max size | 1 GB |
+| Max size | 5 GB |
 | Duration | Max 3 min (180s) |
 | Aspect ratio | 1:3 to 1:1 (vertical or square) |
 
@@ -97,7 +101,7 @@ We validate everything before sending to the platform. If your content breaks a 
 | Constraint | Value |
 | :--- | :--- |
 | Files | 1 video (required) |
-| Max size | 1 GB |
+| Max size | 5 GB |
 | Duration | Max 4 hours (14,400s) |
 | Aspect ratio | 1:3 to 3:1 |
 
@@ -110,7 +114,7 @@ We validate everything before sending to the platform. If your content breaks a 
 | Files | 0-10 (images, videos, OR documents - not mixed) |
 | **Videos** | |
 | Max videos | 1 |
-| Video max size | 1 GB |
+| Video max size | 2 GB |
 | Video resolution | 256x144 to 4096x4096 |
 | Video aspect ratio | 1:2.4 to 2.4:1 |
 | Video duration | 3s - 30 min |
@@ -187,7 +191,7 @@ We validate everything before sending to the platform. If your content breaks a 
 | :--- | :--- |
 | Files | 1 (image or video, required) |
 | **Videos** | |
-| Video max size | 1 GB |
+| Video max size | 2 GB |
 | Video aspect ratio | 1:2 to 1.91:1 |
 | Video duration | 4s - 15 min (900s) |
 | **Images** | |
@@ -227,6 +231,7 @@ We validate everything before sending to the platform. If your content breaks a 
 | Constraint | Value |
 | :--- | :--- |
 | Files | 0-10 (images and/or videos, mixed allowed) |
+| Video max size | 1 GB |
 | Video max bitrate | 100 Mbps |
 | Video aspect ratio | 0.01:1 to 1.91:1 |
 | Image max size | 8 MB |
@@ -312,16 +317,16 @@ Bluesky has minimal media restrictions on their end. We enforce basic file count
 | Instagram Story | 1 | 100 MB | 60s | 8 MB |
 | TikTok Video | 1 | 1 GB | 10 min | - |
 | TikTok Image | 10 | - | - | 20 MB |
-| YouTube Short | 1 | 1 GB | 3 min | - |
-| YouTube Video | 1 | 1 GB | 4 hours | - |
-| LinkedIn | 10 | 1 GB | 30 min | 5 MB |
+| YouTube Short | 1 | 5 GB | 3 min | - |
+| YouTube Video | 1 | 5 GB | 4 hours | - |
+| LinkedIn | 10 | 2 GB | 30 min | 5 MB |
 | Twitter/X | 4 | 512 MB | 140s / 10 min | 5 MB |
 | Facebook Post | 10 | N/A (bitrate limit) | 8 min | 4 MB |
 | Facebook Reel | 1 | N/A (bitrate limit) | 8 min | - |
 | Facebook Story | 1 | N/A (bitrate limit) | 60s | 4 MB |
-| Pinterest | 1 | 1 GB | 15 min | 5 MB |
+| Pinterest | 1 | 2 GB | 15 min | 5 MB |
 | Reddit | 1 / 10 gallery | 1 GB | 15 min | 20 MB |
-| Threads | 10 | N/A (bitrate limit) | - | 8 MB |
+| Threads | 10 | 1 GB | - | 8 MB |
 | Discord | 10 | 25 MB | - | 25 MB |
 | Slack | 4 | 1 GB | - | 1 GB |
 | Mastodon | 4 | 99 MB | - | 16 MB |
