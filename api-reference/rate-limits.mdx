@@ -40,7 +40,7 @@ Because limits are per endpoint, heavy traffic on `POST /post` does not consume 
 
 ## External Platform Rate Limits
 
-These are **daily limits per social account** within a team. Each connected social account has its own independent quota that resets every 24 hours.
+These are **daily limits per connected social account**, counted per **UTC calendar day** by the post's scheduled date. The quota is keyed by the **platform account itself** (platform + account id), not by the connection or the team — so the same real account connected more than once (reconnected, or added to multiple teams) **shares a single quota**.
 
 ### Posting daily limits per platform per tier
 
@@ -62,12 +62,12 @@ These are **daily limits per social account** within a team. Each connected soci
 | GOOGLE_BUSINESS  | 10 | 20 | 40 |
 
 <Note>
-**Example:** You're on the Pro tier and have 5 teams, each connected to TikTok. Each team can post up to 10 TikToks per day independently. That's 50 TikToks total across your org per day. The limit is per team, per platform, per day - not shared.
+**Example:** On Pro, each connected TikTok account gets its own 10 posts/day. Connect 5 **different** TikTok accounts → 50/day total (10 each, independent). But connect the **same** TikTok account to 5 teams → still 10/day total, because the quota follows the real account, not the connection.
 </Note>
 
 ### Commenting daily limits per platform per tier
 
-Daily caps per team, per platform, for comments created via the API.
+Daily caps per connected account, per platform, for comments created via the API.
 
 | Platform | FREE | PRO | BUSINESS |
 | -------- | ---- | --- | -------- |
@@ -97,6 +97,10 @@ On top of daily limits, there are monthly caps across the entire organization:
 | PRO | 10,000 | 5,000 | 100,000 |
 | BUSINESS | 100,000 | 50,000 | 1,000,000 |
 
+<Note>
+**How the monthly cap is counted:** by **creation time**, in the **UTC calendar month** — i.e. when you *schedule* an item, not when it publishes. Scheduling a post for a future month still consumes the **current** month's quota. Drafts don't count; **failed or deleted items still count** (deleting doesn't refund). The window resets on the 1st of each month (UTC).
+</Note>
+
 ---
 
 ## Import Limits
@@ -105,7 +109,7 @@ Limits that apply when importing historical content from connected social accoun
 
 ### Post history imports (monthly, per social account)
 
-Maximum posts imported from each connected social account per month. Counter resets on the 1st of each month.
+Maximum posts imported from each connected social account per month. Counter resets on the 1st of each month (UTC).
 
 | Tier | Posts / account / month |
 | ---- | ----------------------- |
@@ -127,7 +131,7 @@ Maximum comments stored per post on each import run. Imports always run - the ca
 
 ### Google review and Facebook recommendation imports (monthly, per social account)
 
-Maximum Google reviews or Facebook Page recommendations imported from each connected social account per month. Counter resets on the 1st of each month.
+Maximum Google reviews or Facebook Page recommendations imported from each connected social account per month. Counter resets on the 1st of each month (UTC).
 
 | Tier | Reviews or recommendations / account / month |
 | ---- | ------------------------- |
