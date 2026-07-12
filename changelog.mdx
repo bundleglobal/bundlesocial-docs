@@ -6,6 +6,48 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
+<Update label="2026-07-12">
+Snapchat Public Profile integration: OAuth connection, scheduled Stories and Spotlights, normalized profile and content analytics, and CSV bulk-post support.
+
+Post history import improvements across Facebook, Instagram, LinkedIn, Pinterest, and Threads, including more consistent imported media metadata.
+
+Instagram business discovery can now return recent public media items.
+
+Experimental `tiktokForceLogin` option for hosted and custom OAuth flows when TikTok keeps reusing the wrong active account.
+</Update>
+
+<Update label="2026-06-23">
+Bluesky external link cards now support an uploaded `thumbnail`.
+
+LinkedIn post reshares, mention resolution from profile/company URLs, and improved mention metadata.
+
+Facebook Page posts and Reels now support videos up to 20 minutes.
+
+YouTube post and edit payloads now support `defaultLanguage` and `defaultAudioLanguage`.
+
+Video uploads increased to 5 GB through the large upload flow. Upload-from-URL handling was also made more reliable.
+</Update>
+
+<Update label="2026-06-11">
+Custom `referenceKey` values for posts, including lookup by reference key and organization-level conflict protection.
+
+Comment import and top-level comments now support historical posts through `importedPostId`.
+
+Improved monthly usage counting and per-external-account daily limits.
+
+Invoices are now available from the organization Billing view.
+</Update>
+
+<Update label="2026-05-29">
+Manual retry endpoint for failed comments.
+
+Reconnect helpers for attaching a newly connected social account to matching draft and scheduled posts.
+
+Hosted portal links now support `serverUrl` and `instagramConnectionMethod`.
+
+Automatic cleanup for uploads left unused for 90 days.
+</Update>
+
 <Update label="2026-05-19">
 Instagram Music API.
 

@@ -83,6 +83,63 @@ See [Platform Limits](/api-reference/limits#linkedin) for the full breakdown.
 
 ---
 
+## Mentions And Published Post Actions
+
+### Resolve Mentionable People And Organizations
+
+**Endpoint:** `GET /api/v1/misc/linkedin/mentions/tags`
+
+Provide `teamId` and either a search query (`q`) or LinkedIn profile/company `url`. `scope` can be `people`, `organizations`, or `all`.
+
+```http
+GET /api/v1/misc/linkedin/mentions/tags?teamId=team_123&url=https://www.linkedin.com/in/jane-doe&displayName=Jane%20Doe&scope=people
+```
+
+Person mention lookup is available when the selected LinkedIn channel is an organization. URL lookup accepts `linkedin.com/in/...` for people and `linkedin.com/company/...` for organizations. `displayName` is optional and controls the text shown for a person resolved by URL.
+
+Use `POST /api/v1/misc/linkedin/mentions/builder` to combine returned URNs with text:
+
+```json
+{
+  "text": "Thanks Jane Doe for the launch support",
+  "tags": [
+    {
+      "display": "Jane Doe",
+      "urn": "urn:li:person:abc123"
+    }
+  ]
+}
+```
+
+### Reshare A LinkedIn Post
+
+**Endpoint:** `POST /api/v1/misc/linkedin/post/reshare`
+
+```json
+{
+  "teamId": "team_123",
+  "parentPostUrn": "urn:li:share:123456789",
+  "commentary": "Worth sharing with our network.",
+  "visibility": "PUBLIC",
+  "disableReshare": false
+}
+```
+
+`commentary` is required and limited to 3,000 characters. The response includes the new LinkedIn ID, activity URN, and permalink when LinkedIn returns them.
+
+### Edit Or Delete Published Content
+
+| Operation | Endpoint | Main fields |
+| :--- | :--- | :--- |
+| Edit post text | `PATCH /api/v1/misc/linkedin/post` | `teamId`, bundle.social `postId`, `description` |
+| Delete post | `DELETE /api/v1/misc/linkedin/post` | `teamId`, bundle.social `postId` |
+| Edit comment | `PATCH /api/v1/misc/linkedin/comment` | `teamId`, bundle.social `commentId`, `text` |
+| Delete comment | `DELETE /api/v1/misc/linkedin/comment` | `teamId`, bundle.social `commentId` |
+
+These operations act on content already published to LinkedIn. They do not change the original scheduled payload stored in bundle.social.
+
+---
+
 ## Analytics
 
 For general analytics concepts (refresh rates, data retention, what "Returns 0" means), see the [Analytics Overview](/api-reference/analytics).

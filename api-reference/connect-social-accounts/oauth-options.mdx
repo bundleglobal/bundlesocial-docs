@@ -1,6 +1,6 @@
 ---
 title: OAuth Options
-description: Understand disableAutoLogin, forceBrowserOAuth, withBusinessScope, and Instagram connection methods.
+description: Understand disableAutoLogin, tiktokForceLogin, forceBrowserOAuth, withBusinessScope, and Instagram connection methods.
 icon: key
 keywords: ["oauth options", "disable auto login", "instagram connection method", "facebook business scope", "force browser oauth"]
 ---
@@ -22,6 +22,25 @@ Use it when your users manage many accounts from the same browser. Without it, t
   "disableAutoLogin": true
 }
 ```
+
+---
+
+## tiktokForceLogin
+
+Supported only for **TikTok** and currently experimental.
+
+When `true`, bundle.social routes the user through TikTok logout before starting authorization. Use it when TikTok keeps reusing the wrong active account even with `disableAutoLogin`.
+
+```json
+{
+  "type": "TIKTOK",
+  "tiktokForceLogin": true
+}
+```
+
+<Warning>
+This signs the user out of their active TikTok browser session. Use it only when choosing a fresh account is more important than preserving that session.
+</Warning>
 
 ---
 
@@ -68,7 +87,7 @@ Some Facebook Pages and Instagram accounts only appear in the picker when the co
 
 ## Instagram Connection Method
 
-Supported only for `type: "INSTAGRAM"` in the custom UI flow.
+Supported for `type: "INSTAGRAM"` in custom UI and hosted portal links.
 
 | Value | Meaning | Channel selection |
 | :--- | :--- | :--- |

@@ -75,6 +75,23 @@ Google location metadata can indicate whether certain feature families are avail
 
 Read `metadata` through `GET /location` before enabling related editing UI.
 
+### Find Available Categories
+
+Use `GET /api/v1/misc/google-business/location/categories/available` to resolve Google category resource names before updating `categories`.
+
+| Query | Required | Description |
+| :--- | :--- | :--- |
+| `teamId` | Yes | Team with the connected Google Business location. |
+| `regionCode` | Yes | Two-letter region code, for example `US` or `PL`. |
+| `languageCode` | Yes | Label language, for example `en` or `pl`. |
+| `names` | No | One to 100 exact category resource names. Accepts repeated or comma-separated values and uses Google's batch lookup. |
+| `filter` | No | Category display-name prefix filter used when `names` is omitted. |
+| `pageSize` | No | Fixed at `50`. |
+| `pageToken` | No | Token from the previous page. |
+| `view` | No | `BASIC` by default; `FULL` requests the expanded category view. |
+
+Use either exact `names` or discovery through `filter`, then send the returned category `name` as `primaryCategory.name` or inside `additionalCategories`.
+
 ### Example: title, description, and hours (anonymized)
 
 Single **update payload** with profile copy plus weekly hours, holiday exceptions, and an extra hour type (`moreHours`). `teamId` and business copy below are placeholders.

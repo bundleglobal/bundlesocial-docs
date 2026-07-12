@@ -60,6 +60,7 @@ Send Bluesky-specific options inside `data.BLUESKY`.
 | `externalUrl` | `string` | URL for an external link card. |
 | `externalTitle` | `string` | Link card title. Max 300 characters. |
 | `externalDescription` | `string` | Link card description. Max 1,000 characters. |
+| `thumbnail` | `string` | Optional bundle.social upload URL for the external link card image. Requires `externalUrl`. |
 | `videoAlt` | `string` | Alt text for the video embed. Max 10,000 characters. |
 
 ```json
@@ -75,11 +76,16 @@ Send Bluesky-specific options inside `data.BLUESKY`.
       "tags": ["release", "product"],
       "externalUrl": "https://example.com/release-notes",
       "externalTitle": "Release notes",
-      "externalDescription": "What shipped this week."
+      "externalDescription": "What shipped this week.",
+      "thumbnail": "https://storage.bundle.social/path/to/uploaded-card-image.jpg"
     }
   }
 }
 ```
+
+<Note>
+When `thumbnail` is provided, `externalUrl` is required. The thumbnail must be a public URL returned by a completed bundle.social upload.
+</Note>
 
 ---
 

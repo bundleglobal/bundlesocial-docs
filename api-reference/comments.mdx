@@ -8,7 +8,7 @@ icon: comments
 ---
 
 <Note>
-Comment import currently works only for posts published through bundle.social. Imported historical posts are not supported in this flow yet.
+Comment import works for posts published through bundle.social and for posts returned by [Post History Import](/api-reference/import-posts). Use exactly one of `postId` or `importedPostId`.
 </Note>
 
 With the Comments API you can:
@@ -73,10 +73,10 @@ Twitter / X is intentionally not supported in the Comments API. Pinterest and Go
 Use this quick checklist first:
 
 1. You already connected a social account to the team.
-2. You already published a post on that platform through bundle.social.
+2. The post was published through bundle.social or fetched through Post History Import.
 3. You have:
    - `teamId`
-   - `postId`
+   - `postId` or `importedPostId`
    - `socialAccountType`
 
 If one of these is missing, import will fail with validation error.
@@ -99,10 +99,12 @@ Think about import as a small background job:
 ```json
 {
   "teamId": "team_123",
-  "postId": "post_123",
+  "importedPostId": "profile_post_123",
   "socialAccountType": "INSTAGRAM"
 }
 ```
+
+`postId` and `importedPostId` are mutually exclusive. Send `postId` for a post created in bundle.social, or `importedPostId` for a historical post returned by the import API.
 
 ### Why Import Can Be Rejected
 
@@ -120,6 +122,7 @@ If import is already running, you get `409`.
 **Endpoints:**
 
 - `GET /api/v1/comment/import?teamId=...&postId=...`
+- `GET /api/v1/comment/import?teamId=...&importedPostId=...`
 - `GET /api/v1/comment/import/:importId`
 
 Use these statuses for user-facing UI:
@@ -141,7 +144,7 @@ Use these statuses for user-facing UI:
 Query params:
 
 - `teamId` (required)
-- `postId` (required)
+- exactly one of `postId` or `importedPostId` (required)
 - `platform` (optional)
 - `socialAccountId` (optional)
 - `limit`, `offset`
@@ -287,6 +290,47 @@ For first comments or top-level comments on a post published through bundle.soci
 ```
 
 For `internalParentCommentId`, the reply is linked to a comment already created through bundle.social. For `fetchedParentCommentId`, the platform and post are inferred from the imported comment, so a minimal reply can use only `teamId`, `fetchedParentCommentId`, and `text`.
+
+For a top-level comment on a historical post, replace `internalPostId` with `importedPostId`. Do not send both fields.
+
+## List Created Comments
+
+**Endpoint:** `GET /api/v1/comment`
+
+`teamId` is required. Optional filters include `postId`, `importedPostId`, `status`, `q`, `platforms`, `orderBy`, `order`, `offset`, and `limit`. Use this endpoint for comments created through bundle.social; use `/comment/import/comments` for comments fetched from a platform.
+
+## Actions On Fetched Comments
+
+**Endpoint:** `POST /api/v1/comment/import/comments/:commentId/action`
+
+```json
+{
+  "teamId": "team_123",
+  "action": "HIDE",
+  "reason": "Optional moderation note"
+}
+```
+
+Available actions depend on the platform and the permissions reported in `platformData`:
+
+| Platform | Actions |
+| :--- | :--- |
+| Facebook, Instagram | `DELETE`, `HIDE`, `UNHIDE` |
+| LinkedIn, Mastodon | `DELETE`, `LIKE`, `UNLIKE` |
+| YouTube, Reddit | `DELETE`, `APPROVE`, `REJECT` |
+| TikTok | `DELETE`, `HIDE`, `UNHIDE`, `LIKE`, `UNLIKE` |
+| Bluesky | `DELETE` |
+| Threads | No fetched-comment actions |
+
+Check `platformData.canDelete`, `canHide`, `canLike`, and `canModerate` before showing controls. The platform can still reject an action if the connected account does not own or moderate the target comment.
+
+For YouTube `APPROVE` or `REJECT`, optional `banAuthor: true` asks YouTube to ban the comment author as part of the moderation action.
+
+## Retry A Failed Comment
+
+**Endpoint:** `POST /api/v1/comment/:id/retry`
+
+Use this for a comment whose status is `ERROR`. A successful retry returns the comment to the publishing queue. Comments in any other status return `400`.
 
 
 ## Limits Explained

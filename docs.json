@@ -93,6 +93,7 @@
                 ]
               },
               "api-reference/platforms/youtube",
+              "api-reference/platforms/snapchat",
               "api-reference/platforms/twitter",
               "api-reference/platforms/threads",
               "api-reference/platforms/pinterest",
@@ -153,6 +154,7 @@
               "knowledge/social-accounts/index",
               "knowledge/social-accounts/tiktok",
               "knowledge/social-accounts/youtube",
+              "knowledge/social-accounts/snapchat",
               "knowledge/social-accounts/instagram",
               "knowledge/social-accounts/facebook",
               "knowledge/social-accounts/x",

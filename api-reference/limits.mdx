@@ -158,7 +158,7 @@ We validate everything before sending to the platform. If your content breaks a 
 | Max videos | 1 |
 | Video max bitrate | 45 Mbps |
 | Video aspect ratio | 0.01:1 to 1.91:1 |
-| Video duration | Max 8 min (480s) |
+| Video duration | Max 20 min (1,200s) |
 | Max images | 4 |
 | Image max size | 4 MB each |
 | Image aspect ratio | 0.01:1 to 1.91:1 |
@@ -170,7 +170,7 @@ We validate everything before sending to the platform. If your content breaks a 
 | Min resolution | 540x960 |
 | Aspect ratio | 0.01:1 to 10:6 |
 | Max bitrate | 45 Mbps |
-| Duration | 3s - 8 min (480s) |
+| Duration | 3s - 20 min (1,200s) |
 
 ### Stories
 | Constraint | Value |
@@ -308,6 +308,28 @@ Bluesky has minimal media restrictions on their end. We enforce basic file count
 
 ---
 
+## Snapchat
+
+### Stories
+
+| Constraint | Value |
+| :--- | :--- |
+| Files | Exactly 1 image or MP4 video |
+| Max file size | 100 MB |
+| Video minimum resolution | 540x960 |
+| Video duration | 5-60 seconds |
+
+### Spotlights
+
+| Constraint | Value |
+| :--- | :--- |
+| Files | Exactly 1 MP4 video |
+| Max file size | 100 MB |
+| Minimum resolution | 540x960 |
+| Video duration | 6-60 seconds |
+
+---
+
 ## Quick Reference Table
 
 | Platform | Max Files | Video Max Size | Video Max Duration | Image Max Size |
@@ -321,8 +343,8 @@ Bluesky has minimal media restrictions on their end. We enforce basic file count
 | YouTube Video | 1 | 5 GB | 4 hours | - |
 | LinkedIn | 10 | 2 GB | 30 min | 5 MB |
 | Twitter/X | 4 | 512 MB | 140s / 10 min | 5 MB |
-| Facebook Post | 10 | N/A (bitrate limit) | 8 min | 4 MB |
-| Facebook Reel | 1 | N/A (bitrate limit) | 8 min | - |
+| Facebook Post | 10 | N/A (bitrate limit) | 20 min | 4 MB |
+| Facebook Reel | 1 | N/A (bitrate limit) | 20 min | - |
 | Facebook Story | 1 | N/A (bitrate limit) | 60s | 4 MB |
 | Pinterest | 1 | 2 GB | 15 min | 5 MB |
 | Reddit | 1 / 10 gallery | 1 GB | 15 min | 20 MB |
@@ -332,6 +354,8 @@ Bluesky has minimal media restrictions on their end. We enforce basic file count
 | Mastodon | 4 | 99 MB | - | 16 MB |
 | Bluesky | 4 | - | - | - |
 | Google Business | 1 | - | - | 5 MB |
+| Snapchat Story | 1 | 100 MB | 60s | 100 MB |
+| Snapchat Spotlight | 1 | 100 MB | 60s | - |
 
 
 ## Text & Character Limits
@@ -352,6 +376,7 @@ Bluesky has minimal media restrictions on their end. We enforce basic file count
 | Mastodon | `text`: 30,000 | `spoiler`: 50 (instance-level limits can still be lower) |
 | Bluesky | `text`: 300 | `externalTitle`: 300, `externalDescription`: 1,000, `videoAlt`: 10,000 |
 | Google Business | `text`: 1,500 | `eventTitle`: 58, `offerCouponCode`: 58, `offerTermsConditions`: 1,500 |
+| Snapchat | `description` or `text`: 160 | `locale`: `en_US` format for Spotlights |
 
 
 For daily posting limits per platform and monthly post caps, see [Rate Limits](/api-reference/rate-limits).

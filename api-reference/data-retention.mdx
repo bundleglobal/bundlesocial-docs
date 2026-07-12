@@ -99,6 +99,12 @@ When you delete an upload, we don't immediately nuke the file. We keep it around
 - If the upload is used by active posts: We remove the file from storage but keep the database record (so post references don't break).
 - If the upload is unused: Both the file and the database record are deleted.
 
+## Stale Unused Uploads - 90 Days
+
+Uploads are automatically soft-deleted after **90 days** when they are not attached to an active post. This also covers uploads referenced only by `POSTED` or `ERROR` posts whose published content is older than the same cutoff.
+
+After the upload is soft-deleted, the normal 7-day deleted-upload retention applies before storage cleanup.
+
 ---
 
 ## Imported Posts - 30 Days
@@ -122,6 +128,7 @@ Your import quota resets on the **1st of every month**. So if you hit your month
 | Analytics (parsed + raw) | **30 days** |
 | Webhook events | **7 days** |
 | Deleted uploads | **7 days** after deletion |
+| Stale unused uploads | Soft-deleted after **90 days**, then the 7-day deleted-upload window applies |
 | Imported posts | **30 days** |
 
 ---

@@ -1,0 +1,120 @@
+---
+title: Snapchat
+description: Connect Snapchat Public Profiles, publish Stories and Spotlights, and retrieve profile and content analytics.
+icon: ghost
+keywords: ["snapchat api", "snapchat public profile api", "snapchat spotlight api", "snapchat story api"]
+"og:title": "Snapchat API Integration - Stories, Spotlights, and Analytics"
+"og:description": "Publish Snapchat Stories and Spotlights and retrieve analytics through the bundle.social API."
+---
+
+<Warning>
+SNAPCHAT SUPPORT USES THE **PUBLIC PROFILE API**. THE CONNECTED SNAPCHAT ACCOUNT MUST HAVE A PUBLIC PROFILE THAT THE AUTHORIZING USER CAN MANAGE.
+</Warning>
+
+## Supported Content Types
+
+- Public Stories with one image or MP4 video.
+- Spotlights with one MP4 video.
+- Profile, Story, and Spotlight analytics.
+
+Snapchat does not require a separate `set-channel` call. The Public Profile returned during OAuth becomes the publishing target.
+
+## Post Options
+
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `type` | `STORY` \| `SPOTLIGHT` | Defaults to `STORY`. |
+| `uploadIds` | `string[]` | Required. Exactly one uploaded media file. |
+| `description` | `string` | Spotlight description, max 160 characters. |
+| `text` | `string` | Alias for Spotlight `description`, max 160 characters. `description` takes precedence. |
+| `locale` | `string` | Spotlight locale in `en_US` format. Defaults to `en_US`. |
+| `skipSaveToProfile` | `boolean` | Spotlight only. Ask Snapchat not to save the Spotlight to the Public Profile. Defaults to `false`. |
+
+### Story Example
+
+```json
+{
+  "teamId": "team_123",
+  "title": "Launch Story",
+  "status": "SCHEDULED",
+  "postDate": "2026-07-20T15:00:00.000Z",
+  "socialAccountTypes": ["SNAPCHAT"],
+  "data": {
+    "SNAPCHAT": {
+      "type": "STORY",
+      "uploadIds": ["upload_image_123"]
+    }
+  }
+}
+```
+
+### Spotlight Example
+
+```json
+{
+  "teamId": "team_123",
+  "title": "Launch Spotlight",
+  "status": "SCHEDULED",
+  "postDate": "2026-07-20T15:00:00.000Z",
+  "socialAccountTypes": ["SNAPCHAT"],
+  "data": {
+    "SNAPCHAT": {
+      "type": "SPOTLIGHT",
+      "uploadIds": ["upload_video_123"],
+      "description": "A quick look at what we shipped",
+      "locale": "en_US",
+      "skipSaveToProfile": false
+    }
+  }
+}
+```
+
+## Media Limits
+
+### Stories
+
+| Constraint | Value |
+| :--- | :--- |
+| Files | Exactly 1 image or MP4 video |
+| Max file size | 100 MB |
+| Video minimum resolution | 540x960 |
+| Video duration | 5-60 seconds |
+
+### Spotlights
+
+| Constraint | Value |
+| :--- | :--- |
+| Files | Exactly 1 MP4 video |
+| Max file size | 100 MB |
+| Minimum resolution | 540x960 |
+| Video duration | 6-60 seconds |
+
+## Publishing Behavior
+
+Snapchat processes uploaded media asynchronously. A post can remain in `PROCESSING` while Snapchat prepares the asset. bundle.social polls the media state and finalizes the Story or Spotlight when it becomes ready.
+
+The post response stores Snapchat progress in `externalData.SNAPCHAT`, including `mediaId`, content `type`, Public Profile ID, source upload ID, and one of these statuses:
+
+- `MEDIA_UPLOADED`
+- `MEDIA_PROCESSING`
+- `PUBLISHED`
+
+## Analytics
+
+### Profile Analytics
+
+| Metric | Snapchat source |
+| :--- | :--- |
+| `impressions`, `views` | Combined profile, Story, saved Story, Spotlight, and Lens views returned by Snapchat |
+| `impressionsUnique`, `viewsUnique` | Unique sessions/viewers where available; falls back to views |
+| `likes` | Favorites/likes across supported profile content |
+| `comments` | Replies/comments |
+| `postCount` | Story, saved Story, Spotlight, and Lens content counts where available |
+| `followers` | Subscribers/followers |
+| `following` | Returns `0` |
+
+### Story And Spotlight Analytics
+
+Post analytics use Snapchat lifetime stats and map views, unique viewers, favorites, replies, shares, and screenshots into the standard post analytics fields.
+
+Raw Snapchat analytics can be enabled per organization. [Contact us](https://bundle.social/contact) if you need the original Snapchat stats payload alongside normalized metrics.

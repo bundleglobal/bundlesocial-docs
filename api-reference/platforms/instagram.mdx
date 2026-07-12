@@ -123,6 +123,7 @@ Instagram audio search for Reels is documented separately: [Instagram Music Libr
 
 #### `GET /misc/instagram/tags`
 - Purpose: business discovery by username (public profile data for discoverable business/creator accounts).
+- The response can include up to 12 recent public media items with media type, likes, comments, timestamp, and caption when Meta returns them.
 - Important: works only when the Instagram account is connected via `FACEBOOK` login flow.
 - If the account is connected via direct `INSTAGRAM` method, API returns explicit `400` with reconnection guidance.
 - Private accounts and some non-business/non-creator accounts may not be discoverable and can return `exists: false`.
