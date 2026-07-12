@@ -37,7 +37,7 @@ Response includes `attributes`: an array of objects. Each item has a `name` (for
 | :--- | :--- | :--- |
 | Boolean | `"values": [true]` or `"values": [false]` | Google uses a one-element array for booleans. |
 | Enum (multi) | `"repeatedEnumValue": { "setValues": ["TOKEN", ...] }` | Allowed tokens come from **list available** for that attribute. |
-| URL list | `"uriValues": ["https://..."]` | When the attribute stores links. |
+| URL list | `"uriValues": [{ "uri": "https://..." }]` | When the attribute stores links. |
 
 Always confirm the expected shape for a given `name` via **list available** or **get** before you build your UI. Do not assume that every boolean/enum/url-style field is valid for every category.
 

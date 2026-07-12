@@ -217,6 +217,7 @@ https://cdn.example.com/1.jpg#https://cdn.example.com/2.jpg
 | Discord | `discordMediaUrls` |
 | Slack | `slackMediaUrls` |
 | Google Business | `googleBusinessMediaUrls` |
+| Snapchat | `snapchatMediaUrls` |
 
 ### Common Platform Columns
 
@@ -232,10 +233,11 @@ https://cdn.example.com/1.jpg#https://cdn.example.com/2.jpg
 | Threads | `threadsText` |
 | Twitter / X | `twitterText`, `twitterReplySettings` |
 | Mastodon | `mastodonText`, `mastodonPrivacy`, `mastodonThumbnail`, `mastodonSpoiler` |
-| Bluesky | `blueskyText`, `blueskyTags`, `blueskyLabels`, `blueskyQuoteUri`, `blueskyExternalUrl`, `blueskyExternalTitle`, `blueskyExternalDescription`, `blueskyVideoAlt` |
+| Bluesky | `blueskyText`, `blueskyTags`, `blueskyLabels`, `blueskyQuoteUri`, `blueskyExternalUrl`, `blueskyExternalTitle`, `blueskyExternalDescription`, `blueskyThumbnail`, `blueskyVideoAlt` |
 | Discord | `discordChannelId`, `discordText`, `discordUsername`, `discordAvatarUrl` |
 | Slack | `slackChannelId`, `slackText`, `slackUsername`, `slackAvatarUrl` |
 | Google Business | `googleBusinessText`, `googleBusinessTopicType`, `googleBusinessLanguageCode`, `googleBusinessCallToActionType`, `googleBusinessCallToActionUrl`, `googleBusinessEventTitle`, `googleBusinessEventStartDate`, `googleBusinessEventEndDate`, `googleBusinessOfferCouponCode`, `googleBusinessOfferRedeemOnlineUrl`, `googleBusinessOfferTermsConditions`, `googleBusinessAlertType` |
+| Snapchat | `snapchatType`, `snapchatDescription`, `snapchatLocale`, `snapchatSkipSaveToProfile` |
 
 Boolean columns must be `TRUE` or `FALSE`. Enum-like columns are case-insensitive in practice because we normalize them to uppercase before validation.
 

@@ -57,6 +57,8 @@ Send YouTube-specific options inside `data.YOUTUBE`.
 | `description` | `string` | Video description. Max 5,000 characters. |
 | `thumbnail` | `string` | Optional thumbnail image URL uploaded through bundle.social. |
 | `privacy` | `enum` | `PRIVATE`, `PUBLIC`, or `UNLISTED`. Default sent to YouTube is public if omitted. |
+| `defaultLanguage` | `string` | BCP-47 language for the video's title and description, for example `en` or `pl`. Max 35 characters. |
+| `defaultAudioLanguage` | `string` | BCP-47 language for the video's default audio track, for example `en` or `pl`. Max 35 characters. |
 | `madeForKids` | `boolean` | Required by YouTube policy. Set `true` when the video is made for children. |
 | `containsSyntheticMedia` | `boolean` | Set `true` when the video contains AI-generated or synthetic content. |
 | `hasPaidProductPlacement` | `boolean` | Set `true` when the video contains paid product placement. |
@@ -75,6 +77,8 @@ Send YouTube-specific options inside `data.YOUTUBE`.
       "text": "Product launch walkthrough",
       "description": "A full walkthrough of the new release.",
       "privacy": "PUBLIC",
+      "defaultLanguage": "en",
+      "defaultAudioLanguage": "en",
       "madeForKids": false,
       "containsSyntheticMedia": false,
       "hasPaidProductPlacement": false

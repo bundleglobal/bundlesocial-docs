@@ -244,7 +244,7 @@ We check every connected social account every **6 hours** to see if it's still v
 3. If all retries fail, we schedule the account for deletion and send you a `social-account.updated` webhook.
 4. After the grace period, we remove the account (fires `social-account.deleted`).
 
-This covers all OAuth-connected platforms - Meta (Facebook, Instagram, Threads), YouTube, TikTok, Twitter, LinkedIn, Pinterest, Reddit, Discord, Slack, Mastodon, Bluesky, and Google Business.
+Automatic remote disconnection scanning currently covers Meta accounts: Facebook, Instagram, and Threads. For other platforms, use `POST /api/v1/social-account/connection-check` when your user opens account settings or before showing a reconnect warning.
 
 ### The `social-account.updated` Payload
 

@@ -45,13 +45,14 @@ These are the available body fields for the custom flow.
 | `redirectUrl` | Yes | HTTP/HTTPS URL where the platform sends the user after OAuth. We append callback query parameters to this URL. |
 | `serverUrl` | Depends | Required for Mastodon. Optional issuer/server URL for Bluesky. |
 | `disableAutoLogin` | No | Adds provider-specific flags to avoid automatic login or silent account reuse where supported. Defaults to `false`. |
+| `tiktokForceLogin` | No | Experimental TikTok-only option. Routes authorization through TikTok logout to request a fresh login session. Defaults to `false`. |
 | `forceBrowserOAuth` | No | Instagram direct OAuth only. Forces browser OAuth on phones where possible. Defaults to `false`. |
 | `instagramConnectionMethod` | No | Instagram only. Use `FACEBOOK` or `INSTAGRAM`. If omitted, the Facebook login path is used. |
 | `withBusinessScope` | No | Facebook and Instagram via Facebook only. Adds broader Meta business scopes when `true`. Defaults to `false`. |
 
 ### Supported Types
 
-`TIKTOK`, `YOUTUBE`, `INSTAGRAM`, `FACEBOOK`, `TWITTER`, `THREADS`, `LINKEDIN`, `PINTEREST`, `REDDIT`, `MASTODON`, `DISCORD`, `SLACK`, `BLUESKY`, `GOOGLE_BUSINESS`
+`TIKTOK`, `YOUTUBE`, `SNAPCHAT`, `INSTAGRAM`, `FACEBOOK`, `TWITTER`, `THREADS`, `LINKEDIN`, `PINTEREST`, `REDDIT`, `MASTODON`, `DISCORD`, `SLACK`, `BLUESKY`, `GOOGLE_BUSINESS`
 
 ---
 
@@ -63,6 +64,7 @@ These are the available body fields for the custom flow.
 | `instagramConnectionMethod: "FACEBOOK"` | Instagram | Uses Facebook Login and supports Page/account channel selection, comments, insights, locations, and Instagram audio search. |
 | `instagramConnectionMethod: "INSTAGRAM"` | Instagram | Uses direct Instagram OAuth. No `set-channel`, `unset-channel`, or `refresh-channels`. Some Facebook-backed features are not available. |
 | `disableAutoLogin` | Facebook, Instagram via Facebook, Instagram direct OAuth, TikTok | Helps users pick the correct platform account when many accounts are used in one browser. |
+| `tiktokForceLogin` | TikTok | Experimental stronger fresh-login flow. Redirects through TikTok logout before authorization. |
 | `forceBrowserOAuth` | Instagram direct OAuth | Avoids the Instagram iOS app deep-link path when possible. |
 | `withBusinessScope` | Facebook, Instagram via Facebook | Can expose Pages and Instagram accounts that are hidden in the standard Meta scope flow. |
 
@@ -80,6 +82,8 @@ For Facebook and Instagram via Facebook, ask users to select **all Pages and Ins
 4. Fetch the social account with `GET /api/v1/social-account/by-type`.
 5. If `socialAccount.channels` contains selectable targets, show them in your UI.
 6. Call `POST /api/v1/social-account/set-channel` when required.
+
+Snapchat connects the Public Profile returned by OAuth and does not need channel selection.
 
 ![Connect social account flow](/images/api-reference/connect-social-account/connect-social-account.png)
 
