@@ -66,9 +66,12 @@ This is separate from `disableAutoLogin`. `forceBrowserOAuth` changes which Inst
 
 ## withBusinessScope
 
-Supported for **Facebook** and **Instagram via Facebook**.
+Supported for **Facebook**, **Instagram via Facebook**, and **YouTube**.
 
-When `true`, OAuth uses the broader Meta scope set, including `business_management`, `ads_management`, and `ads_read` among the permissions we request.
+When `true`, OAuth requests broader access on top of the standard scope set:
+
+- **Facebook** and **Instagram via Facebook** — the broader Meta scope set, including `business_management`, `ads_management`, and `ads_read` among the permissions we request.
+- **YouTube** — the monetary analytics scope (`yt-analytics-monetary.readonly`), which enables **revenue/monetization data** in raw analytics. See [YouTube → Monetization](/api-reference/platforms/youtube#monetization).
 
 When `false`, OAuth uses the standard scope set.
 
@@ -82,6 +85,10 @@ When `false`, OAuth uses the standard scope set.
 <Warning>
 Some Facebook Pages and Instagram accounts only appear in the picker when the connection was made with business scope. If something is missing from the list, reconnect using the other method (`withBusinessScope` flipped) before assuming the picker is wrong.
 </Warning>
+
+<Note>
+For **YouTube**, the monetary scope is optional. If the user doesn't grant it, the connection still succeeds — only monetization data is unavailable. Missing it never blocks a connection.
+</Note>
 
 ---
 

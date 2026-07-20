@@ -134,6 +134,59 @@ YouTube analytics are all **Lifetime** values. There is no rolling window - ever
 
 YouTube raw analytics include demographics data when enabled for your organization. We query the YouTube Analytics API for each video and return age/gender breakdowns and country-level view counts.
 
+<Note>
+Raw analytics are gated per organization (`rawYoutubeAnalyticsEnabled`). If raw analytics are disabled for your org, the extended fields below (demographics, traffic sources, monetization, etc.) are not collected — only the standard metrics remain.
+</Note>
+
+#### Monetization
+
+Monetization (revenue) data is included in raw analytics only when **both** conditions are met:
+
+1. **Raw analytics are enabled** for your organization, and
+2. The account connected with **business access** — the YouTube monetary analytics scope, granted via [`withBusinessScope`](/api-reference/connect-social-accounts/oauth-options#withbusinessscope) at connect time.
+
+When both hold, monetization appears at two levels:
+
+- **Channel-level** — a channel-wide revenue report for the analytics window, stored in the profile raw analytics `monetization` field.
+- **Video-level** — a per-video revenue report, stored in each video's `monetization` field.
+
+Both use the YouTube Analytics API metrics: `estimatedRevenue`, `estimatedAdRevenue`, `estimatedRedPartnerRevenue`, `grossRevenue`, `cpm`, `playbackBasedCpm`, `adImpressions`, and `monetizedPlaybacks`.
+
+<Note>
+A channel **without monetization** — not in the YouTube Partner Program (YPP), or the account never granted the monetary scope — returns the string `"no data available"` in the `monetization` field instead of a report. This is expected and never fails the analytics run.
+</Note>
+
+**Channel with monetization** — the `monetization` field holds a report with `columnHeaders` and `rows`:
+
+```json
+{
+  "monetization": {
+    "analyticsWindow": { "startDate": "2026-06-19", "endDate": "2026-07-19" },
+    "columnHeaders": [
+      { "name": "estimatedRevenue", "columnType": "METRIC", "dataType": "FLOAT" },
+      { "name": "estimatedAdRevenue", "columnType": "METRIC", "dataType": "FLOAT" },
+      { "name": "estimatedRedPartnerRevenue", "columnType": "METRIC", "dataType": "FLOAT" },
+      { "name": "grossRevenue", "columnType": "METRIC", "dataType": "FLOAT" },
+      { "name": "cpm", "columnType": "METRIC", "dataType": "FLOAT" },
+      { "name": "playbackBasedCpm", "columnType": "METRIC", "dataType": "FLOAT" },
+      { "name": "adImpressions", "columnType": "METRIC", "dataType": "INTEGER" },
+      { "name": "monetizedPlaybacks", "columnType": "METRIC", "dataType": "INTEGER" }
+    ],
+    "rows": [
+      [1234.56, 1100.20, 134.36, 1800.00, 4.52, 3.98, 265000, 98000]
+    ]
+  }
+}
+```
+
+**Channel without monetization** — no YPP data or no monetary scope granted:
+
+```json
+{
+  "monetization": "no data available"
+}
+```
+
 #### Video-Level Raw Data
 
 ```json
@@ -149,6 +202,21 @@ YouTube raw analytics include demographics data when enabled for your organizati
       "likeCount": "8900",
       "commentCount": "342"
     }
+  },
+  "monetization": {
+    "columnHeaders": [
+      { "name": "estimatedRevenue", "columnType": "METRIC", "dataType": "FLOAT" },
+      { "name": "estimatedAdRevenue", "columnType": "METRIC", "dataType": "FLOAT" },
+      { "name": "estimatedRedPartnerRevenue", "columnType": "METRIC", "dataType": "FLOAT" },
+      { "name": "grossRevenue", "columnType": "METRIC", "dataType": "FLOAT" },
+      { "name": "cpm", "columnType": "METRIC", "dataType": "FLOAT" },
+      { "name": "playbackBasedCpm", "columnType": "METRIC", "dataType": "FLOAT" },
+      { "name": "adImpressions", "columnType": "METRIC", "dataType": "INTEGER" },
+      { "name": "monetizedPlaybacks", "columnType": "METRIC", "dataType": "INTEGER" }
+    ],
+    "rows": [
+      [312.40, 280.10, 32.30, 460.00, 3.90, 3.41, 71000, 24500]
+    ]
   },
   "demographics": {
     "ageGender": {
@@ -189,3 +257,7 @@ YouTube raw analytics include demographics data when enabled for your organizati
 <Info>
 Raw YouTube data includes **viewer percentage by age group and gender** and **views by country** (sorted by view count, descending). This is useful for audience analysis and content strategy - especially if you're targeting specific demographics or regions.
 </Info>
+
+<Note>
+At the video level, the `monetization` field is `null` when the account has **no business access** (monetary scope was never granted), and `"no data available"` when the account has business access but the video has no monetary data (e.g. not in YPP). A populated report only appears when business access is granted **and** the video earned revenue in the window.
+</Note>
