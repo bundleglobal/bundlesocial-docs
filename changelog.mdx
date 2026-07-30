@@ -6,6 +6,20 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
+<Update label="2026-07-30">
+Automatic first comment: a `firstComment` field on post create and update that publishes a comment as soon as the post itself goes live. Available for TikTok, YouTube, Instagram, Facebook, Threads, LinkedIn, Reddit, Mastodon, Discord, Slack, and Bluesky, each with its own character limit. It is echoed back on create/update and single-post responses, and the underlying comment can still be edited through the comment endpoints.
+
+AI content labels: `isAiGenerated` for X, Pinterest, Instagram, and Facebook (photo posts only), applying each platform's native AI disclosure label.
+
+Instagram paid partnerships: `isPaidPartnership` for the native "Paid partnership" label, and `brandedContentSponsors` to tag up to 2 sponsor usernames (accounts connected through Facebook Login only).
+
+Snapchat videos now accept 5-180 seconds, up from 6-60.
+
+Deleting published Instagram comments from the dashboard.
+
+Dashboard translations for Danish, Thai, Korean, and Hebrew.
+</Update>
+
 <Update label="2026-07-20">
 Threads post options: single `topicTag`, `replyControl`, `linkAttachment`, `poll`, `gif` (GIPHY), `allowlistedCountryCodes`, and Instagram Story cross-posting. Polls, GIFs, and link attachments are text-only.
 
