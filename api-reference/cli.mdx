@@ -54,6 +54,8 @@ Run `bundle-social <command> --help` for the full option list of any command. Th
 | `posts:update <id>` | Update a post — only the fields you pass change. |
 | `posts:list` | List recent posts with filters. |
 | `posts:get <id>` / `posts:delete <id>` / `posts:retry <id>` | Fetch / delete / re-attempt a post. |
+| `posts:get-by-reference-key <key>` | Fetch a post by the `--reference-key` you set on it instead of its bundle.social id. |
+| `posts:reconnect-candidates` / `posts:reconnect` | List posts that lost their social account after a disconnect, and reattach them to a newly connected account. |
 | `posts:import` … | Import post history from a connected account: `posts:import`, `posts:imports`, `posts:import:get <importId>`, `posts:import:posts`, `posts:import:delete-posts`, `posts:import:retry <importId>`. |
 | `posts:csv` … | Bulk-schedule from a CSV: `posts:csv --file <path>`, `posts:csv:list`, `posts:csv:get <importId>`, `posts:csv:status <importId>`, `posts:csv:rows <importId>`. |
 
@@ -61,9 +63,11 @@ Run `bundle-social <command> --help` for the full option list of any command. Th
 
 | Command | What it does |
 |---|---|
-| `comments:create` | Comment on a post; repeat `-c` for a chain of replies (X-style thread via comments). |
+| `comments:create` | Comment on a post; repeat `-c` for a chain of replies (X-style thread via comments). `--imported-post-id` comments on an imported post, `--fetched-parent-comment-id` replies to an imported comment. |
 | `comments:list` / `comments:get <id>` / `comments:update <id>` / `comments:delete <id>` | List / fetch / update / delete comments. |
+| `comments:retry <id>` | Re-attempt a comment that ended in `ERROR`. |
 | `comments:import` … | Pull existing comments for a post: `comments:import`, `comments:imports`, `comments:import:get <importId>`, `comments:import:comments`. |
+| `comments:import:action <commentId>` | Moderate an imported comment — `--action DELETE\|HIDE\|UNHIDE\|LIKE\|UNLIKE\|APPROVE\|REJECT`. |
 
 **Media**
 
@@ -78,7 +82,7 @@ Run `bundle-social <command> --help` for the full option list of any command. Th
 | Command | What it does |
 |---|---|
 | `integrations:list` | List connected social accounts (ids, platform types, channels). |
-| `integrations:tools` / `integrations:trigger <method>` | List & call the read-only platform helpers — subreddit flairs/requirements, YouTube categories/playlists/regions, LinkedIn mentions, Instagram locations, Google Business categories, TikTok trending music. |
+| `integrations:tools` / `integrations:trigger <method>` | List & call the read-only platform helpers — subreddit flairs/requirements, YouTube categories/playlists/regions, LinkedIn mentions, Instagram locations/audio/business discovery, Google Business categories, TikTok trending music. |
 | `integrations:connect` / `integrations:disconnect` | Start an OAuth connect flow / disconnect an account. |
 | `integrations:portal-link` | Create a hosted portal link for end users to connect accounts. |
 | `integrations:set-channel` / `integrations:unset-channel` / `integrations:refresh-channels` | Pick / clear / refresh the channel (page, board, server channel) for an account. |
@@ -88,7 +92,7 @@ Run `bundle-social <command> --help` for the full option list of any command. Th
 
 | Command | What it does |
 |---|---|
-| `analytics:post <id>` | Engagement metrics for one post (`--raw` for the unprocessed payload). |
+| `analytics:post [id]` | Engagement metrics for one post — yours, or an imported one via `--imported-post-id` (`--raw` for the unprocessed payload). |
 | `analytics:account` | Latest analytics for a connected account by `-p <platform>` (`--raw` for the unprocessed payload). |
 | `analytics:bulk` | Engagement metrics for several posts (`--post-id` repeatable). |
 | `analytics:refresh` | Force a fresh pull — `--post-id` for a post, otherwise `-p <platform>` for an account. |
@@ -100,6 +104,7 @@ Run `bundle-social <command> --help` for the full option list of any command. Th
 |---|---|
 | `teams:list` / `teams:get <id>` / `teams:create` / `teams:update <id>` / `teams:delete <id>` | Manage teams. |
 | `org:get` / `org:usage` | Your organization, and posts/comments/uploads/imports usage & quotas. |
+| `org:daily-limits` | A connected account's daily post/comment allowance for a given day. |
 | `doctor` | Diagnostic JSON: API key, connectivity, organization API access, team selection, integrations, quotas. |
 
 ### Examples

@@ -9,13 +9,13 @@ keywords: ["product updates", "new features", "release notes", "social media api
 <Update label="2026-07-30">
 Automatic first comment: a `firstComment` field on post create and update that publishes a comment as soon as the post itself goes live. Available for TikTok, YouTube, Instagram, Facebook, Threads, LinkedIn, Reddit, Mastodon, Discord, Slack, and Bluesky, each with its own character limit. It is echoed back on create/update and single-post responses, and the underlying comment can still be edited through the comment endpoints.
 
-AI content labels: `isAiGenerated` for X, Pinterest, Instagram, and Facebook (photo posts only), applying each platform's native AI disclosure label.
+AI content labels: `isAiGenerated` for X, Pinterest, and Instagram, applying each platform's native AI disclosure label.
 
 Instagram paid partnerships: `isPaidPartnership` for the native "Paid partnership" label, and `brandedContentSponsors` to tag up to 2 sponsor usernames (accounts connected through Facebook Login only).
 
 Snapchat videos now accept 5-180 seconds, up from 6-60.
 
-Deleting published Instagram comments from the dashboard.
+`DELETE /misc/instagram/comment` to permanently delete a published Instagram comment, also available from the dashboard's post comments panel.
 
 Dashboard translations for Danish, Thai, Korean, and Hebrew.
 </Update>
