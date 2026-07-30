@@ -48,7 +48,7 @@ These are the available body fields for the custom flow.
 | `tiktokForceLogin` | No | Experimental TikTok-only option. Routes authorization through TikTok logout to request a fresh login session. Defaults to `false`. |
 | `forceBrowserOAuth` | No | Instagram direct OAuth only. Forces browser OAuth on phones where possible. Defaults to `false`. |
 | `instagramConnectionMethod` | No | Instagram only. Use `FACEBOOK` or `INSTAGRAM`. If omitted, the Facebook login path is used. |
-| `withBusinessScope` | No | Facebook and Instagram via Facebook only. Adds broader Meta business scopes when `true`. Defaults to `false`. |
+| `withBusinessScope` | No | Facebook, Instagram via Facebook, and YouTube. Adds broader Meta business scopes for Meta, or the monetary analytics scope (revenue/monetization data) for YouTube, when `true`. Defaults to `false`. |
 
 ### Supported Types
 
@@ -66,7 +66,7 @@ These are the available body fields for the custom flow.
 | `disableAutoLogin` | Facebook, Instagram via Facebook, Instagram direct OAuth, TikTok | Helps users pick the correct platform account when many accounts are used in one browser. |
 | `tiktokForceLogin` | TikTok | Experimental stronger fresh-login flow. Redirects through TikTok logout before authorization. |
 | `forceBrowserOAuth` | Instagram direct OAuth | Avoids the Instagram iOS app deep-link path when possible. |
-| `withBusinessScope` | Facebook, Instagram via Facebook | Can expose Pages and Instagram accounts that are hidden in the standard Meta scope flow. |
+| `withBusinessScope` | Facebook, Instagram via Facebook, YouTube | Meta: can expose Pages and Instagram accounts hidden in the standard scope flow. YouTube: adds the monetary analytics scope that enables revenue/monetization data. Optional for YouTube — if not granted, the connection still succeeds and only monetization is unavailable. |
 
 <Warning>
 For Facebook and Instagram via Facebook, ask users to select **all Pages and Instagram accounts they manage** in Meta OAuth. Then call `set-channel` for the one target this team should use.

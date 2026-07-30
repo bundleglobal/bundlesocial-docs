@@ -58,6 +58,14 @@ Send Threads-specific options inside `data.THREADS`.
 | `text` | `string` | Post text. Max 500 characters. |
 | `uploadIds` | `string[]` | Up to 10 uploaded media files. Images and videos can be mixed. |
 | `mediaItems` | `array` | Optional per-media metadata. Use it to attach `altText` to image uploads. |
+| `topicTag` | `string` | A single topic tag shown in the post header. 1-50 characters, no periods (`.`) or ampersands (`&`). Threads allows one topic per post. |
+| `replyControl` | `enum` | Who can reply to the post. See [Reply Control](#reply-control). Threads defaults to `everyone`. |
+| `linkAttachment` | `string` | A URL attached to the post as a link preview card. **Text-only posts only.** |
+| `poll` | `object` | A poll attachment (2-4 options). **Text-only posts only.** See [Polls](#polls). |
+| `gif` | `object` | A GIF attachment. **Text-only posts only.** See [GIFs](#gifs). |
+| `allowlistedCountryCodes` | `string[]` | Restrict post visibility to these ISO 3166-1 alpha-2 country codes. Requires Meta account eligibility. |
+| `crosspostToInstagramStory` | `boolean` | Cross-share the post to the linked Instagram account as a Story. |
+| `crosspostToInstagramStoryDarkMode` | `boolean` | Cross-share the post to the linked Instagram account as a Story in dark mode. |
 
 ```json
 {
@@ -75,11 +83,76 @@ Send Threads-specific options inside `data.THREADS`.
           "uploadId": "upload_image_123",
           "altText": "Product screen on a phone"
         }
-      ]
+      ],
+      "topicTag": "ProductLaunch",
+      "replyControl": "followers_only"
     }
   }
 }
 ```
+
+---
+
+## Reply Control
+
+Set `replyControl` in `data.THREADS` to control who can reply to the post. Threads defaults to `everyone` when omitted.
+
+| Value | Who can reply |
+| :--- | :--- |
+| `everyone` | Anyone (default) |
+| `accounts_you_follow` | Only accounts you follow |
+| `mentioned_only` | Only users mentioned in the post |
+| `parent_post_author_only` | Only the author of the parent post |
+| `followers_only` | Only your followers |
+
+---
+
+## Polls
+
+Polls attach a 2-4 option vote to a **text-only** post. Options `optionA` and `optionB` are required; `optionC` and `optionD` are optional. Each option is 1-25 characters.
+
+```json
+{
+  "data": {
+    "THREADS": {
+      "text": "Which one ships first?",
+      "poll": {
+        "optionA": "Dark mode",
+        "optionB": "Scheduling",
+        "optionC": "Analytics"
+      }
+    }
+  }
+}
+```
+
+---
+
+## GIFs
+
+Attach a GIF to a **text-only** post. GIPHY is currently the only supported provider.
+
+```json
+{
+  "data": {
+    "THREADS": {
+      "text": "Shipping day vibes",
+      "gif": {
+        "gifId": "l0MYt5jPR6QX5pnqM",
+        "provider": "GIPHY"
+      }
+    }
+  }
+}
+```
+
+---
+
+## Text-Only Attachment Rules
+
+<Warning>
+`poll`, `gif`, and `linkAttachment` are only allowed on **text-only** posts. If the post also has `uploadIds`, validation fails. A post also cannot have both a `poll` and a `gif` at the same time.
+</Warning>
 
 ---
 

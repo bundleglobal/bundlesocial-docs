@@ -57,7 +57,7 @@ Redirect the user to `url`.
 | `tiktokForceLogin` | No | Experimental TikTok-only option. Routes TikTok through logout to request a fresh login session. Defaults to `false`. |
 | `forceBrowserOAuth` | No | Instagram direct OAuth only. On phones, tries browser OAuth instead of the Instagram app flow. Defaults to `false`. |
 | `instagramConnectionMethod` | No | Instagram only. Use `FACEBOOK` or `INSTAGRAM` to preselect the hosted portal connection method. |
-| `withBusinessScope` | No | Facebook and Instagram via Facebook only. When provided, the hosted page skips the business vs standard scope chooser and uses your value. |
+| `withBusinessScope` | No | Facebook, Instagram via Facebook, and YouTube. When provided, the hosted page skips the business vs standard scope chooser and uses your value. For YouTube it adds the monetary analytics scope that enables revenue/monetization data. |
 | `expiresIn` | No | Link lifetime in minutes. Min `5`, max `2880` (48 hours). Defaults to `10`. |
 
 <Warning>
