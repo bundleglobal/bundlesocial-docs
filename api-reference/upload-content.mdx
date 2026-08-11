@@ -59,15 +59,11 @@ survives a flaky connection.
 }
 ```
 
-### Step 2: PUT each part - exact sizes, and keep every ETag
+### Step 2: PUT each part - and keep every ETag
 
-Slice the file at `partSize` boundaries and `PUT` each slice to its own URL.
-
-<Warning>
-**Every part must be exactly `partSize` bytes**, except the last one, which carries the
-remainder. The expected length is baked into each pre-signed URL, so a chunk of any other
-size is rejected by storage. Slice strictly on `partSize` boundaries.
-</Warning>
+Slice the file at `partSize` boundaries and `PUT` each slice to its own URL. Every part
+except the last must be exactly `partSize` bytes - storage rejects the assembly at the end
+if they are not uniform.
 
 **Read the `ETag` response header from each PUT.** You need the full list to finish, and
 there is no way to recover it afterwards.
@@ -82,8 +78,7 @@ curl -X PUT "https://..." --upload-file ./chunk-001 -D -
 Part URLs are valid for **6 hours**. If one expires mid-upload, call
 `POST /api/v1/upload/multipart/sign` with `{ path, uploadId, partNumbers: [12] }` to get a
 fresh URL for just those parts. Parts you already uploaded keep their ETags - do not
-re-send them. Past that window the upload itself expires: `sign` answers `This upload has
-expired`, and you have to start a new one.
+re-send them.
 </Note>
 
 ### Step 3: Complete
@@ -112,9 +107,10 @@ re-upload.
 
 | Response | Meaning | What to do |
 | :--- | :--- | :--- |
-| **5xx** | Storage could not assemble the parts right now. **Your parts are kept.** | Retry `complete` (a few attempts with backoff). Do **not** re-upload the bytes. |
+| **5xx** | Something on our side failed, not your file - either we could not assemble the parts, or we assembled them and the step after that failed. **Nothing is deleted** in either case. | Retry the same `complete` call (a few attempts with backoff). It handles both: it will assemble the parts, or - if they were already assembled - adopt the existing object. Do **not** re-upload the bytes. |
 | **400 about the part list** | A part number or ETag is wrong or missing. We discard the parts for you. | Fix the request and start a new upload. |
-| **Other 4xx** (quota, permissions) | Rejected *before* we assemble anything, so **your parts are still open**. | Call `abort` yourself, then fix the cause. |
+| **400 about the file** | Empty, wrong type, too large, or no readable preview. The bytes have been deleted. | Fix the file and start a new upload - there is nothing left to abort. |
+| **403** (quota, permissions) | Rejected *before* we assemble anything, so **your parts are still open**. | Call `abort` yourself, then fix the cause. |
 | **Success, but you never saw it** | e.g. your request timed out after we finished. | Just call `complete` again - it returns the same upload and is not counted twice against your quota. |
 
 ### Giving up
