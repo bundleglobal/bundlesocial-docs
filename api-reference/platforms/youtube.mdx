@@ -135,7 +135,7 @@ YouTube analytics are all **Lifetime** values. There is no rolling window - ever
 YouTube raw analytics include demographics data when enabled for your organization. We query the YouTube Analytics API for each video and return age/gender breakdowns and country-level view counts.
 
 <Note>
-Raw analytics are gated per organization (`rawYoutubeAnalyticsEnabled`). If raw analytics are disabled for your org, the extended fields below (demographics, traffic sources, monetization, etc.) are not collected — only the standard metrics remain.
+Raw analytics are gated per organization (`rawYoutubeAnalyticsEnabled`). If raw analytics are disabled for your org, the extended fields below (demographics, traffic sources, monetization, etc.) are not collected - only the standard metrics remain.
 </Note>
 
 #### Monetization
@@ -143,20 +143,20 @@ Raw analytics are gated per organization (`rawYoutubeAnalyticsEnabled`). If raw 
 Monetization (revenue) data is included in raw analytics only when **both** conditions are met:
 
 1. **Raw analytics are enabled** for your organization, and
-2. The account connected with **business access** — the YouTube monetary analytics scope, granted via [`withBusinessScope`](/api-reference/connect-social-accounts/oauth-options#withbusinessscope) at connect time.
+2. The account connected with **business access** - the YouTube monetary analytics scope, granted via [`withBusinessScope`](/api-reference/connect-social-accounts/oauth-options#withbusinessscope) at connect time.
 
 When both hold, monetization appears at two levels:
 
-- **Channel-level** — a channel-wide revenue report for the analytics window, stored in the profile raw analytics `monetization` field.
-- **Video-level** — a per-video revenue report, stored in each video's `monetization` field.
+- **Channel-level** - a channel-wide revenue report for the analytics window, stored in the profile raw analytics `monetization` field.
+- **Video-level** - a per-video revenue report, stored in each video's `monetization` field.
 
 Both use the YouTube Analytics API metrics: `estimatedRevenue`, `estimatedAdRevenue`, `estimatedRedPartnerRevenue`, `grossRevenue`, `cpm`, `playbackBasedCpm`, `adImpressions`, and `monetizedPlaybacks`.
 
 <Note>
-A channel **without monetization** — not in the YouTube Partner Program (YPP), or the account never granted the monetary scope — returns the string `"no data available"` in the `monetization` field instead of a report. This is expected and never fails the analytics run.
+A channel **without monetization** - not in the YouTube Partner Program (YPP), or the account never granted the monetary scope - returns the string `"no data available"` in the `monetization` field instead of a report. This is expected and never fails the analytics run.
 </Note>
 
-**Channel with monetization** — the `monetization` field holds a report with `columnHeaders` and `rows`:
+**Channel with monetization** - the `monetization` field holds a report with `columnHeaders` and `rows`:
 
 ```json
 {
@@ -179,7 +179,7 @@ A channel **without monetization** — not in the YouTube Partner Program (YPP),
 }
 ```
 
-**Channel without monetization** — no YPP data or no monetary scope granted:
+**Channel without monetization** - no YPP data or no monetary scope granted:
 
 ```json
 {

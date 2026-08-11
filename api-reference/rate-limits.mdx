@@ -40,7 +40,7 @@ Because limits are per endpoint, heavy traffic on `POST /post` does not consume 
 
 ## External Platform Rate Limits
 
-These are **daily limits per connected social account**, counted per **UTC calendar day** by the post's scheduled date. The quota is keyed by the **platform account itself** (platform + account id), not by the connection or the team — so the same real account connected more than once (reconnected, or added to multiple teams) **shares a single quota**.
+These are **daily limits per connected social account**, counted per **UTC calendar day** by the post's scheduled date. The quota is keyed by the **platform account itself** (platform + account id), not by the connection or the team - so the same real account connected more than once (reconnected, or added to multiple teams) **shares a single quota**.
 
 ### Posting daily limits per platform per tier
 
@@ -114,7 +114,7 @@ On top of daily limits, there are monthly caps across the entire organization:
 | BUSINESS | 100,000 | 50,000 | 1,000,000 |
 
 <Note>
-**How the monthly cap is counted:** by **creation time**, in the **UTC calendar month** — i.e. when you *schedule* an item, not when it publishes. Scheduling a post for a future month still consumes the **current** month's quota. Drafts don't count; **failed or deleted items still count** (deleting doesn't refund). The window resets on the 1st of each month (UTC).
+**How the monthly cap is counted:** by **creation time**, in the **UTC calendar month** - i.e. when you *schedule* an item, not when it publishes. Scheduling a post for a future month still consumes the **current** month's quota. Drafts don't count; **failed or deleted items still count** (deleting doesn't refund). The window resets on the 1st of each month (UTC).
 </Note>
 
 ---

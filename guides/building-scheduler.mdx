@@ -110,7 +110,7 @@ await bundlesocial.postHistoryImport.create({
 **Crucial:** Upload media *before* the user hits "Schedule". You need the `uploadId` to create the post.
 
 - **Simple Upload** - for images and small files. One request, done.
-- **Resumable Upload** - for videos. Three steps (init, push bytes, finalize), but if the upload fails at 99%, you don't start over.
+- **Multipart Upload** - for videos. The file goes up in 64 MiB chunks (init, PUT each part, complete), so a dropped connection costs one chunk instead of the whole transfer.
 
 See [Media Upload](/api-reference/upload-content) for the full guide.
 
@@ -124,7 +124,7 @@ const uploadId = upload.id; // e.g. "upload_123"
 ```
 
 <Info>
-**Pro tip:** Always use Resumable Upload for videos. If a 500MB upload fails with Simple Upload, your user has to start over. With Resumable, they don't. Your users will thank you. Your support inbox will thank you.
+**Pro tip:** Always use Multipart Upload for videos. If a 500MB upload fails with Simple Upload, your user has to start over - with Multipart they lose one 64 MiB chunk and retry just that. One more thing worth wiring: if `complete` returns a 5xx, the parts are still stored, so retry `complete` rather than re-uploading. Your users will thank you. Your support inbox will thank you.
 </Info>
 
 ---

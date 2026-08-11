@@ -66,7 +66,7 @@ These are the available body fields for the custom flow.
 | `disableAutoLogin` | Facebook, Instagram via Facebook, Instagram direct OAuth, TikTok | Helps users pick the correct platform account when many accounts are used in one browser. |
 | `tiktokForceLogin` | TikTok | Experimental stronger fresh-login flow. Redirects through TikTok logout before authorization. |
 | `forceBrowserOAuth` | Instagram direct OAuth | Avoids the Instagram iOS app deep-link path when possible. |
-| `withBusinessScope` | Facebook, Instagram via Facebook, YouTube | Meta: can expose Pages and Instagram accounts hidden in the standard scope flow. YouTube: adds the monetary analytics scope that enables revenue/monetization data. Optional for YouTube — if not granted, the connection still succeeds and only monetization is unavailable. |
+| `withBusinessScope` | Facebook, Instagram via Facebook, YouTube | Meta: can expose Pages and Instagram accounts hidden in the standard scope flow. YouTube: adds the monetary analytics scope that enables revenue/monetization data. Optional for YouTube - if not granted, the connection still succeeds and only monetization is unavailable. |
 
 <Warning>
 For Facebook and Instagram via Facebook, ask users to select **all Pages and Instagram accounts they manage** in Meta OAuth. Then call `set-channel` for the one target this team should use.
