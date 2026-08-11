@@ -9,22 +9,132 @@ icon: cloud-arrow-up
 
 ## Overview
 
-You have two ways to upload files. 
-1.  **Simple Upload:** Quick, easy, for small stuff.
-2.  **Resumable Upload:** Robust, 3-step process, for big videos.
+You have three ways to upload files.
+
+| Method | Best for | Ceiling |
+| :--- | :--- | :--- |
+| **Multipart Upload** | Big videos. Chunked, retryable per part. | Your video limit - 5 GB by default, higher on request |
+| **Direct Upload** | One-shot uploads of moderate files. | 5 GiB (single-request storage limit) |
+| **Simple Upload** | Images and small clips. | 90 MB |
 
 <Warning>
-**Recommendation:** Always use the **Resumable Upload** for videos. It's more reliable. If a 5GB upload fails at 99% with the Simple method, you start over. With Resumable, you don't.
+**Recommendation:** Use **Multipart Upload** for videos. It is the only method where a
+network drop costs you one 64 MiB chunk instead of the whole transfer - with Direct or
+Simple, a failure at 99% means starting over.
 </Warning>
 
 ---
 
-## Method 1: Resumable Upload (The Pro Way)
+## Method 1: Multipart Upload (The Pro Way)
 
-Ideal for videos or anything >25MB.
+The file is split into fixed **64 MiB** chunks that you PUT independently, then we
+assemble them. Each chunk can be retried or re-signed on its own, so a long upload
+survives a flaky connection.
 
 ### Step 1: Initialize
-Tell us what you're planning to upload.
+
+**Endpoint:** `POST /api/v1/upload/multipart/init`
+
+```json
+// Request
+{
+  "fileName": "viral-video.mp4",
+  "mimeType": "video/mp4",
+  "fileSize": 8589934592,   // required - we reject oversized files here, not after the transfer
+  "teamId": "..."
+}
+```
+
+**Response:** an `uploadId`, the `path`, the `partSize`, and one presigned `url` per part.
+
+```json
+{
+  "uploadId": "2~abc123...",
+  "path": "team-id/9f8e7d6c.mp4",
+  "partSize": 67108864,
+  "parts": [
+    { "partNumber": 1, "url": "https://..." },
+    { "partNumber": 2, "url": "https://..." }
+  ]
+}
+```
+
+### Step 2: PUT each part - and keep every ETag
+
+Slice the file at `partSize` boundaries and `PUT` each slice to its own URL. Every part
+except the last must be exactly `partSize` bytes - storage rejects the assembly at the end
+if they are not uniform.
+
+**Read the `ETag` response header from each PUT.** You need the full list to finish, and
+there is no way to recover it afterwards.
+
+```bash
+curl -X PUT "https://..." --upload-file ./chunk-001 -D -
+# HTTP/1.1 200 OK
+# ETag: "d41d8cd98f00b204e9800998ecf8427e"
+```
+
+<Note>
+Part URLs are valid for **6 hours**. If one expires mid-upload, call
+`POST /api/v1/upload/multipart/sign` with `{ path, uploadId, partNumbers: [12] }` to get a
+fresh URL for just those parts. Parts you already uploaded keep their ETags - do not
+re-send them.
+</Note>
+
+### Step 3: Complete
+
+**Endpoint:** `POST /api/v1/upload/multipart/complete`
+
+```json
+// Request
+{
+  "path": "team-id/9f8e7d6c.mp4",
+  "uploadId": "2~abc123...",
+  "parts": [
+    { "partNumber": 1, "etag": "\"d41d8cd9...\"" },
+    { "partNumber": 2, "etag": "\"a3f5b2e1...\"" }
+  ],
+  "teamId": "..."
+}
+```
+
+**Response:** the upload object, including the `id` you pass when creating a post.
+
+### Handling errors on complete
+
+This is worth wiring properly - it decides whether a failure costs you seconds or a full
+re-upload.
+
+| Response | Meaning | What to do |
+| :--- | :--- | :--- |
+| **5xx** | Something on our side failed, not your file - either we could not assemble the parts, or we assembled them and the step after that failed. **Nothing is deleted** in either case. | Retry the same `complete` call (a few attempts with backoff). It handles both: it will assemble the parts, or - if they were already assembled - adopt the existing object. Do **not** re-upload the bytes. |
+| **400 about the part list** | A part number or ETag is wrong or missing. We discard the parts for you. | Fix the request and start a new upload. |
+| **400 about the file** | Empty, wrong type, too large, or no readable preview. The bytes have been deleted. | Fix the file and start a new upload - there is nothing left to abort. |
+| **403** (quota, permissions) | Rejected *before* we assemble anything, so **your parts are still open**. | Call `abort` yourself, then fix the cause. |
+| **Success, but you never saw it** | e.g. your request timed out after we finished. | Just call `complete` again - it returns the same upload and is not counted twice against your quota. |
+
+### Giving up
+
+**Endpoint:** `POST /api/v1/upload/multipart/abort` with `{ path, uploadId }`.
+
+Call it whenever you abandon an upload - unfinished parts occupy storage and count against
+your usage. If your process dies before it can, transfers left untouched for **7 days** are
+aborted automatically, but that is a backstop, not your cleanup path.
+
+<Note>
+A single upload is capped at **10 000 parts**, and the file still has to fit your plan's
+video limit (see [Limits](/api-reference/limits)).
+</Note>
+
+---
+
+## Method 2: Direct Upload
+
+One presigned `PUT` for the whole file. Simpler than multipart, but a failure means
+starting over, and the hard ceiling is **5 GiB** (a single storage request cannot carry
+more). Above that we reject at init and point you to multipart.
+
+### Step 1: Initialize
 
 **Endpoint:** `POST /api/v1/upload/init`
 
@@ -33,17 +143,17 @@ Tell us what you're planning to upload.
 {
   "fileName": "viral-video.mp4",
   "mimeType": "video/mp4",
-  "teamId": "..." // optional
+  "fileSize": 1073741824,   // optional, but send it - lets us reject oversized files up front
+  "teamId": "..."
 }
 ```
 
-**Response:**
-We give you a magic `url` (Pre-signed URL) and a `path`. Keep them safe.
+**Response:** a presigned `url` and a `path`.
 
 ```json
 {
-  "url": "https://storage.googleapis.com/...",
-  "path": "uploads/123/viral-video.mp4"
+  "url": "https://...",
+  "path": "team-id/9f8e7d6c.mp4"
 }
 ```
 
@@ -59,7 +169,7 @@ Send the raw binary file to the `url` we gave you. Use `PUT`.
 </Note>
 
 ```bash
-curl -X PUT "https://storage.googleapis.com/..." \
+curl -X PUT "https://..." \
   --upload-file ./viral-video.mp4
 ```
 
@@ -71,7 +181,7 @@ Tell us you're done so we can register the file in our system.
 ```json
 // Request
 {
-  "path": "uploads/123/viral-video.mp4", // from Step 1
+  "path": "team-id/9f8e7d6c.mp4", // from Step 1
   "teamId": "..."
 }
 ```
@@ -81,7 +191,7 @@ You get an `id` (e.g., `upload_abc123`). **This is the ID you use when creating 
 
 ---
 
-## Method 2: Simple Upload (The Lazy Way)
+## Method 3: Simple Upload (The Lazy Way)
 
 Good for images or small clips. Uses standard `multipart/form-data`.
 
@@ -108,10 +218,10 @@ Register media by passing a **public HTTP(S) URL** instead of uploading the byte
 | Max size | **1 GB** |
 | Download timeout | **60 seconds** |
 | Best for | Small / medium files (typical short-form / feed content) |
-| Not for | Large videos — we fetch the file server-side and cap it at **1 GB / 60 s**. For bigger files, upload the bytes yourself with [Resumable Upload](#method-1-resumable-upload-the-pro-way) (up to 5 GB). |
+| Not for | Large videos - we fetch the file server-side and cap it at **1 GB / 60 s**. For bigger files, upload the bytes yourself with [Multipart Upload](#method-1-multipart-upload-the-pro-way). |
 
 <Note>
-The **1 GB / 60 s** limit applies only to URL imports, because we download the file for you. Direct uploads (Simple / Resumable) stream straight to storage and allow up to **5 GB**.
+The **1 GB / 60 s** limit applies only to URL imports, because we download the file for you. Uploads where you send the bytes stream straight to storage and allow up to your full video limit.
 </Note>
 
 ---
@@ -125,11 +235,11 @@ The **1 GB / 60 s** limit applies only to URL imports, because we download the f
 | **Documents** | PDF | 100 MB |
 
 <Note>
-The overall upload ceiling is **5 GB** per file; the max video size also depends on the platform you're posting to. TikTok allows up to 1 GB, YouTube up to 5 GB, while Discord caps at 10 MB. Check [Platform Limits](/api-reference/limits) for the exact numbers per platform.
+The default video ceiling is **5 GB** per file - [talk to us](mailto:support@bundle.social) if you need more, which is granted per organization and only applies to Multipart Upload. The max video size also depends on the platform you're posting to: TikTok allows up to 1 GB, YouTube up to 5 GB, while Discord caps at 10 MB. Check [Platform Limits](/api-reference/limits) for the exact numbers per platform.
 </Note>
 
 <Info>
-**Tip:** If you are uploading a picture of your cat (or your mom, we don't judge), Simple Upload is fine. For a 4K podcast clip, use Resumable.
+**Tip:** If you are uploading a picture of your cat (or your mom, we don't judge), Simple Upload is fine. For a 4K podcast clip, use Multipart.
 </Info>
 
 ---
