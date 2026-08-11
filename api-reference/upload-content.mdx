@@ -59,10 +59,15 @@ survives a flaky connection.
 }
 ```
 
-### Step 2: PUT each part - and keep every ETag
+### Step 2: PUT each part - exact sizes, and keep every ETag
 
-Slice the file at `partSize` boundaries and `PUT` each slice to its own URL. Every part
-except the last must be exactly `partSize` bytes.
+Slice the file at `partSize` boundaries and `PUT` each slice to its own URL.
+
+<Warning>
+**Every part must be exactly `partSize` bytes**, except the last one, which carries the
+remainder. The expected length is baked into each pre-signed URL, so a chunk of any other
+size is rejected by storage. Slice strictly on `partSize` boundaries.
+</Warning>
 
 **Read the `ETag` response header from each PUT.** You need the full list to finish, and
 there is no way to recover it afterwards.
@@ -77,7 +82,8 @@ curl -X PUT "https://..." --upload-file ./chunk-001 -D -
 Part URLs are valid for **6 hours**. If one expires mid-upload, call
 `POST /api/v1/upload/multipart/sign` with `{ path, uploadId, partNumbers: [12] }` to get a
 fresh URL for just those parts. Parts you already uploaded keep their ETags - do not
-re-send them.
+re-send them. Past that window the upload itself expires: `sign` answers `This upload has
+expired`, and you have to start a new one.
 </Note>
 
 ### Step 3: Complete
@@ -107,7 +113,8 @@ re-upload.
 | Response | Meaning | What to do |
 | :--- | :--- | :--- |
 | **5xx** | Storage could not assemble the parts right now. **Your parts are kept.** | Retry `complete` (a few attempts with backoff). Do **not** re-upload the bytes. |
-| **4xx** | Final - a bad part list, a size or type rejection. The parts are discarded. | Fix the request and start a new upload. |
+| **400 about the part list** | A part number or ETag is wrong or missing. We discard the parts for you. | Fix the request and start a new upload. |
+| **Other 4xx** (quota, permissions) | Rejected *before* we assemble anything, so **your parts are still open**. | Call `abort` yourself, then fix the cause. |
 | **Success, but you never saw it** | e.g. your request timed out after we finished. | Just call `complete` again - it returns the same upload and is not counted twice against your quota. |
 
 ### Giving up
@@ -115,8 +122,13 @@ re-upload.
 **Endpoint:** `POST /api/v1/upload/multipart/abort` with `{ path, uploadId }`.
 
 Call it whenever you abandon an upload - unfinished parts occupy storage and count against
-your usage. If your process dies before it can, we abort transfers left untouched for
-**24 hours**, but do not rely on that as your cleanup path.
+your usage. If your process dies before it can, transfers left untouched for **7 days** are
+aborted automatically, but that is a backstop, not your cleanup path.
+
+<Note>
+A single upload is capped at **10 000 parts**, and the file still has to fit your plan's
+video limit (see [Limits](/api-reference/limits)).
+</Note>
 
 ---
 
