@@ -9,6 +9,13 @@ Everything you need to know about analytics before you read the [platform-specif
 
 For platform-specific metrics and quirks, see each platform's dedicated page.
 
+<Warning>
+**Analytics require a paid plan.** The free plan has API access, but not analytics. Every analytics
+endpoint returns `403` with `Analytics access is disabled for your subscription tier.` on the free plan,
+and nothing is collected in the background either - so upgrading later does not backfill the period you
+spent on the free plan. Analytics are included on Pro, Business, and Enterprise.
+</Warning>
+
 ---
 
 ## Analytics Refresh & Rate Limits
