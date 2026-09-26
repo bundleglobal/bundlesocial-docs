@@ -1,6 +1,6 @@
 ---
 title: Data Retention
-description: "What we keep, for how long, and when it disappears. Analytics 30 days, webhook events 7, deleted uploads 7, imported posts 30. Plan accordingly."
+description: "What we keep, for how long, and when it disappears. Analytics 30 days, webhook events 7, deleted uploads 7, imported posts 30, DMs and automation logs 30. Plan accordingly."
 icon: clock-rotate-left
 keywords: ["data retention", "analytics retention", "webhook retention", "cleanup policy", "data deletion"]
 ---
@@ -121,6 +121,26 @@ Your import quota resets on the **1st of every month**. So if you hit your month
 
 ---
 
+## Direct Messages And Automation Logs - 30 Days
+
+**What:** [Direct messages](/api-reference/direct-messages), conversations, and [automation](/api-reference/automations) execution logs (every run and every step).
+
+**Retention:** at least **30 days** from when each message or run was created.
+
+- Messages are deleted one by one as they turn 30 days old, so an ongoing conversation keeps its recent part.
+- A conversation itself disappears once it has had no activity for 30 days and all of its messages are gone.
+- Automation runs and their step logs go 30 days after the run. The same goes for records of button, quick reply and menu taps. Your flows, their versions, and your ice breakers and menus are not affected.
+
+### Why
+
+DMs are private conversations between your users and the people who write to them. We keep them only as long as the inbox and your automations need them, in line with Meta's platform rules. We'd rather not sit on other people's private messages.
+
+### What You Should Do
+
+If you need a longer history (support records, CRM, compliance), store messages on your side as they arrive. Every message reaches you as a [`conversation.message.created`](/api-reference/direct-messages/webhooks) webhook, and edits, unsends and status changes as `conversation.message.updated`. Saving those payloads is all it takes.
+
+---
+
 ## Summary
 
 | Data Type | Retention Period |
@@ -130,6 +150,8 @@ Your import quota resets on the **1st of every month**. So if you hit your month
 | Deleted uploads | **7 days** after deletion |
 | Stale unused uploads | Soft-deleted after **90 days**, then the 7-day deleted-upload window applies |
 | Imported posts | **30 days** |
+| Direct messages and conversations | **30 days** |
+| Automation execution logs | **30 days** |
 
 ---
 

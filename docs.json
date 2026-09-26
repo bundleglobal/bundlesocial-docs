@@ -60,7 +60,33 @@
               "api-reference/bulk-posts-csv",
               "api-reference/upload-content",
               "api-reference/errors",
-              "api-reference/comments"
+              "api-reference/comments",
+              {
+                "group": "Direct Messages",
+                "icon": "inbox",
+                "pages": [
+                  "api-reference/direct-messages",
+                  "api-reference/direct-messages/setup",
+                  "api-reference/direct-messages/conversations",
+                  "api-reference/direct-messages/sending-messages",
+                  "api-reference/direct-messages/private-replies",
+                  "api-reference/direct-messages/webhooks"
+                ]
+              },
+              {
+                "group": "Automations",
+                "icon": "robot",
+                "pages": [
+                  "api-reference/automations",
+                  "api-reference/automations/building-flows",
+                  "api-reference/automations/managing-flows",
+                  "api-reference/automations/how-flows-behave",
+                  "api-reference/automations/testing-and-logs",
+                  "api-reference/automations/provider-settings",
+                  "api-reference/automations/webhooks",
+                  "api-reference/automations/recipes"
+                ]
+              }
             ]
           },
           {
