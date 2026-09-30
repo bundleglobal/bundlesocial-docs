@@ -48,7 +48,9 @@ This signs the user out of their active TikTok browser session. Use it only when
 
 Supported for **Instagram direct OAuth**.
 
-When `true`, direct Instagram connections on phones try to open browser OAuth instead of the Instagram app flow. This helps when the Instagram iOS app deep-link flow gets stuck or returns users without completing authorization.
+When `true`, Instagram asks the user to log in again instead of reusing the account already logged in on that browser. Use it when connecting several Instagram accounts one after another.
+
+In the [hosted flow](/api-reference/connect-social-accounts/hosted-flow) the flag is applied only on iPhone and iPad; on other devices use `disableAutoLogin`, which has the same effect on Instagram. The custom `connect` endpoint applies it on every device.
 
 ```json
 {
@@ -59,7 +61,7 @@ When `true`, direct Instagram connections on phones try to open browser OAuth in
 ```
 
 <Note>
-This is separate from `disableAutoLogin`. `forceBrowserOAuth` changes which Instagram OAuth surface we try to use. `disableAutoLogin` asks the provider to avoid silently reusing the current logged-in session where supported.
+Keeping the login in the browser on iPhone no longer needs this flag: every Instagram direct connection now stays in the browser on iOS instead of jumping into the Instagram app. On Android, the phone's "Open supported links" setting for the Instagram app decides, and links opened inside other apps (Instagram, WhatsApp, Messenger) use their in-app browser, where the login can fail. If that happens, open the link in a regular browser or on a computer.
 </Note>
 
 ---

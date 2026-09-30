@@ -98,6 +98,8 @@ For the full breakdown of what we retain and for how long (not just analytics), 
 - **Update Frequency**: Analytics are updated based on when we fetch data from each platform, which may not match the real-time updates you see in the platform's own interface.
 
 - **Zero Values**: **Some metrics return `0` when the platform API doesn't provide that specific data point.** This doesn't mean you have zero engagement - it means the data is not available through the API. Each platform page clearly marks which fields return 0 and why.
+
+- **No Data vs. Zero (Instagram)**: When Instagram refuses insights for a post, we store **no snapshot** instead of a row of zeros. This happens for posts published before the account switched to a professional (Business/Creator) account, which Meta never serves insights for, and for posts with too few viewers. A forced refresh on such a post returns `400` with Meta's reason. Posts that can never have insights are excluded from future refreshes.
 </Note>
 
 ---
@@ -207,7 +209,7 @@ For exact raw payload examples, use the platform pages:
 | Mastodon | Limited | Limited | Account/status payloads with basic engagement |
 | Bluesky | Limited | Limited | Actor/post payloads and calculated engagement inputs |
 | Google Business | Yes | No post raw | Location info, daily metrics, computed summary |
-| Twitter/X | No | No | Analytics endpoints are not available for X |
+| Twitter/X | No | No | No raw payloads; analytics are on demand only (see the X page) |
 | Discord | No | No | Messaging platform; no analytics API |
 | Slack | No | No | Messaging platform; no analytics API |
 
@@ -229,7 +231,7 @@ A quick reference for what each platform gives us (and what it doesn't).
 | [Facebook](/api-reference/platforms/facebook) | Rolling (30d) | Lifetime | Profile: likes, comments, post count all return 0 |
 | [LinkedIn (Personal)](/api-reference/platforms/linkedin) | Rolling (30d) | Rolling (30d) | Views, post count, following return 0 |
 | [LinkedIn (Org)](/api-reference/platforms/linkedin) | Rolling (30d) | Rolling (30d) | Post count, following, post views/saves return 0 |
-| [Twitter/X](/api-reference/platforms/twitter) | N/A | N/A | Not available. Won't be. |
+| [Twitter/X](/api-reference/platforms/twitter) | On demand | On demand | Forced refresh only, billed from X credits; profile returns followers, following and post count only |
 | [TikTok](/api-reference/platforms/tiktok) | Rolling (30d) | Lifetime | Post saves return 0 |
 | [YouTube](/api-reference/platforms/youtube) | Lifetime | Lifetime | Profile likes, following, post shares return 0 |
 | [Snapchat](/api-reference/platforms/snapchat) | Lifetime | Lifetime | Public Profile required; raw payloads require organization-level enablement |

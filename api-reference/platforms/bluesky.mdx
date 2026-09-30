@@ -33,6 +33,17 @@ Bluesky's API is young. As the platform and protocol mature, we expect more anal
 
 Bluesky has minimal media restrictions compared to other platforms. See [Platform Limits](/api-reference/limits#bluesky) for details.
 
+### Video Upload Eligibility
+
+Bluesky decides per account whether it may upload videos. Before every video upload we ask Bluesky for the account's upload limits, so a refusal comes back with Bluesky's own reason instead of a bare `http_401`:
+
+| Error | What it means | Fix |
+| :--- | :--- | :--- |
+| "Bluesky does not allow this account to upload videos: …" | Bluesky refuses video for this account. The most common cause is an **unverified email**. Not retried. | Verify the account's email in the Bluesky app (Settings → Account), then retry the post. Reconnecting doesn't help. |
+| "Bluesky daily video upload limit reached for this account: …" | The account used its daily video allowance. Retried later. | Wait for the daily limit to reset, or post fewer videos per day from this account. |
+
+Image and text posts are not affected.
+
 ### Text & Field Limits
 
 | Field | Limit |

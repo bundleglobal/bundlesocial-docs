@@ -14,6 +14,7 @@ SNAPCHAT SUPPORT USES THE **PUBLIC PROFILE API**. THE CONNECTED SNAPCHAT ACCOUNT
 ## Supported Content Types
 
 - Public Stories with one image or MP4 video.
+- Saved Stories with up to 20 images or MP4 videos.
 - Spotlights with one MP4 video.
 - Profile, Story, and Spotlight analytics.
 
@@ -23,8 +24,9 @@ Snapchat does not require a separate `set-channel` call. The Public Profile retu
 
 | Field | Type | Description |
 | :--- | :--- | :--- |
-| `type` | `STORY` \| `SPOTLIGHT` | Defaults to `STORY`. |
-| `uploadIds` | `string[]` | Required. Exactly one uploaded media file. |
+| `type` | `STORY` \| `SAVED_STORY` \| `SPOTLIGHT` | Defaults to `STORY`. |
+| `uploadIds` | `string[]` | Required. Exactly one uploaded media file, or 1-20 for `SAVED_STORY`. |
+| `title` | `string` | Required for `SAVED_STORY`, max 45 characters. Keep it to 40 or fewer: Snapchat rejects some longer titles. |
 | `description` | `string` | Spotlight description, max 160 characters. |
 | `text` | `string` | Alias for Spotlight `description`, max 160 characters. `description` takes precedence. |
 | `locale` | `string` | Spotlight locale in `en_US` format. Defaults to `en_US`. |
@@ -80,6 +82,17 @@ Snapchat does not require a separate `set-channel` call. The Public Profile retu
 | Video minimum resolution | 540x960 |
 | Video duration | 5-60 seconds |
 
+### Saved Stories
+
+| Constraint | Value |
+| :--- | :--- |
+| Files | 1-20 images and/or MP4 videos |
+| Max file size | 100 MB per file |
+| Video minimum resolution | 540x960 |
+| Video duration | 5-180 seconds per video |
+| Combined length | Max 300 seconds (each image counts as 10 seconds) |
+| Title | Required, max 45 characters (40 or fewer recommended) |
+
 ### Spotlights
 
 | Constraint | Value |
@@ -88,6 +101,15 @@ Snapchat does not require a separate `set-channel` call. The Public Profile retu
 | Max file size | 100 MB |
 | Minimum resolution | 540x960 |
 | Video duration | 6-60 seconds |
+
+## Troubleshooting
+
+| Error | What it means | Fix |
+| :--- | :--- | :--- |
+| "This Snapchat account has no Public Profile" (on connect) | The Snapchat login has no Public Profile. Snapchat's API can only publish as a Public Profile. | Create a Public Profile in the Snapchat app, or log in with the account that owns it, then connect again. |
+| `SNAP:AUTHORIZATION_PERMISSION_DENIED` "Could not upload Snapchat media" | The connected Snapchat account can see the profile but is not its **Owner or Admin** (e.g. a collaborator, or access only through Ads Manager). | Give that account the Admin role on the Public Profile, or reconnect with the account that owns it. |
+| `SNAP:MEDIA_NOT_VALID_FOR_STORY_POSTING` | The media doesn't meet Snapchat's Story requirements. | Use an MP4 video of 5-60 seconds, at least 540x960. |
+| "Failed to create saved story: Title" | Snapchat rejected the Saved Story title. | Keep the title to 40 characters or fewer. |
 
 ## Publishing Behavior
 

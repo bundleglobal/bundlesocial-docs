@@ -388,6 +388,13 @@ Most common reasons:
 - import still running,
 - no comments yet on that post.
 
+### "Why does creating a comment fail?"
+
+- `404 Post not found or does not belong to this team` - the `internalPostId` doesn't exist, belongs to another team, or the post was deleted.
+- `Post is not published on <platform> yet` - a top-level comment needs the published post. Wait until the post is `POSTED` (or reply to an existing comment instead).
+- `No text provided to create comment` - the comment has no text for that platform.
+- `Slack/Discord channel for this post is unknown` - replying to an imported Slack or Discord post isn't supported, since the import doesn't carry its channel.
+
 ### "Why I see comment without parent?"
 
 Because parent mapping from platform was not returned in this fetch window. Show as root and keep it visible.

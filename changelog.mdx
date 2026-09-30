@@ -6,6 +6,24 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
+<Update label="2026-09-30">
+Instagram analytics: posts Instagram has no insights for (published before the account switched to professional, or too few viewers) now return no data instead of a row of zeros. Posts that can never have insights stop being refreshed, and a forced refresh returns `400` with Meta's reason.
+
+Snapchat: connecting an account without a Public Profile now fails with a clear "no Public Profile" message. Saved Stories are documented, with a Troubleshooting table for common Snapchat errors.
+
+Bluesky video: we check Bluesky's upload limits before each video upload, so refusals come back with Bluesky's reason (for example an unverified email or the daily video limit) instead of `http_401`. The daily limit is retried.
+
+Comments: `POST /comment` returns `404` for a post that doesn't exist or was deleted, and clear errors when the target post isn't published on the platform yet.
+
+X analytics are documented: available on demand through the force endpoints, billed from X credits.
+
+Upload retention is documented as it works: unused uploads are cleaned up 14 days after upload or after the last post using them finished, and deleted uploads are kept for 2 days.
+
+DMs: reactions and marking a conversation as read don't count toward the monthly message limit.
+
+`copyTeamId` was removed from `POST /team`. It never had an effect; requests that still send it keep working.
+</Update>
+
 <Update label="2026-07-30">
 Automatic first comment: a `firstComment` field on post create and update that publishes a comment as soon as the post itself goes live. Available for TikTok, YouTube, Instagram, Facebook, Threads, LinkedIn, Reddit, Mastodon, Discord, Slack, and Bluesky, each with its own character limit. It is echoed back on create/update and single-post responses, and the underlying comment can still be edited through the comment endpoints.
 

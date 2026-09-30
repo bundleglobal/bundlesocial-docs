@@ -1,6 +1,6 @@
 ---
 title: Data Retention
-description: "What we keep, for how long, and when it disappears. Analytics 30 days, webhook events 7, deleted uploads 7, imported posts 30, DMs and automation logs 30. Plan accordingly."
+description: "What we keep, for how long, and when it disappears. Analytics 30 days, webhook events 7, deleted uploads 2, stale uploads 14, imported posts 30, DMs and automation logs 30. Plan accordingly."
 icon: clock-rotate-left
 keywords: ["data retention", "analytics retention", "webhook retention", "cleanup policy", "data deletion"]
 ---
@@ -88,22 +88,32 @@ Log webhook payloads on your end when you receive them. This is standard practic
 
 ---
 
-## Deleted Uploads - 7 Days
+## Deleted Uploads - 2 Days
 
 **What:** Files you've deleted (images, videos) and their database records.
 
-**Retention:** **7 days** after you soft-delete an upload.
+**Retention:** **2 days** after an upload is soft-deleted (by you, or by the stale-upload rule below).
 
-When you delete an upload, we don't immediately nuke the file. We keep it around for 7 days in case you change your mind (or in case it's still referenced by active posts). After 7 days:
+When an upload is deleted, we don't immediately nuke the file. We keep it around for 2 days in case you change your mind. After 2 days:
 
-- If the upload is used by active posts: We remove the file from storage but keep the database record (so post references don't break).
-- If the upload is unused: Both the file and the database record are deleted.
+- If the upload was used in a post: we remove the main file from storage but keep the database record, thumbnail and icon (so post history still shows a preview). The upload's `url` stops working.
+- If the upload was never used: the files and the database record are all deleted.
 
-## Stale Unused Uploads - 90 Days
+Uploads attached to a draft or scheduled post can't be deleted.
 
-Uploads are automatically soft-deleted after **90 days** when they are not attached to an active post. This also covers uploads referenced only by `POSTED` or `ERROR` posts whose published content is older than the same cutoff.
+## Stale Uploads - 14 Days
 
-After the upload is soft-deleted, the normal 7-day deleted-upload retention applies before storage cleanup.
+Uploads are cleaned up automatically on a **sliding 14-day window**:
+
+- An upload stays alive as long as **any post using it is still a draft, scheduled or publishing**.
+- Once that's no longer true, it's soft-deleted **14 days** after the later of: when it was uploaded, or when the last post using it reached `POSTED`, `ERROR` or `DELETED`.
+- An upload that is **never attached to a post** is soft-deleted 14 days after upload.
+
+After that, the 2-day deleted-upload window above applies.
+
+<Tip>
+Scheduling far ahead is safe: attach the upload to the post **when you create the post**, and it stays until the post publishes. Don't upload now and create the post more than 14 days later.
+</Tip>
 
 ---
 
@@ -147,8 +157,8 @@ If you need a longer history (support records, CRM, compliance), store messages 
 | :--- | :--- |
 | Analytics (parsed + raw) | **30 days** |
 | Webhook events | **7 days** |
-| Deleted uploads | **7 days** after deletion |
-| Stale unused uploads | Soft-deleted after **90 days**, then the 7-day deleted-upload window applies |
+| Deleted uploads | **2 days** after deletion |
+| Stale uploads | Soft-deleted **14 days** after upload or after the last post using it finished, then the 2-day deleted-upload window applies |
 | Imported posts | **30 days** |
 | Direct messages and conversations | **30 days** |
 | Automation execution logs | **30 days** |

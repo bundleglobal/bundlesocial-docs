@@ -1,6 +1,6 @@
 ---
 title: Twitter / X
-description: "It's X now. The API is... well, it exists. Analytics are not included."
+description: "It's X now. The API is... well, it exists. Analytics are available on demand, billed from X credits."
 icon: x-twitter
 keywords: ["twitter api", "x api", "twitter post api", "social media api", "twitter automation", "twitter post scheduling"]
 "og:title": "Twitter/X API Integration - Posting & Media Limits"
@@ -105,14 +105,17 @@ Reply settings depend on your Twitter/X account tier. Some options (like `SUBSCR
 
 ## Analytics
 
-We'll be honest here.
+Available **on demand only**. X charges for every API read, so we never refresh X analytics in the background. You trigger a refresh yourself, and each one is billed from your prepaid X credits, the same balance used for posting.
 
-### Profile Analytics
-**Status:** Not available. Won't be.
+| What | Endpoint | Fields |
+| :--- | :--- | :--- |
+| Profile | `POST /api/v1/analytics/social-account/force` | `followers`, `following`, `postCount` (other metrics return `0`) |
+| Post | `POST /api/v1/analytics/post/force` | `impressions`, `likes`, `comments` (replies), `shares` (reposts + quotes), `saves` (bookmarks) |
 
-### Post Analytics
-**Status:** Not available. Won't be.
+After a refresh, the data is available through the regular analytics endpoints.
 
-<Info>
-**Why?** The X API changes have made analytics access extremely expensive and restrictive. The cost-to-value ratio doesn't make sense for anyone involved. We know, it sucks. If this changes in the future, we'll add support. But don't hold your breath.
-</Info>
+<Note>
+- If your credit balance is too low, the refresh fails with a clear "Not enough credits" error and nothing is charged.
+- Forced refreshes have a daily limit per account and per post, like on every other platform.
+- For your own posts X returns organic metrics (the richer set); if those aren't available we fall back to public metrics.
+</Note>

@@ -100,7 +100,7 @@ Sending DMs is a paid-plan feature. Each connected account has a monthly quota o
 | Pro | 200 |
 | Business | 1,000 |
 
-What counts: every message sent through bundle.social, whether it came from your API call, the dashboard, or an [automation](/api-reference/automations). What doesn't count: incoming messages, messages that failed, and messages the account owner typed directly in the Instagram or Messenger app. Quotas reset on the 1st of every month (UTC).
+What counts: every message sent through bundle.social, whether it came from your API call, the dashboard, or an [automation](/api-reference/automations), including [private replies](/api-reference/direct-messages/private-replies). What doesn't count: incoming messages, messages that failed, messages the account owner typed directly in the Instagram or Messenger app, reactions, and marking a conversation as read. Quotas reset on the 1st of every month (UTC).
 
 When the quota runs out, sends return `403` with `Monthly message limit reached`. Need a bigger bucket? [Contact us](https://bundle.social/contact).
 
