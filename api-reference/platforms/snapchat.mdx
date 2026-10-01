@@ -80,7 +80,7 @@ Snapchat does not require a separate `set-channel` call. The Public Profile retu
 | Files | Exactly 1 image or MP4 video |
 | Max file size | 100 MB |
 | Video minimum resolution | 540x960 |
-| Video duration | 5-60 seconds |
+| Video duration | 5-180 seconds |
 
 ### Saved Stories
 
@@ -100,7 +100,7 @@ Snapchat does not require a separate `set-channel` call. The Public Profile retu
 | Files | Exactly 1 MP4 video |
 | Max file size | 100 MB |
 | Minimum resolution | 540x960 |
-| Video duration | 6-60 seconds |
+| Video duration | 5-180 seconds |
 
 ## Troubleshooting
 
@@ -108,7 +108,7 @@ Snapchat does not require a separate `set-channel` call. The Public Profile retu
 | :--- | :--- | :--- |
 | "This Snapchat account has no Public Profile" (on connect) | The Snapchat login has no Public Profile. Snapchat's API can only publish as a Public Profile. | Create a Public Profile in the Snapchat app, or log in with the account that owns it, then connect again. |
 | `SNAP:AUTHORIZATION_PERMISSION_DENIED` "Could not upload Snapchat media" | The connected Snapchat account can see the profile but is not its **Owner or Admin** (e.g. a collaborator, or access only through Ads Manager). | Give that account the Admin role on the Public Profile, or reconnect with the account that owns it. |
-| `SNAP:MEDIA_NOT_VALID_FOR_STORY_POSTING` | The media doesn't meet Snapchat's Story requirements. | Use an MP4 video of 5-60 seconds, at least 540x960. |
+| `SNAP:MEDIA_NOT_VALID_FOR_STORY_POSTING` | The media doesn't meet Snapchat's Story requirements. | Use an MP4 video of 5-180 seconds, at least 540x960. |
 | "Failed to create saved story: Title" | Snapchat rejected the Saved Story title. | Keep the title to 40 characters or fewer. |
 
 ## Publishing Behavior
