@@ -34,7 +34,7 @@ You can request analytics to be refreshed immediately by calling the analytics f
 | Post analytics | `POST /api/v1/analytics/post/force` | `{ "postId": "...", "platformType": "INSTAGRAM" }` |
 | Imported post analytics | `POST /api/v1/analytics/post/force` | `{ "importedPostId": "..." }` |
 
-However, force refresh requests are rate limited to `number of teams x 5` per day. Per organization. No exceptions.
+However, force refresh requests are rate limited to **6 per social account** and **6 per post** in any rolling 24 hours.
 
 You may ask why?
 
@@ -51,11 +51,11 @@ while (true) {
 We had such cases. We are not joking. Someone actually did this in production.
 
 <Note>
-**Rate Limit Formula**: Maximum force refresh requests per day = `number of teams x 5`
+**Rate Limits**: Each social account can be force refreshed up to **6 times** in a rolling 24 hours, and each post up to **6 times**. The counters are separate, so refreshing one account doesn't use up another account's or a post's allowance.
 
-For example, if you have 10 teams, you can make up to 50 force refresh requests per day. Post analytics have the same limit: `teams x 5`.
+A refresh that fails doesn't count against the limit. If you exceed the limit, the API returns `429 Too Many Requests`.
 
-If you exceed the limit, the API returns `429 Too Many Requests`.
+Need more? Reach out and we can raise it for your organization.
 </Note>
 
 ### Custom Refresh Periods
