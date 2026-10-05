@@ -26,6 +26,7 @@ Snapchat does not require a separate `set-channel` call. The Public Profile retu
 | :--- | :--- | :--- |
 | `type` | `STORY` \| `SAVED_STORY` \| `SPOTLIGHT` | Defaults to `STORY`. |
 | `uploadIds` | `string[]` | Required. Exactly one uploaded media file, or 1-20 for `SAVED_STORY`. |
+| `storyDuration` | `ONE_DAY` \| `TWO_DAYS` \| `THREE_DAYS` \| `ONE_WEEK` | `STORY` only. How long the Story stays visible. Defaults to 24 hours. |
 | `title` | `string` | Required for `SAVED_STORY`, max 45 characters. Keep it to 40 or fewer: Snapchat rejects some longer titles. |
 | `description` | `string` | Spotlight description, max 160 characters. |
 | `text` | `string` | Alias for Spotlight `description`, max 160 characters. `description` takes precedence. |

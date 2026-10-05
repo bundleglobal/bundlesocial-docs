@@ -57,7 +57,7 @@ See [Platform Limits](/api-reference/limits#tiktok) for the full breakdown.
 | `type` | `VIDEO` \| `IMAGE` | Defaults to `VIDEO`. `IMAGE` is TikTok Photo Mode. |
 | `text` | `string` | Caption text. Max 2,200 characters. |
 | `uploadIds` | `string[]` | One video, or 1-10 Photo Mode images. |
-| `thumbnail` | `string` | URL to an uploaded thumbnail image. |
+| `thumbnail` | `string` | VIDEO only. Custom cover: the `url` of an image uploaded to bundle.social (`POST /upload`). URLs hosted elsewhere are rejected with `400`, since TikTok only fetches covers from verified domains. JPG/PNG/WebP, 360x360 to 1080x1920, up to 20 MB. Overrides `thumbnailOffset`. |
 | `privacy` | `SELF_ONLY` \| `PUBLIC_TO_EVERYONE` \| `MUTUAL_FOLLOW_FRIENDS` \| `FOLLOWER_OF_CREATOR` | TikTok visibility setting. |
 | `photoCoverIndex` | `number` | Zero-based cover image index for Photo Mode. |
 | `isBrandContent` | `boolean` | Paid partnership promoting a third-party business. |
@@ -65,7 +65,7 @@ See [Platform Limits](/api-reference/limits#tiktok) for the full breakdown.
 | `disableComments` | `boolean` | Disable comments. |
 | `disableDuet` | `boolean` | Disable Duets. |
 | `disableStitch` | `boolean` | Disable Stitches. |
-| `thumbnailOffset` | `number` | Video cover frame offset in milliseconds. |
+| `thumbnailOffset` | `number` | Video cover frame offset in milliseconds. Ignored when `thumbnail` is set. |
 | `isAiGenerated` | `boolean` | Mark AI-generated content. |
 | `autoAddMusic` | `boolean` | Let TikTok add music to Photo Mode posts. |
 | `autoScale` | `boolean` | For `IMAGE` posts only. Scale oversized images server-side. |

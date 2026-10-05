@@ -220,6 +220,19 @@ Register media by passing a **public HTTP(S) URL** instead of uploading the byte
 | Best for | Small / medium files (typical short-form / feed content) |
 | Not for | Large videos - we fetch the file server-side and cap it at **1 GB / 60 s**. For bigger files, upload the bytes yourself with [Multipart Upload](#method-1-multipart-upload-the-pro-way). |
 
+The response is the upload itself. Use `id` in `uploadIds`, and `url` wherever a field expects a hosted media URL, such as a TikTok `thumbnail`:
+
+```json
+{
+  "id": "upl_123",
+  "type": "image",
+  "url": "https://private-storage.bundle.social/team_123/cover.jpg",
+  "width": 1080,
+  "height": 1920,
+  "mime": "image/jpeg"
+}
+```
+
 <Note>
 The **1 GB / 60 s** limit applies only to URL imports, because we download the file for you. Uploads where you send the bytes stream straight to storage and allow up to your full video limit.
 </Note>
