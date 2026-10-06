@@ -97,6 +97,56 @@ See [Platform Limits](/api-reference/limits#facebook) for the full breakdown of 
 
 ---
 
+## Page Mentions
+
+Tag another Facebook Page in a post by writing `@[pageId]` in `text`. Facebook turns it into a clickable mention of that Page:
+
+```json
+"text": "Big thanks to @[123456789012] for hosting us!"
+```
+
+Stories have no text, so they can't carry mentions.
+
+### Find a Page ID
+
+**Endpoint:** `GET /api/v1/misc/facebook/pages`
+
+| Param | Required | Description |
+| :--- | :--- | :--- |
+| `teamId` | Yes | Team with a connected Facebook account. The lookup runs through that account. |
+| `q` | Yes | Page name, Page URL, `@handle` or numeric Page ID. Max 100 characters. |
+| `limit` | No | Max results for a name search, 1-25. Defaults to 10. |
+
+`q` works two ways:
+
+- **Page URL, `@handle` or ID** (`https://www.facebook.com/nike`, `@nike`, `123456789012`): resolved directly, returns that one Page. A Facebook link that isn't a Page (a group, a video, a deleted Page) returns an empty list.
+- **Anything else** (`Warsaw cafe`): full-text search, returns matching Pages.
+
+```http
+GET /api/v1/misc/facebook/pages?teamId=team_123&q=https://www.facebook.com/nike
+```
+
+```json
+{
+  "items": [
+    {
+      "pageId": "15087023444",
+      "name": "Nike",
+      "link": "https://www.facebook.com/nike",
+      "location": null
+    }
+  ]
+}
+```
+
+`location` is filled for Pages that represent a physical place (city, street, coordinates, etc.).
+
+<Note>
+Search uses Meta's Page search, which only returns public Pages. Personal profiles and groups can't be found or mentioned. If the Facebook account is missing the required permissions, the endpoint returns `400` asking you to reconnect it.
+</Note>
+
+---
+
 ## Analytics
 
 For general analytics concepts (refresh rates, data retention, what "Returns 0" means), see the [Analytics Overview](/api-reference/analytics).
