@@ -141,3 +141,5 @@ The post response stores Snapchat progress in `externalData.SNAPCHAT`, including
 Post analytics use Snapchat lifetime stats and map views, unique viewers, favorites, replies, shares, and screenshots into the standard post analytics fields.
 
 Raw Snapchat analytics can be enabled per organization. [Contact us](https://bundle.social/contact) if you need the original Snapchat stats payload alongside normalized metrics.
+
+With raw analytics on, profile raw data also includes `demographics`: Snapchat's lifetime profile stats broken down by **age × gender** (`AGE_GENDER`) and **country** (`COUNTRY`), exactly as Snapchat returns them (each stat has a `dimension_breakdown` such as `AGE_18_24` plus `value` and `percentage_value`). These describe your viewers, not a follower list. If Snapchat doesn't return a breakdown for a profile, `demographics` is `null`.

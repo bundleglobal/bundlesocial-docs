@@ -248,6 +248,33 @@ Raw analytics for LinkedIn retain **reaction** breakdowns from the platform (per
 }
 ```
 
+#### Page (Organization) Raw: Follower Demographics
+
+Profile raw analytics for a LinkedIn Page include `followerStatistics`, the Page's lifetime follower breakdowns as LinkedIn returns them:
+
+```json
+{
+  "scope": "organization",
+  "followerStatistics": {
+    "followerCountsByGeoCountry": [
+      { "geo": "urn:li:geo:103644278", "followerCounts": { "organicFollowerCount": 1840, "paidFollowerCount": 12 } }
+    ],
+    "followerCountsByIndustry": [
+      { "industry": "urn:li:industry:4", "followerCounts": { "organicFollowerCount": 920, "paidFollowerCount": 3 } }
+    ],
+    "followerCountsBySeniority": [ /* "seniority": "urn:li:seniority:3", ... */ ],
+    "followerCountsByFunction": [ /* "function": "urn:li:function:8", ... */ ],
+    "followerCountsByStaffCountRange": [ /* "staffCountRange": "SIZE_11_TO_50", ... */ ],
+    "followerCountsByGeo": [ /* regions, same shape as by country */ ]
+  }
+}
+```
+
+- Each breakdown is limited to the top 100 entries.
+- Values are LinkedIn URNs (geo, industry, seniority, function). Resolve them to names with LinkedIn's standardized data, or map them on your side.
+- LinkedIn doesn't expose follower **age or gender** to apps, so those aren't available.
+- Only Pages have follower demographics. Personal profiles don't, and `followerStatistics` is `null` if LinkedIn doesn't return it.
+
 ### Quirks
 
 - **Personal accounts** do NOT have views analytics for profiles - only organizations get page views.

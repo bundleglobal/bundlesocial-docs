@@ -207,9 +207,17 @@ Threads profile raw analytics are stored as the metrics we get back from Threads
   "followers_count": 3100,
   "reposts": 55,
   "quotes": 12,
-  "allProfilePosts": 84
+  "allProfilePosts": 84,
+  "followerDemographics": {
+    "country": { "data": [{ "name": "follower_demographics", "total_value": { "breakdowns": [{ "dimension_keys": ["country"], "results": [{ "dimension_values": ["US"], "value": 1240 }] }] } }] },
+    "city": { "data": [ /* same shape, dimension_keys ["city"] */ ] },
+    "age": { "data": [ /* same shape, dimension_keys ["age"], e.g. "25-34" */ ] },
+    "gender": { "data": [ /* same shape, dimension_keys ["gender"], "F" / "M" / "U" */ ] }
+  }
 }
 ```
+
+`followerDemographics` is the follower breakdown by country, city, age and gender, exactly as Threads returns it. It's collected when raw demographics are enabled for your organization (the same switch as Instagram demographics). Threads only returns it for profiles with at least 100 followers, so for smaller profiles (or if a breakdown fails) that breakdown is `null`.
 
 Post raw analytics store the Threads media/post payload we fetched for that item.
 
