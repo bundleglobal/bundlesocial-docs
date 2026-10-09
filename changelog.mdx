@@ -6,6 +6,46 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
+<Update label="2026-10-09">
+Audience demographics in raw analytics, across more platforms:
+- **YouTube**: channel-level age × gender and countries (last 365 days) under `demographics`.
+- **Instagram**: combined follower age × gender (`follower_demographics_age_gender`) and hourly follower activity (`onlineFollowers`, accounts with 100+ followers).
+- **TikTok**: hourly follower activity (`audience_activity`).
+- **Threads**: follower country, city, age, and gender under `followerDemographics` (profiles with 100+ followers). Collected with the same switch as Instagram demographics.
+- **LinkedIn Pages**: lifetime follower breakdowns by country, region, industry, seniority, job function, and company size under `followerStatistics`.
+- **Snapchat**: viewer age × gender and countries under `demographics`.
+
+YouTube post analytics: lifetime `shares`, `estimatedMinutesWatched`, `averageViewDuration`, and `averageViewPercentage` per video under `lifetimeTotals`, and the normalized `shares` metric now uses the real number instead of 0. Shorts are flagged with `contentType` / `isShort`, and imported Shorts link to `/shorts/<id>`.
+
+Facebook post analytics: shares also read the post insights where Meta provides them, and the higher of the two counts is used, so shares missing from the post's share count show up.
+
+Pinterest account analytics: `postCount` is the account's real total pin count, and follower/following counts are no longer capped on larger accounts.
+
+Facebook post history import no longer fails when the Page has items without an ID (for example a live Story); those items are skipped.
+
+Connected accounts now renew their access tokens more reliably, fixing a period where some YouTube, Google Business, Snapchat, and Bluesky posts failed with authentication errors.
+
+Dashboard analytics: total charts (like followers) zoom to the actual range and show the scale, so small day-to-day changes are visible.
+</Update>
+
+<Update label="2026-10-07">
+Reddit: the subreddit list now loads every subreddit the account belongs to, not just the first page.
+
+Hosted connect portal: link expiry is now decided by our API instead of the device clock, so links no longer show as expired on devices with a wrong time.
+</Update>
+
+<Update label="2026-10-06">
+Facebook Page mentions: `GET /api/v1/misc/facebook/pages` finds a Page by URL, `@handle`, ID, or name, so you can tag it in a post with `@[pageId]`. See [Page Mentions](/api-reference/platforms/facebook#page-mentions).
+
+TikTok raw analytics: follower genders and countries (`audience_genders`, `audience_countries`).
+
+Instagram (Instagram Login): fixed an "Invalid scope" error when connecting while logged out of Instagram.
+</Update>
+
+<Update label="2026-10-02">
+TikTok: a custom `thumbnail` must be an image uploaded to bundle.social. Other URLs are rejected with a `400` up front, since TikTok only accepts covers from verified domains.
+</Update>
+
 <Update label="2026-09-30">
 Instagram analytics: posts Instagram has no insights for (published before the account switched to professional, or too few viewers) now return no data instead of a row of zeros. Posts that can never have insights stop being refreshed, and a forced refresh returns `400` with Meta's reason.
 
@@ -22,6 +62,124 @@ Upload retention is documented as it works: unused uploads are cleaned up 14 day
 DMs: reactions and marking a conversation as read don't count toward the monthly message limit.
 
 `copyTeamId` was removed from `POST /team`. It never had an effect; requests that still send it keep working.
+</Update>
+
+<Update label="2026-09-26">
+Direct Messages and Automations are available through the public API: read and answer Instagram and Facebook DMs (including private replies to comments), and build comment and DM automation flows. Automations also cover TikTok comments (public reply and like). Both are enabled per organization on request. See [Direct Messages](/api-reference/direct-messages) and [Automations](/api-reference/automations).
+
+Snapchat Stories: `storyDuration` (`ONE_DAY`, `TWO_DAYS`, `THREE_DAYS`, `ONE_WEEK`) sets how long a Story stays visible. Snapchat's default applies when it's omitted, and `ONE_WEEK` requires Snapchat+.
+
+Instagram raw analytics: profile link taps broken down by contact button type (last 30 days), collected with the raw Instagram demographics switch.
+
+Bluesky: URLs in post text become clickable links, including ones written without `https://`, and work alongside hashtags.
+
+LinkedIn post history import: imported posts include their image and video media and thumbnails, and single-image and single-video posts get the right post type.
+</Update>
+
+<Update label="2026-09-18">
+X reposts: `POST /api/v1/misc/twitter/retweet` reposts any X post from a connected account and `DELETE /api/v1/misc/twitter/retweet` undoes it. Billed from X credits once per post, per account, per UTC day.
+
+X: videos longer than 140 seconds are uploaded with X's long-video category, so accounts allowed to post longer videos can publish them.
+
+Facebook post analytics: video posts and Reels are recognized as videos and read from video insights. Raw post analytics also include more video metrics and clicks broken down by type (`post_clicks_by_type`).
+
+Facebook and Instagram accounts using Page tokens that don't expire are no longer asked to reconnect.
+
+Google Business Profile: fixed deleting media. An invalid media ID now returns a clear error.
+</Update>
+
+<Update label="2026-09-14">
+TikTok video posts: a custom `thumbnail` is now sent to TikTok as the video cover, and the post composer has a cover picker for videos. `thumbnail` on `IMAGE` posts is rejected.
+</Update>
+
+<Update label="2026-09-11">
+Forced analytics refreshes: the limit is now 6 per social account and 6 per post in a rolling 24 hours, up from 5.
+
+TikTok comments: comment text (including `firstComment`) can be up to 1,200 characters, up from 150. New TikTok comments can also be imported automatically as they arrive; this is off by default and enabled per organization on request.
+
+Social accounts that lose access are now kept for at least 48 hours before they're removed, instead of within minutes, so there's time to reconnect.
+</Update>
+
+<Update label="2026-09-09">
+Social accounts now return `userEmail`, the email of the connected platform account when the platform shares it.
+
+Facebook video posts: fixed first comments and publishing failing while Facebook was still processing the video.
+
+Dashboard: an alert when your subscription payment is past due, unpaid, or incomplete, with a button to update your payment details.
+</Update>
+
+<Update label="2026-09-05">
+Snapchat Saved Stories: `type: "SAVED_STORY"` publishes up to 20 images and videos as one Saved Story. A `title` (max 45 characters) is required, and the snaps together can run up to 5 minutes. See [Snapchat](/api-reference/platforms/snapchat).
+
+Google Business Profile: `GET /api/v1/misc/google-business/location/search-keywords` returns the search terms customers used to find a location, for a `startMonth`-`endMonth` range (`YYYY-MM`). Low-volume keywords come back as a `threshold` instead of an exact `value`. The available-attributes endpoint now returns `lookup`, which tells you whether your `regionCode` and `languageCode` were applied.
+
+CSV bulk import: per-platform `FirstComment` columns, media and thumbnail links (including Google Drive links), and validated per-platform post types. See [Bulk Posts via CSV](/api-reference/bulk-posts-csv).
+
+Instagram analytics: single-video feed posts are recognized as Reels (which is how Instagram publishes them), so their insights load.
+
+LinkedIn analytics: per-post reaction counts come from LinkedIn's reactions list, so they match what LinkedIn shows, and account-level reactions add up to the posts below them.
+
+TikTok: posts TikTok reports as `PUBLISH_COMPLETE` are marked published even when TikTok doesn't return a public post ID.
+</Update>
+
+<Update label="2026-09-02">
+Facebook text backgrounds: `textFormatPresetId` in `data.FACEBOOK` publishes a `POST` without video on a colored, gradient, or illustrated background. `GET /api/v1/misc/facebook/text-format-presets` lists the presets, and CSV import accepts the preset ID too.
+
+Analytics are now part of paid plans. Organizations on the Free plan no longer collect analytics.
+
+Instagram raw analytics: `follower_demographics_last_14_days` is now always `null`, since Meta no longer provides it. Use the 30-day demographics instead.
+
+Dashboard translation for Arabic, with right-to-left layout.
+</Update>
+
+<Update label="2026-08-27">
+X post options in `data.TWITTER`: `poll` (2 to 4 options, 5 minutes to 7 days), `quoteTweetId`, `replyToTweetId`, `subscribersOnly`, `thread` (an explicit list of tweets), `tweetStorm` (auto-split long text, with optional `tweetStormNumbering`), and per-image alt text through `mediaItems`. A poll can't be combined with media, a quote, or a thread.
+
+X comments: publish them through `POST /comment`, delete them with `DELETE /api/v1/misc/twitter/comment`, and import X comments and post history. These actions are billed from X credits.
+
+Credits: `GET /api/v1/billing/credits/balance` returns your prepaid credit balance, and `POST /api/v1/billing/billable-usage/quote` estimates the cost of a metered X action before you run it.
+
+Reddit: fixed post permalinks for profile and subreddit posts.
+</Update>
+
+<Update label="2026-08-24">
+Dashboard analytics: redesigned per-platform metric cards. Metrics a platform doesn't report are listed in a "Not reported" card instead of charted as zero.
+</Update>
+
+<Update label="2026-08-20">
+Google Business Profile reviews: imported reviews include the owner reply's moderation state (`reviewReplyState`), any `reviewReplyPolicyViolation`, and `reviewReplyUrl`.
+</Update>
+
+<Update label="2026-08-17">
+Bluesky connect: `serverUrl` is now optional and defaults to `https://bsky.social`. For Bluesky and Mastodon, an unusable `serverUrl` returns `400` with the reason instead of a generic `500`.
+
+Forced analytics refresh: when the platform refuses, the error now carries the platform's reason (for example an expired token, a missing permission, or a rate limit) instead of a generic message.
+
+Post analytics requests for a platform that doesn't support post analytics now return a clear error. Google Business Profile account analytics include bookings, food orders, and food menu clicks for eligible locations.
+
+`postDate` must now fall between the years 2000 and 2100.
+
+Facebook: connecting an account that manages hundreds of Pages is faster and more reliable.
+</Update>
+
+<Update label="2026-08-11">
+Multipart uploads for large files: `POST /api/v1/upload/multipart/init`, `/sign`, `/complete`, and `/abort` upload a file in parts, in parallel. See [Upload Content](/api-reference/upload-content).
+
+Facebook connect now finds Pages managed through Business portfolios. Instagram captions can be up to 2,200 characters, up from 2,000.
+
+Facebook raw post analytics: more video metrics (complete views, unique viewers, average watch time, 10-second views, Reels plays, total view time) and per-bucket audience retention.
+
+Facebook comment import now works for Reels and video posts.
+</Update>
+
+<Update label="2026-08-06">
+Threads: fixed publishing carousel posts (multiple images or videos). Temporary Threads errors are retried without creating duplicate posts.
+</Update>
+
+<Update label="2026-07-31">
+LinkedIn mentions: when a person is resolved from a profile URL but LinkedIn doesn't share their name, the tag comes back with an empty `display` and `needsDisplayName: true`. Pass `displayName` to set it, since LinkedIn only renders a mention when the text matches the name exactly.
+
+Post history and comment imports no longer fail on unexpected date formats from the platform.
 </Update>
 
 <Update label="2026-07-30">
