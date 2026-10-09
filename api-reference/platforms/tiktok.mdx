@@ -183,11 +183,17 @@ TikTok provides audience and engagement data via raw analytics. Here's what the 
       "profile_views": 1230,
       "likes": 3400,
       "comments": 120,
-      "shares": 890
+      "shares": 890,
+      "audience_activity": [
+        { "hour": "0", "count": 12 },
+        { "hour": "1", "count": 18 }
+      ]
     }
   ]
 }
 ```
+
+`audience_activity` is the hourly breakdown of when your followers are active on TikTok (UTC). Like the other `audience_*` fields, TikTok only returns it for accounts with at least 100 followers.
 
 #### Video-Level Raw Data
 

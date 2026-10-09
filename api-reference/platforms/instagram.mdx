@@ -353,10 +353,37 @@ Instagram provides detailed demographic data via raw analytics. Here's what the 
       "city": { /* same structure */ },
       "gender": { /* same structure */ },
       "age": { /* same structure */ }
+    },
+    "follower_demographics_age_gender": {
+      "data": [{
+        "name": "follower_demographics",
+        "total_value": {
+          "breakdowns": [{
+            "dimension_keys": ["age", "gender"],
+            "results": [
+              { "dimension_values": ["18-24", "F"], "value": 1820 },
+              { "dimension_values": ["18-24", "M"], "value": 1534 },
+              { "dimension_values": ["25-34", "F"], "value": 2011 }
+            ]
+          }]
+        }
+      }]
     }
+  },
+  "onlineFollowers": {
+    "data": [{
+      "name": "online_followers",
+      "period": "lifetime",
+      "values": [
+        { "value": { "0": 312, "1": 280, "...": 0, "23": 401 }, "end_time": "2026-10-07T07:00:00+0000" }
+      ]
+    }]
   }
 }
 ```
+
+- `demographics.follower_demographics_age_gender` is the age × gender cross-tab of your followers (one row per age bucket + gender pair). It's `null` if Instagram didn't return it.
+- `onlineFollowers` shows how many followers were online in each hour (`0`-`23`) for each of the last 30 days. Handy for picking posting times. Instagram only returns it for accounts with 100+ followers, so it's `null` for smaller accounts.
 
 <Info>
 Raw demographics include both **follower demographics** (lifetime, who follows you) and **engaged audience demographics** (this month, who interacts with your content). These are two different audiences and both are useful for understanding your reach.

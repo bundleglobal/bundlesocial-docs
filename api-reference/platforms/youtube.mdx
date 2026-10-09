@@ -122,17 +122,18 @@ YouTube analytics are all **Lifetime** values. There is no rolling window - ever
 | `likes` | Likes | |
 | `dislikes` | Dislikes | Available via API even though YouTube hides them on the UI |
 | `comments` | Comments | |
-| `shares` | - | Returns `0` (not provided by YouTube API) |
-| `saves` | Favorites | |
+| `shares` | Lifetime shares | From the YouTube Analytics API. Only filled when raw analytics are enabled for your org, otherwise `0` |
+| `saves` | - | Returns `0` (YouTube retired favorites) |
 
 ### Quirks
 - YouTube doesn't distinguish between impressions and unique impressions at any level.
 - Dislikes are available through the API (though YouTube no longer shows dislike counts publicly). Handy if you want to know the truth.
-- Channel-level likes are not available. Post shares are not available. YouTube gives us a lot, but not everything.
+- Channel-level likes are not available. Video shares need raw analytics enabled. YouTube gives us a lot, but not everything.
+- Imported videos are always `type: VIDEO`. Shorts are flagged in the post's `extraData` instead: `{ "contentType": "SHORTS", "isShort": true }`, and their `permalink` uses `https://www.youtube.com/shorts/<id>`. `contentType` is YouTube's `creatorContentType` (`SHORTS`, `VIDEO_ON_DEMAND`, `LIVE_STREAM`, ...). If YouTube can't tell us (no views yet, say), `extraData` is `null` and the link stays `/watch`.
 
 ### Raw Analytics - Demographics & Audience Data
 
-YouTube raw analytics include demographics data when enabled for your organization. We query the YouTube Analytics API for each video and return age/gender breakdowns and country-level view counts.
+YouTube raw analytics include demographics data when enabled for your organization. We query the YouTube Analytics API for each video and return age/gender breakdowns and country-level view counts. The same breakdown is also available for the whole channel in the profile raw analytics.
 
 <Note>
 Raw analytics are gated per organization (`rawYoutubeAnalyticsEnabled`). If raw analytics are disabled for your org, the extended fields below (demographics, traffic sources, monetization, etc.) are not collected - only the standard metrics remain.
@@ -187,6 +188,39 @@ A channel **without monetization** - not in the YouTube Partner Program (YPP), o
 }
 ```
 
+#### Channel Demographics
+
+Profile raw analytics carry a channel-wide `demographics` field: viewer percentage by age group and gender, plus views by country (sorted by views, descending). It covers the **last 365 days**, so it's a stable audience picture rather than a noisy 30-day slice. If YouTube returns nothing (or the call fails), the field is `null` and the rest of the run carries on.
+
+```json
+{
+  "demographics": {
+    "analyticsWindow": { "days": 365, "startDate": "2025-10-09", "endDate": "2026-10-08" },
+    "ageGender": {
+      "columnHeaders": [
+        { "name": "ageGroup", "columnType": "DIMENSION" },
+        { "name": "gender", "columnType": "DIMENSION" },
+        { "name": "viewerPercentage", "columnType": "METRIC" }
+      ],
+      "rows": [
+        ["age18-24", "female", 14.2],
+        ["age25-34", "male", 31.8]
+      ]
+    },
+    "country": {
+      "columnHeaders": [
+        { "name": "country", "columnType": "DIMENSION" },
+        { "name": "views", "columnType": "METRIC" }
+      ],
+      "rows": [
+        ["US", 812000],
+        ["GB", 190400]
+      ]
+    }
+  }
+}
+```
+
 #### Video-Level Raw Data
 
 ```json
@@ -218,6 +252,16 @@ A channel **without monetization** - not in the YouTube Partner Program (YPP), o
       [312.40, 280.10, 32.30, 460.00, 3.90, 3.41, 71000, 24500]
     ]
   },
+  "lifetimeTotals": {
+    "analyticsWindow": { "startDate": "2026-01-14", "endDate": "2026-10-08" },
+    "views": 125000,
+    "shares": 1840,
+    "estimatedMinutesWatched": 402300,
+    "averageViewDuration": 193,
+    "averageViewPercentage": 61.4
+  },
+  "contentType": "VIDEO_ON_DEMAND",
+  "isShort": false,
   "demographics": {
     "ageGender": {
       "columnHeaders": [
@@ -256,6 +300,10 @@ A channel **without monetization** - not in the YouTube Partner Program (YPP), o
 
 <Info>
 Raw YouTube data includes **viewer percentage by age group and gender** and **views by country** (sorted by view count, descending). This is useful for audience analysis and content strategy - especially if you're targeting specific demographics or regions.
+</Info>
+
+<Info>
+`lifetimeTotals` covers the video's whole life (the window starts on or before the day before it went live, and runs until today). `averageViewDuration` is in seconds, `averageViewPercentage` is a percentage of the video length. `contentType` / `isShort` come from YouTube's `creatorContentType`. Any of these is `null` when YouTube has no data for the video yet. The normalized `shares` metric is taken from `lifetimeTotals.shares`.
 </Info>
 
 <Note>
