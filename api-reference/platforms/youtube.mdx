@@ -129,7 +129,7 @@ YouTube analytics are all **Lifetime** values. There is no rolling window - ever
 - YouTube doesn't distinguish between impressions and unique impressions at any level.
 - Dislikes are available through the API (though YouTube no longer shows dislike counts publicly). Handy if you want to know the truth.
 - Channel-level likes are not available. Video shares need raw analytics enabled. YouTube gives us a lot, but not everything.
-- Imported videos are always `type: VIDEO`. Shorts are flagged in the post's `extraData` instead: `{ "contentType": "SHORTS", "isShort": true }`, and their `permalink` uses `https://www.youtube.com/shorts/<id>`. `contentType` is YouTube's `creatorContentType` (`SHORTS`, `VIDEO_ON_DEMAND`, `LIVE_STREAM`, ...). If YouTube can't tell us (no views yet, say), `extraData` is `null` and the link stays `/watch`.
+- Imported videos are always `type: VIDEO`. Shorts are flagged in the post's `extraData` instead: `{ "contentType": "SHORTS", "isShort": true }`, and their `permalink` uses `https://www.youtube.com/shorts/<id>`. `contentType` is YouTube's `creatorContentType` (`SHORTS`, `VIDEO_ON_DEMAND`, `LIVE_STREAM`, ...). If YouTube can't tell us (no views yet, say), `extraData` is `null` and the link stays `/watch`. Re-running the import updates `extraData` and `permalink` on videos you already imported.
 
 ### Raw Analytics - Demographics & Audience Data
 

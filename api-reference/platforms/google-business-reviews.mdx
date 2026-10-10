@@ -33,7 +33,8 @@ This is an **asynchronous** job, same idea as Post History Import:
 
 ### Rules & Limits
 
-*   **`count` range:** `1-250` per request.
+*   **`count` range:** `1-250` per request. `count` is the number of **new** reviews to import: reviews you already have are refreshed but don't count, so re-running an import continues into older reviews until it has `count` new ones or Google has no more.
+*   **Only new reviews use up the monthly limit.** Re-fetched reviews are free.
 *   **One active import per social account:** if one is already running, you'll get `409`.
 *   **Monthly limit per social account (default):**
     *   **Free:** 5 reviews / month
@@ -172,8 +173,10 @@ Both endpoints return the updated review object.
 ### Incremental Sync (No Duplicate Spam)
 Re-running imports is safe. Reviews are upserted by external review ID, so existing reviews are updated instead of duplicated.
 
+To get a location's full history, run imports until `reviewsImported` comes back lower than `count` (Google has nothing older). Once you have every review, later imports only fetch what's new since the last one.
+
 ### Overlap Window for Edits
-Imports intentionally overlap recent data to catch delayed edits/reply updates from Google. So yes, some recently imported reviews may be re-processed - that's expected.
+Imports intentionally overlap recent data to catch delayed edits/reply updates from Google. So yes, some recently imported reviews may be re-processed. They're refreshed for free and don't count toward `count` or the monthly limit.
 
 ### Temporary `RATE_LIMITED` Is Normal
 When Google slows things down, imports switch to `RATE_LIMITED` and auto-resume. No manual retry endpoint needed for this path.

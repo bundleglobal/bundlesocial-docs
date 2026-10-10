@@ -384,6 +384,7 @@ Instagram provides detailed demographic data via raw analytics. Here's what the 
 
 - `demographics.follower_demographics_age_gender` is the age × gender cross-tab of your followers (one row per age bucket + gender pair). It's `null` if Instagram didn't return it.
 - `onlineFollowers` shows how many followers were online in each hour (`0`-`23`) for each of the last 30 days. Handy for picking posting times. Instagram only returns it for accounts with 100+ followers, so it's `null` for smaller accounts.
+- `reachByFollowType` is the account's unique reach over the last 30 days (same window as `totals30d`), split into followers and non-followers. `reachTimeSeries` has reach per day for the same 30 days; summing those days counts the same person once per day they were reached, so it's higher than the 30-day total.
 
 <Info>
 Raw demographics include both **follower demographics** (lifetime, who follows you) and **engaged audience demographics** (this month, who interacts with your content). These are two different audiences and both are useful for understanding your reach.

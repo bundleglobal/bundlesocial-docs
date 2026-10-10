@@ -6,6 +6,14 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
+<Update label="2026-10-10">
+Google review imports: `count` is now the number of **new** reviews to import. Reviews you already have are refreshed but skipped, so re-running an import continues into older reviews until it has `count` new ones or Google has no more, instead of stopping after the newest page. Only new reviews use up the monthly import limit. See [Google Business Reviews](/api-reference/platforms/google-business-reviews).
+
+YouTube: Shorts are now correctly flagged (`contentType: "SHORTS"`, `isShort: true`) and get `/shorts/<id>` links. Re-running a post history import also updates `permalink` and `extraData` on posts you already imported, so existing Shorts pick up the right link.
+
+Instagram raw analytics: `reachByFollowType` now covers the last 30 days, the same window as `totals30d`, instead of only the last 24 hours.
+</Update>
+
 <Update label="2026-10-09">
 Audience demographics in raw analytics, across more platforms:
 - **YouTube**: channel-level age × gender and countries (last 365 days) under `demographics`.
