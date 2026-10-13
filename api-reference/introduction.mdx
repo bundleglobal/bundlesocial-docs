@@ -86,6 +86,20 @@ Organization (your account)
 If you're building a SaaS where each of your customers needs their own social accounts, create a **team per customer**. They won't step on each other's toes.
 </Tip>
 
+### Finding your team IDs
+
+List your teams with the paginated `GET /api/v1/team`:
+
+```http
+GET /api/v1/team?offset=0&limit=50
+```
+
+It returns `{ items, total }`, so it works the same whether you have 3 teams or 30,000. Add `search` to filter by name.
+
+<Warning>
+`GET /api/v1/organization` still returns a `teams` array, but it's **deprecated and will be removed on November 15, 2026**. It isn't paginated, so it gets slow for organizations with many teams. Use `GET /api/v1/team` instead. The rest of the organization response (ID, plan, settings) stays.
+</Warning>
+
 ---
 
 ## Rate Limits
