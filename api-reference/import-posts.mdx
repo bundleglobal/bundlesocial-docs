@@ -50,6 +50,23 @@ This is an **asynchronous** job. You don't get the posts instantly.
 Platform APIs are inconsistent. Some filters/surfaces may return no data on specific platforms if that API does not expose that view.
 </Note>
 
+### What `count` means (and `onlyLatest`)
+
+By default, `count` is the number of posts **you don't have yet** that we import. Posts you already imported are skipped and don't count toward your limit, but the import keeps going further back into older posts until it has found `count` new ones.
+
+For a recurring sync ("did this creator post anything new?"), set `onlyLatest: true`:
+
+```json
+{
+  "teamId": "team_123",
+  "socialAccountType": "INSTAGRAM",
+  "count": 10,
+  "onlyLatest": true
+}
+```
+
+We check only the latest `count` posts and import the ones you don't have yet. If nothing is new, nothing is imported and nothing counts toward your limit. On X, every post we read is still billed, new or not.
+
 **Limits:**
 *   **Free:** 5 posts / month (Demo mode)
 *   **Pro:** 100 posts / month

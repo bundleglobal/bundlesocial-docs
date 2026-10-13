@@ -8,6 +8,10 @@ keywords: ["product updates", "new features", "release notes", "social media api
 ---
 <Update label="2026-10-13">
 **Deprecation:** the `teams` array in `GET /api/v1/organization` is deprecated and will be **removed on November 15, 2026**. It isn't paginated and gets slow for organizations with many teams. List teams with the paginated `GET /api/v1/team` instead (`offset`, `limit`, optional `search`; returns `{ items, total }`). The rest of the organization response stays the same. See [Finding your team IDs](/api-reference/introduction#finding-your-team-ids).
+
+**Post import:** new `onlyLatest` option. With `onlyLatest: true`, an import checks only the latest `count` posts and imports the ones you don't have yet, so a daily sync with nothing new imports nothing and uses none of your limit. Without it, `count` still means "`count` posts you don't have yet", going further back if needed. See [What `count` means](/api-reference/import-posts#what-count-means-and-onlylatest).
+
+**YouTube thumbnails:** when YouTube rejects a custom thumbnail, we now retry it a few times (YouTube often refuses it while a new video is still processing). If it still fails, the post stays `POSTED` and YouTube's reason shows up in `errors.YOUTUBE`, instead of the thumbnail silently going missing.
 </Update>
 
 <Update label="2026-10-10">

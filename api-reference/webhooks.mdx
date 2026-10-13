@@ -126,6 +126,8 @@ When you receive `post.published`, the `data` field contains the full post objec
 
 For failed posts, the event type is still `post.published`, but `data.status` is `ERROR` and `data.error`, `data.errors`, or `data.errorsVerbose` contains the failure details.
 
+A `POSTED` post can still carry a non-fatal warning in `data.errors`, for example when YouTube rejected the custom thumbnail but the video itself was published. Check `data.status`, not just whether `errors` is empty.
+
 ### Comment Events Payload
 
 ```json
