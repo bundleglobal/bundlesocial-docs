@@ -47,7 +47,8 @@ Whether you use hosted or custom UI, the user eventually comes back to your `red
 | Instagram | `instagram-callback` | Error connecting Instagram |
 | Instagram | `instagram-direct-callback` | Error connecting Instagram through direct OAuth (`instagramConnectionMethod: "INSTAGRAM"`) |
 | Instagram | `instagram-not-enough-accounts` | User does not have enough permissions on any Instagram account, or no Facebook Page has an Instagram account connected |
-| Instagram | `instagram-not-enough-permissions` | User did not grant all required permissions |
+| Instagram | `instagram-not-enough-permissions` | User did not grant all required permissions (Instagram login: the content publish permission is required) |
+| Instagram | `instagram-reconnect-different-account` | A `reconnect` flow was completed with a different Instagram account than the one connected |
 | Instagram | `instagram-not-professional-account` | Instagram account is not a Professional or Creator account |
 | LinkedIn | `linkedin-callback` | Error connecting LinkedIn |
 | LinkedIn | `linkedin-not-enough-channels` | User does not have enough permissions on any LinkedIn organizations |
@@ -73,6 +74,7 @@ Whether you use hosted or custom UI, the user eventually comes back to your `red
 | Bluesky | `bluesky-callback` | Error connecting Bluesky |
 | Bluesky | `bluesky-not-enough-permissions` | User did not grant all required permissions |
 | Google Business | `google-business-callback` | Error connecting Google Business |
+| Google Business | `google-business-not-enough-permissions` | User did not tick the "See, edit, create and delete your Google business listings" permission on Google's consent screen |
 
 <Tip>
 Handle `not-enough-permissions` gracefully. Tell the user the permissions are required for publishing, then let them reconnect.
