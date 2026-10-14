@@ -9,6 +9,24 @@ These options affect how provider OAuth behaves. They are available in both host
 
 ---
 
+## reconnect
+
+Supported for **Instagram** connected with `instagramConnectionMethod: "INSTAGRAM"`.
+
+When `true`, the OAuth flow re-authorizes the account that is **already connected** to the team instead of creating a new one. New tokens and permissions are saved on the same account, so its posts, scheduled posts and settings stay as they are. Use it when an account needs a fresh grant (for example, publishing fails with a permission error) and you don't want to disconnect it.
+
+```json
+{
+  "type": "INSTAGRAM",
+  "instagramConnectionMethod": "INSTAGRAM",
+  "reconnect": true
+}
+```
+
+The user has to log in with the same Instagram account. A different account is refused with `instagram-reconnect-different-account`. Without `reconnect`, connecting a type the team already has still returns `400`. The hosted portal shows a **Reconnect** button for these accounts.
+
+---
+
 ## disableAutoLogin
 
 Supported for **Facebook**, **Instagram via Facebook**, **Instagram direct OAuth**, and **TikTok** where the provider supports it.

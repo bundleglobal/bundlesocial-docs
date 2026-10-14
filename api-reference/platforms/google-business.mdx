@@ -56,9 +56,9 @@ Google Business supports different post types via the `topicType` field:
 *   `ALERT`: Special alerts (currently only `COVID_19`).
 
 ### Call to Action
-You can add a CTA button to your posts:
+You can add a CTA button to `STANDARD` and `EVENT` posts (not `OFFER` or `ALERT`):
 *   `BOOK`, `ORDER`, `SHOP`, `LEARN_MORE`, `SIGN_UP`, `CALL`
-*   Requires a `callToActionUrl` for most types.
+*   Requires a `callToActionUrl` for every type except `CALL`.
 
 ### Media Limits
 
@@ -122,6 +122,10 @@ Full guide: [Google Business Reviews](/api-reference/platforms/google-business-r
 | `offerCouponCode` | `string` | Coupon code. Max 58 characters. |
 | `offerRedeemOnlineUrl` | `string` | URL to redeem the offer online. |
 | `offerTermsConditions` | `string` | Terms and conditions. Max 1,500 characters. |
+
+<Note>
+An `OFFER` post needs `eventStartDate` (optionally `eventEndDate`) and at least one of `offerCouponCode`, `offerRedeemOnlineUrl` or `offerTermsConditions`. Offers can't have a button: `callToActionType` is rejected.
+</Note>
 
 ---
 
@@ -256,6 +260,8 @@ await bundle.post.create({
     GOOGLE_BUSINESS: {
       topicType: "OFFER",
       text: "Get 20% off your first order!",
+      eventStartDate: "2026-06-01T00:00:00.000Z",
+      eventEndDate: "2026-06-30T23:59:59.000Z",
       offerCouponCode: "WELCOME20",
       offerRedeemOnlineUrl: "https://example.com/shop",
       offerTermsConditions: "Valid for new customers only. Expires Feb 28, 2026."

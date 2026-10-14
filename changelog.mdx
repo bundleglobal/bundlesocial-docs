@@ -6,6 +6,26 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
+<Update label="2026-10-14">
+**Instagram reconnect in place:** `POST /api/v1/social-account/connect` accepts `reconnect: true` to re-authorize the Instagram account already connected to a team, instead of disconnecting it. Tokens and permissions are refreshed; the account, its draft and scheduled posts stay. In the dashboard and hosted portal, open **Disconnect** and choose **Reconnect**. Supported for Instagram connected with Instagram login (`instagramConnectionMethod: "INSTAGRAM"`); the user must log in with the same account (`instagram-reconnect-different-account` otherwise). See [OAuth Options](/api-reference/connect-social-accounts/oauth-options#reconnect).
+
+**Instagram login:** connecting now fails with `instagram-not-enough-permissions` when the publish permission isn't granted, instead of connecting an account that can't publish.
+
+**Google Business:**
+- An unticked "Google Business listings" permission on the consent screen now returns `google-business-not-enough-permissions` instead of the generic `google-business-callback`. See [Callback Parameters](/api-reference/connect-social-accounts/callbacks).
+- `userId` is always Google's own account id; a connection without one now fails instead of storing a placeholder.
+- `refresh-channels` clears the selected location when the login no longer has access to it, so the account asks for a new one.
+- Docs: `OFFER` posts need `eventStartDate` and at least one offer field, and can't have a call-to-action button. See [Google Business](/api-reference/platforms/google-business).
+
+**Threads:** reposts no longer count toward the profile's post count and aren't imported as your own posts.
+
+**Pinterest:**
+- Per-pin raw analytics are now stored, so the raw endpoints return pin clicks, outbound clicks, impressions and saves (from the next refresh).
+- Video Pins now get Pinterest's video metrics (`VIDEO_START`, `VIDEO_MRC_VIEW`, watch time), so `views` is filled for video Pins.
+
+**TikTok + other platforms:** a post no longer ends in `ERROR` when TikTok confirms publication a few seconds after our first status check, while the other platforms are still publishing.
+</Update>
+
 <Update label="2026-10-13">
 **Deprecation:** the `teams` array in `GET /api/v1/organization` is deprecated and will be **removed on November 15, 2026**. It isn't paginated and gets slow for organizations with many teams. List teams with the paginated `GET /api/v1/team` instead (`offset`, `limit`, optional `search`; returns `{ items, total }`). The rest of the organization response stays the same. See [Finding your team IDs](/api-reference/introduction#finding-your-team-ids).
 
