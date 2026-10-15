@@ -6,6 +6,12 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
+<Update label="2026-10-15">
+**Facebook and Instagram comments:** fixed comments occasionally being posted twice. When creating a comment took too long (usually while Facebook built a link preview), our request timed out, the comment still got created, and the automatic retry posted it again. Before an automatic retry we now check whether the comment already exists on the post (or under the parent comment) and, if it does, adopt it instead of posting again; if that check can't run, the retry waits rather than risk a duplicate. Comment creation also gets more time, so these retries are much rarer.
+
+**Instagram reconnect:** a reconnect (`reconnect: true`) now always asks Instagram for a fresh login, so it can't silently reuse a different account the browser is logged into.
+</Update>
+
 <Update label="2026-10-14">
 **Instagram reconnect in place:** `POST /api/v1/social-account/connect` accepts `reconnect: true` to re-authorize the Instagram account already connected to a team, instead of disconnecting it. Tokens and permissions are refreshed; the account, its draft and scheduled posts stay. In the dashboard and hosted portal, open **Disconnect** and choose **Reconnect**. Supported for Instagram connected with Instagram login (`instagramConnectionMethod: "INSTAGRAM"`); the user must log in with the same account (`instagram-reconnect-different-account` otherwise). See [OAuth Options](/api-reference/connect-social-accounts/oauth-options#reconnect).
 
