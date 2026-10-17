@@ -6,6 +6,18 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
+<Update label="2026-10-17">
+**Instagram and Threads: posts deleted on the platform:** posts you delete on Instagram or Threads now get `externallyDeletedAt` set on the next analytics refresh and stop being refreshed, like TikTok and YouTube already did. Applies to published and imported posts. Instagram and Threads return the same error for a deleted post and for one the account can't access, so a post is only marked when it's also missing from the account's own post list. Very old posts (beyond the account's latest ~500 on Instagram, ~1,000 on Threads) aren't checked. See [Analytics](/api-reference/analytics).
+
+**Threads analytics:** fixed account and post statistics failing with `Something went wrong, please try again later.` Threads' insights API currently fails at random on a share of requests; we now retry those reads automatically, so stats that were stuck fill in on the next refresh. Publishing wasn't affected.
+</Update>
+
+<Update label="2026-10-16">
+**Instagram Stories import:** Stories imported through post history now come with their numbers (views, reach, replies, shares), read from Instagram at import time. A Story that Instagram has no insights for is imported without analytics instead of with zeros.
+
+**Threads:** reposts imported before the Oct 14 fix (which never get statistics) are removed from imported posts and no longer refreshed.
+</Update>
+
 <Update label="2026-10-15">
 **Facebook and Instagram comments:** fixed comments occasionally being posted twice. When creating a comment took too long (usually while Facebook built a link preview), our request timed out, the comment still got created, and the automatic retry posted it again. Before an automatic retry we now check whether the comment already exists on the post (or under the parent comment) and, if it does, adopt it instead of posting again; if that check can't run, the retry waits rather than risk a duplicate. Comment creation also gets more time, so these retries are much rarer.
 
