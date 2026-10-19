@@ -31,6 +31,7 @@ Webhooks are how you know if a post actually went live or failed permanently. In
 | :--- | :--- |
 | `post.published` | Post finished processing. Check `data.status`: `POSTED` means live, `ERROR` means it failed permanently. |
 | `comment.published` | Comment finished processing. Check `data.status`: `POSTED` means published, `ERROR` means it failed permanently. |
+| `post.externally-deleted` | A post (published through us or imported) was deleted on the platform. See [Deleted posts](#deleted-posts). |
 | `social-account.created` | User connected a new social account |
 | `social-account.updated` | Social account changed (channel unset, remote disconnection detected) |
 | `social-account.deleted` | Social account was disconnected or removed |
@@ -232,6 +233,33 @@ When this happens:
 ### Resending Events
 
 Made a mistake in your handler? Event got lost? You can resend any webhook event from the dashboard or via the API. We'll create a fresh delivery attempt with the same payload.
+
+---
+
+## Deleted Posts
+
+We notice that a post was deleted on the platform during the regular analytics refresh, then send `post.externally-deleted` once per post. The payload is the profile post (the same record the analytics endpoints return), plus `teamId` and `socialAccountType`:
+
+```json
+{
+  "type": "post.externally-deleted",
+  "data": {
+    "id": "profile-post-id",
+    "postId": "post-id-or-null-for-imported",
+    "socialAccountId": "social-account-id",
+    "socialAccountType": "INSTAGRAM",
+    "teamId": "team-id",
+    "externalId": "17912851647509525",
+    "permalink": "https://www.instagram.com/p/...",
+    "externallyDeletedAt": "2026-10-14T18:00:00.000Z"
+  }
+}
+```
+
+- `postId` is set for posts published through bundle.social and `null` for imported posts.
+- After this event we stop fetching analytics for the post. Already collected analytics stay until normal [data retention](/api-reference/data-retention) removes them.
+- A forced refresh never marks a post as deleted (some platforms return the same error for "deleted" and "no access"), so the event only comes from the regular refresh.
+- To follow platform terms, delete the post and its stats on your side when you receive it.
 
 ---
 
