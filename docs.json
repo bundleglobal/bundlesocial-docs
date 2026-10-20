@@ -37,6 +37,7 @@
               "api-reference/sdk",
               "api-reference/cli",
               "api-reference/mcp",
+              "api-reference/n8n",
               "api-reference/platform-parameters",
               {
                 "group": "Connect Social Accounts",
