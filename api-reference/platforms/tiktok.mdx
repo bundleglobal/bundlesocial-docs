@@ -100,6 +100,44 @@ TikTok's answer is traffic: some days are faster, some days are worse. If your p
 }
 ```
 
+### Posting Options of an Account
+
+**Endpoint:** `GET /api/v1/misc/tiktok/post-settings`
+
+Returns the privacy levels, interaction settings and maximum video duration the connected TikTok account allows, read live from TikTok. Use it to build the options of your composer (which `privacy` values to offer, whether comments, Duets and Stitches can be turned on).
+
+| Param | Required | Description |
+| :--- | :--- | :--- |
+| `teamId` | Yes | Team with a connected TikTok account. The team must belong to your API key's organization. |
+
+```http
+GET /api/v1/misc/tiktok/post-settings?teamId=team_123
+```
+
+```json
+{
+  "privacyLevelOptions": ["PUBLIC_TO_EVERYONE", "MUTUAL_FOLLOW_FRIENDS", "SELF_ONLY"],
+  "commentDisabled": false,
+  "duetDisabled": false,
+  "stitchDisabled": true,
+  "maxVideoPostDurationSec": 600
+}
+```
+
+| Field | Description |
+| :--- | :--- |
+| `privacyLevelOptions` | Values the account accepts for `privacy`. Public accounts: `PUBLIC_TO_EVERYONE`, `MUTUAL_FOLLOW_FRIENDS`, `SELF_ONLY`. Private accounts: `FOLLOWER_OF_CREATOR`, `MUTUAL_FOLLOW_FRIENDS`, `SELF_ONLY`. |
+| `commentDisabled` | `true` when comments can't be enabled (the creator allows comments from no one). Send `disableComments: true`. |
+| `duetDisabled` | `true` when Duets can't be enabled (Duets set to "Only you", or a private account). Send `disableDuet: true`. |
+| `stitchDisabled` | `true` when Stitches can't be enabled (Stitches set to "Only you", or a private account). Send `disableStitch: true`. |
+| `maxVideoPostDurationSec` | Longest video, in seconds, the account can publish. Can be `null`. Longer videos fail at publish time. |
+
+A value the account doesn't allow is not rejected when you create the post. It fails at publish time with `TT:40002`.
+
+<Note>
+Each call counts against the account's TikTok rate limit, so fetch it when building your composer, not before every publish. If TikTok returns incomplete settings, the endpoint returns `502`.
+</Note>
+
 ---
 
 ## Analytics

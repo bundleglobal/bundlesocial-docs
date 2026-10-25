@@ -12,7 +12,7 @@ Use the History Import API to fetch existing content from connected accounts and
 - You can filter imports by **surface** and **media type**.
 - You can request richer media metadata in `extraData` (when platform returns direct media URLs).
 - `extraData` is now normalized as `extraData.media[]`.
-- For platforms/endpoints that do not expose direct media URLs (e.g. current YouTube import path), `extraData` is `null`.
+- For platforms/endpoints that do not expose direct media URLs, `extraData` has no `media[]` (often it's `null`).
 
 Need comment import and replies? See [Comments API](/api-reference/comments).
 
@@ -48,6 +48,10 @@ This is an **asynchronous** job. You don't get the posts instantly.
 
 <Note>
 Platform APIs are inconsistent. Some filters/surfaces may return no data on specific platforms if that API does not expose that view.
+</Note>
+
+<Note>
+Facebook: videos in the Page's video library that aren't published (drafts, scheduled, ad-only uploads) are skipped.
 </Note>
 
 ### What `count` means (and `onlyLatest`)
@@ -89,6 +93,7 @@ This is controlled by an organization-level setting. When enabled:
 - Imported posts are included in the regular analytics scanner.
 - You can fetch analytics for imported posts via the standard analytics endpoints using `importedPostId` instead of `postId`.
 - You can force-refresh analytics for imported posts the same way you would for regular posts.
+- **Facebook and Instagram:** the import doesn't write an initial snapshot for posts (it would show `0` impressions and reach). Their first analytics come from the regular refresh, which picks new imports up right away. Stories still get their snapshot at import time, since they expire and aren't refreshed.
 
 <Note>
 **`importedPostId` vs `postId`:** When querying analytics for imported posts, use `importedPostId` (the imported post's ID). Don't mix it with `postId` + `platformType` - they're mutually exclusive.
@@ -167,7 +172,7 @@ When available, imported posts include:
 If we can't get direct media URLs from the platform endpoint, `extraData` is `null`.
 
 <Note>
-Current YouTube history import returns `extraData: null`.
+YouTube history import doesn't return media URLs. Its `extraData` holds `visibility` (`PUBLIC`, `UNLISTED`, `PRIVATE`) and, for Shorts and other known content types, `contentType` and `isShort`. See [YouTube](/api-reference/platforms/youtube#quirks).
 </Note>
 
 ---

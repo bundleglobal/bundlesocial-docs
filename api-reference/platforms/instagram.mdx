@@ -283,9 +283,18 @@ Instagram provides detailed demographic data via raw analytics. Here's what the 
         "name": "follows_and_unfollows",
         "period": "day",
         "title": "Follows and unfollows",
-        "total_value": { "value": { "follows": 142, "unfollows": 23 } }
+        "total_value": {
+          "breakdowns": [{
+            "dimension_keys": ["follow_type"],
+            "results": [
+              { "dimension_values": ["FOLLOWER"], "value": 142 },
+              { "dimension_values": ["NON_FOLLOWER"], "value": 23 }
+            ]
+          }]
+        }
       }]
     },
+    "follows_and_unfollows_by_follow_type": { "follows": 142, "unfollows": 23, "unknown": 0 },
     "follower_demographics": {
       "country": {
         "data": [{
@@ -382,6 +391,7 @@ Instagram provides detailed demographic data via raw analytics. Here's what the 
 }
 ```
 
+- `demographics.follows_and_unfollows` is requested with `breakdown=follow_type` over the last 30 days (Instagram returns nothing without it). `demographics.follows_and_unfollows_by_follow_type` is the same data already parsed: `follows` (`FOLLOWER`), `unfollows` (`NON_FOLLOWER`, includes accounts that left Instagram) and `unknown` (any other type). Instagram only returns it for accounts with 100+ followers, so it's `null` for smaller accounts.
 - `demographics.follower_demographics_age_gender` is the age × gender cross-tab of your followers (one row per age bucket + gender pair). It's `null` if Instagram didn't return it.
 - `onlineFollowers` shows how many followers were online in each hour (`0`-`23`) for each of the last 30 days. Handy for picking posting times. Instagram only returns it for accounts with 100+ followers, so it's `null` for smaller accounts.
 - `reachByFollowType` is the account's unique reach over the last 30 days (same window as `totals30d`), split into followers and non-followers. `reachTimeSeries` has reach per day for the same 30 days; summing those days counts the same person once per day they were reached, so it's higher than the 30-day total.

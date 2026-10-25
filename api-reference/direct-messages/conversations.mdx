@@ -142,12 +142,13 @@ Pages walk **backwards in time** (the first page has the newest messages), but m
 
 Useful fields:
 
-- `attachments[]` - `type` (`IMAGE`, `VIDEO`, `AUDIO`, `FILE`, `POST`, `UNKNOWN`) and a `url` when the platform gives one. `POST` is shared content on Messenger (a link or a shared post). On Instagram, shared posts, reels and story mentions currently arrive as `UNKNOWN`, with a `url` when Meta provides one.
+- `attachments[]` - `type` (`IMAGE`, `VIDEO`, `AUDIO`, `FILE`, `POST`, `STORY_MENTION`, `UNKNOWN`) and a `url` when the platform gives one. `POST` is shared content on Messenger (a link or a shared post). `STORY_MENTION` is an Instagram story that mentions the account (see [Story replies and mentions](#story-replies-and-mentions)). On Instagram, shared posts and reels currently arrive as `UNKNOWN`, with a `url` when Meta provides one.
 - `replyTo` - set when the message is a reply to an earlier one. `messageId` points to our message if we have it.
+- `platformData.storyReply` - set when the participant replied to the account's Instagram story. See [Story replies and mentions](#story-replies-and-mentions).
 - `privateReplyContext` - for private replies: the comment it answered (`text`, `authorName`, `postPermalink`, `postThumbnailUrl`, ...).
 - `platformData.reactions` - reactions on the message.
 - `platformData.isEdited` / `editedAt` - the participant edited their message. `text` already holds the new version.
-- `platformData.isUnsent` / `unsentAt` - the participant unsent it. We clear `text` and `attachments` on our side. If you stored the content from an earlier webhook, delete or hide your copy too.
+- `platformData.isUnsent` / `unsentAt` - the participant unsent it. We clear `text`, `attachments` and `platformData.storyReply` on our side. If you stored the content from an earlier webhook, delete or hide your copy too.
 - `platformData.quickReplies`, `buttons`, `carousel` - the rich content of messages you sent.
 - `platformData.isPostback` / `postbackPayload` - the participant tapped a `POSTBACK` button, an ice breaker or a menu item, and this is the payload behind it.
 - `platformData.isEcho` - the account owner sent this from the Instagram or Messenger app.
@@ -156,6 +157,36 @@ Useful fields:
 <Note>
 Platform-hosted attachment URLs (images someone sent you) are signed by Meta and **expire**. If you need them long-term, download and store them yourself.
 </Note>
+
+### Story Replies And Mentions
+
+Instagram only.
+
+- **Story reply:** the participant answered one of the account's stories. The message has the reply `text` and `platformData.storyReply`:
+
+```json
+{
+  "text": "Where can I buy this?",
+  "attachments": [],
+  "platformData": {
+    "storyReply": {
+      "storyId": "17900000000000000",
+      "url": "https://lookaside.fbsbx.com/...",
+      "linkStickerUrl": "https://example.com/product"
+    }
+  }
+}
+```
+
+| Field | Description |
+| :--- | :--- |
+| `storyId` | Instagram ID of the story. Can be `null`. |
+| `url` | Link to the story media. Expires with the story (24 hours), so treat it as best effort. Can be `null`. |
+| `linkStickerUrl` | The URL of the story's link sticker, if it had one. Otherwise `null`. |
+
+- **Story mention:** the participant mentioned the account in their own story. The message has no `text` and one attachment with `type: "STORY_MENTION"` and the story's `url` when Meta provides one. The conversation's `lastMessagePreview` reads "Mentioned you in their story". The URL expires like other Meta attachment URLs.
+
+When the participant unsends a story reply, `storyReply` is removed along with `text` and `attachments`.
 
 ---
 

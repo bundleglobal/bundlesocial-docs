@@ -268,6 +268,15 @@ When we detect a disconnection, the webhook includes a `socialAction` object wit
         "status": "error",
         "code": "REMOTE_DISCONNECT_DELETION_SCHEDULED",
         "message": "Account failed validation after 3 attempts",
+        "errorCategory": "UNAUTHORIZED",
+        "providerError": {
+          "httpStatus": 400,
+          "code": "190",
+          "subcode": "460",
+          "message": "Error validating access token: The session has been invalidated because the user changed their password.",
+          "type": "OAuthException",
+          "fbtraceId": "AbCdEfGh123"
+        },
         "attemptNumber": 3,
         "attemptsTotal": 3,
         "scheduledForDeletion": true,
@@ -279,6 +288,8 @@ When we detect a disconnection, the webhook includes a `socialAction` object wit
 }
 ```
 
+`details.errorCategory` is `UNAUTHORIZED` (the token is no longer valid) or `TRANSIENT_OR_UNKNOWN`. `details.providerError` is what the platform answered, when we have it: `httpStatus` and `message`, plus `code`, `subcode`, `type` and `fbtraceId` when the platform provides them (Meta does; quote `fbtraceId` when you contact Meta support). Every field is optional, so check before reading.
+
 ### Status Codes
 
 | Code | Meaning |
@@ -286,6 +297,7 @@ When we detect a disconnection, the webhook includes a `socialAction` object wit
 | `REMOTE_DISCONNECT_DELETION_SCHEDULED` | All retries failed. Account is scheduled for deletion. |
 | `REMOTE_DISCONNECT_UNAUTHORIZED_WARNING` | Token refresh failed with an auth error (401, expired token, etc.). |
 | `REMOTE_DISCONNECT_REAUTH_REQUIRED` | Connection failed for another reason. User should reconnect. |
+| `REMOTE_DISCONNECT_TRANSIENT_OR_UNKNOWN` | A check failed for a reason that doesn't look like an auth error. We keep retrying. |
 
 ### The `deleteOn` Grace Period
 

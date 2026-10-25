@@ -217,8 +217,19 @@ Facebook raw analytics include Page insight payloads for profiles and flat insig
         "values": [
           { "value": 184, "end_time": "2026-04-26T07:00:00+0000" }
         ]
+      },
+      {
+        "name": "page_daily_follows_unique",
+        "period": "day",
+        "values": [
+          { "value": 12, "end_time": "2026-04-26T07:00:00+0000" }
+        ]
       }
     ]
+  },
+  "mediaViewBreakdowns": {
+    "isFromAds": { "true": 820, "false": 2300 },
+    "isFromFollowers": { "true": 1450, "false": 1670 }
   },
   "pageDemographicInsights": {
     "data": [
@@ -251,6 +262,15 @@ Facebook raw analytics include Page insight payloads for profiles and flat insig
   "post_video_views_clicked_to_play": 1330,
   "comments": 44,
   "shares": 27,
-  "saves": 9
+  "saves": 9,
+  "mediaViewBreakdowns": {
+    "isFromAds": { "true": 3200, "false": 11620 },
+    "isFromFollowers": { "true": 6100, "false": 8720 }
+  }
 }
 ```
+
+- `pageInsights` also includes `page_daily_follows_unique`, `page_daily_unfollows_unique`, `page_post_engagements` and `page_total_actions` (daily values, raw only; they don't change the parsed metrics).
+- `mediaViewBreakdowns` splits views (`page_media_view` for the Page over the last 30 days, `post_media_view` for a post, lifetime) into paid vs organic (`isFromAds`) and followers vs non-followers (`isFromFollowers`). `true` is views from ads / from followers, `false` the rest. It splits views only, not unique reach. A breakdown Meta doesn't return is left out, and the whole field is missing when neither comes back.
+- **Reels:** reach (`impressionsUnique`) and `mediaViewBreakdowns` are read from the page post behind the reel, including for imported reels. They stay empty if Meta doesn't link the reel to a page post.
+- **Stories:** stories expire after 24 hours, so their analytics (views and unique views, plus reactions, comments and shares) are read once, when the story is imported through [post history import](/api-reference/import-posts). If Meta has no insights for a story, it's imported without analytics instead of with zeros. Stories aren't refreshed afterwards, and force refresh isn't supported for them.

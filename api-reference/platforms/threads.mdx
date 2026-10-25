@@ -167,7 +167,7 @@ For general analytics concepts (refresh rates, data retention, what "Returns 0" 
 | :--- | :--- | :--- |
 | `impressions` | Content impressions | Internally contains quote count from API |
 | `impressionsUnique` | Unique impressions | Internally contains repost count from API |
-| `views` | Views | |
+| `views` | Views | Summed over the last 365 days |
 | `viewsUnique` | - | Same as views |
 | `likes` | Likes | |
 | `comments` | Replies | |
@@ -194,6 +194,7 @@ For general analytics concepts (refresh rates, data retention, what "Returns 0" 
 - Shares include both reposts and quotes - we don't split them.
 - For profile analytics: the impressions field internally contains quote counts and impressionsUnique contains repost counts. This is how the Threads API returns data.
 - Following count is not available through the Threads API.
+- Profile `views` covers the last 365 days. Threads fails on longer views series, so we can't go further back.
 
 ### Raw Analytics
 

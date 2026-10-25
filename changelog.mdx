@@ -6,6 +6,52 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
+<Update label="2026-10-25">
+**TikTok posting options:** new `GET /api/v1/misc/tiktok/post-settings?teamId=...` returns the privacy levels the account accepts (`privacyLevelOptions`), whether comments, Duets and Stitches can be turned on (`commentDisabled`, `duetDisabled`, `stitchDisabled`) and the longest video it can publish (`maxVideoPostDurationSec`), read live from TikTok. Use it to build your composer's options. See [TikTok](/api-reference/platforms/tiktok#posting-options-of-an-account).
+
+**Instagram story replies and mentions in Direct Messages:** a reply to the account's story carries `platformData.storyReply` (`storyId`, `url`, `linkStickerUrl`), and a story that mentions the account arrives as an attachment with `type: "STORY_MENTION"`. Story URLs expire with the story. When a message is unsent, `storyReply` is cleared along with `text` and `attachments`. See [Story replies and mentions](/api-reference/direct-messages/conversations#story-replies-and-mentions).
+
+**YouTube post visibility:** profile posts now have `extraData.visibility` (`PUBLIC`, `UNLISTED`, `PRIVATE`), set on import and updated on every analytics refresh. Private and unlisted videos keep refreshing. See [YouTube](/api-reference/platforms/youtube#quirks).
+
+**Raw analytics:**
+- **Instagram:** `demographics.follows_and_unfollows` is now requested by follow type, with a parsed `demographics.follows_and_unfollows_by_follow_type` (`follows`, `unfollows`, `unknown`; `null` under 100 followers). See [Instagram](/api-reference/platforms/instagram).
+- **Facebook Pages:** `pageInsights` adds `page_daily_follows_unique`, `page_daily_unfollows_unique`, `page_post_engagements` and `page_total_actions`.
+- **Facebook views breakdown:** Page and post raw analytics include `mediaViewBreakdowns`, splitting views into paid vs organic (`isFromAds`) and followers vs non-followers (`isFromFollowers`). Views only, not unique reach. See [Facebook](/api-reference/platforms/facebook#raw-analytics).
+
+**Facebook analytics:**
+- Reels now get reach (`impressionsUnique`), read from the reel's page post.
+- Story analytics (views, unique views) are read during post history import, since stories expire after 24 hours. Force refresh of story analytics is still not supported.
+
+**Post import:** Facebook imports skip unpublished video-library items (drafts, scheduled, ad-only). With imported-posts analytics enabled, imported Facebook and Instagram posts get their first analytics from the regular refresh instead of a placeholder snapshot with zero reach. See [Imported post analytics](/api-reference/import-posts#imported-post-analytics).
+
+**Webhooks:** `socialAction.details.providerError` in `social-account.updated` now includes the platform's `code`, `subcode`, `type` and `fbtraceId` when the platform provides them, next to `message` and `httpStatus`. See [Remote Disconnection Detection](/api-reference/webhooks#remote-disconnection-detection).
+
+**Threads:** the profile post count retries Threads' random errors instead of failing.
+
+**Hosted connect portal:** now loads on older iOS Safari (iOS 15).
+
+**Docs:** how to use `referenceKey` for safe post-create retries. See [Safe retries](/api-reference/examples#safe-retries-with-referencekey).
+</Update>
+
+<Update label="2026-10-24">
+**Meta reliability:** Facebook, Instagram and Threads calls hold up better under load. The connection pool is bounded, every request has an end-to-end deadline, and token checks are retried on transient Meta errors.
+
+**Threads account analytics:** `views` is now summed over the last 365 days instead of about 2 years, because Threads fails on the longer series. Account-level Threads `views` drop once as a result. Likes, replies, reposts, quotes and followers are unchanged. See [Threads](/api-reference/platforms/threads).
+
+**API errors:** endpoints can now return `503` or `504` when a platform is temporarily unavailable or timed out, instead of a generic `500`. Both are safe to retry with backoff. See [HTTP Status Codes](/api-reference/errors#http-status-codes).
+</Update>
+
+<Update label="2026-10-19">
+**CSV import:**
+- Imports no longer hang when a media URL stops sending data mid-download. The row fails with an error and the import continues.
+- A scheduled row whose `postDate` is more than 10 minutes in the past is rejected before its media is downloaded.
+- A retried import resumes after the rows that already have a result instead of creating them again.
+
+See [Bulk Post from CSV](/api-reference/bulk-posts-csv).
+
+**Hosted connect portal:** opening a new link in a browser that previously opened an expired link for the same team no longer shows "Link has expired".
+</Update>
+
 <Update label="2026-10-17">
 **Instagram and Threads: posts deleted on the platform:** posts you delete on Instagram or Threads now get `externallyDeletedAt` set on the next analytics refresh and stop being refreshed, like TikTok and YouTube already did. Applies to published and imported posts. Instagram and Threads return the same error for a deleted post and for one the account can't access, so a post is only marked when it's also missing from the account's own post list. Very old posts (beyond the account's latest ~500 on Instagram, ~1,000 on Threads) aren't checked. See [Analytics](/api-reference/analytics).
 

@@ -50,6 +50,24 @@ Look for `errorsVerbose` in the response.
 *   **Transient (`true`):** Rate limits, server timeouts. **Action:** Retry with exponential backoff.
 *   **Non-Transient (`false`):** Auth errors, validation errors. **Action:** Ask user to fix it (reconnect account, change video file).
 
+## HTTP Status Codes
+
+Errors returned by our own endpoints (not the per-platform `errorsVerbose` of a post) come back with a `message`.
+
+| Status | Meaning | Action |
+| :--- | :--- | :--- |
+| `400` | Invalid request (validation failed, or the platform rejected the input). | Fix the request. |
+| `401` / `403` | Missing or invalid API key, or no access to that team or resource. | Check the key and the team ID. |
+| `404` | Resource not found. | Check the ID. |
+| `409` | Conflict, e.g. a post with this `referenceKey` already exists. See [Safe retries](/api-reference/examples#safe-retries-with-referencekey). | Don't retry. Fetch the existing resource. |
+| `429` | Rate limited. See [Rate Limits](/api-reference/rate-limits). | Retry after a pause. |
+| `500` | Something broke on our side. | Retry once, then contact us. |
+| `502` | The platform returned an invalid or incomplete response. | Retry later. |
+| `503` | The platform is temporarily unavailable. | Retry with exponential backoff. |
+| `504` | The platform timed out. | Retry with exponential backoff. |
+
+`502`, `503` and `504` mean the platform had a problem, not your request, so they're safe to retry.
+
 {/* most-common-errors:start */}
 
 ## Most Common Platform Errors

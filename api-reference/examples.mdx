@@ -76,6 +76,43 @@ await fetch("https://api.bundle.social/api/v1/post", {
 });
 ```
 
+## Safe Retries With `referenceKey`
+
+Set `referenceKey` to your own ID for the post (1-128 characters, trimmed). It's unique per organization among posts that aren't deleted, so a retry after a timeout can't create the post twice.
+
+```ts
+const res = await fetch("https://api.bundle.social/api/v1/post", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+    "x-api-key": process.env.BUNDLE_API_KEY
+  },
+  body: JSON.stringify({
+    teamId: "team_123",
+    title: "Launch post",
+    referenceKey: "campaign-42-launch",
+    status: "SCHEDULED",
+    postDate: "2026-06-01T15:00:00.000Z",
+    socialAccountTypes: ["FACEBOOK"],
+    data: {
+      FACEBOOK: { type: "POST", text: "We are live." }
+    }
+  })
+});
+
+if (res.status === 409) {
+  // Already created by an earlier attempt: fetch it instead.
+  const post = await fetch(
+    "https://api.bundle.social/api/v1/post/reference-key/campaign-42-launch",
+    { headers: { "x-api-key": process.env.BUNDLE_API_KEY } }
+  ).then((r) => r.json());
+}
+```
+
+- Creating (or updating) a post with a key another post already uses returns `409` with `A post with this referenceKey already exists in this organization`.
+- `GET /api/v1/post/reference-key/{referenceKey}` returns the post, like `GET /api/v1/post/{id}`. URL-encode the key if it has special characters.
+- Once a post is deleted, its key can be used again.
+
 ## Fetch Raw Analytics
 
 Raw analytics return the raw payload stored for the newest analytics snapshot. Availability depends on platform.
