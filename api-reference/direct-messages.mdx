@@ -8,7 +8,7 @@ icon: inbox
 ---
 
 <Warning>
-**Allowlist only.** Direct Messages are not switched on by default. Email [support@bundle.social](mailto:support@bundle.social) with your **organization ID** (the `id` returned by `GET /api/v1/organization`) and we'll enable it for you. Until then every endpoint in this section answers `404`, which is on purpose, not a bug.
+**Turned on per organization, on request.** Direct Messages are part of the paid plans (the Free plan has no message allowance) and are switched on per organization. Email [contact@bundle.social](mailto:contact@bundle.social) with your **organization ID** (the `id` returned by `GET /api/v1/organization`) and we'll turn it on. Until then every endpoint in this section answers `403` with a message that says how to request access.
 
 Once it's on, two things are on you:
 
@@ -180,7 +180,8 @@ Errors come back as `{ "statusCode": 400, "message": "..." }`. The ones specific
 | `400` | `Facebook private replies must be sent within 7 days of the comment` | The comment is too old |
 | `403` | `Messaging is not enabled for this social account. Enable it first.` | Call `/social-account/messaging/enable` |
 | `403` | `Monthly message limit reached...` | Quota used up for this account this month |
-| `404` | `Not found` | Your organization is not on the allowlist yet. A wrong ID says what wasn't found, e.g. `Conversation not found`. |
+| `403` | `Instagram and Facebook direct messages and automations are not enabled for your organization. Email contact@bundle.social with your organization ID to request access.` | Direct Messages are not turned on for your organization yet. Email us as described at the top of this page. |
+| `404` | `Conversation not found` (or similar) | A wrong ID. The message says what wasn't found. |
 | `429` | `Private reply send already claimed` | A private reply for this comment is being sent right now, or an earlier attempt timed out and may have been delivered. We never risk sending it twice, so don't keep retrying: check the conversation instead. |
 | `503` | `Messaging is temporarily disabled...` | Sending is paused on our side (for example during a Meta incident). Retry in a few minutes. |
 

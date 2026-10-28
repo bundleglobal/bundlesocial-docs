@@ -6,6 +6,12 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
+<Update label="2026-10-28">
+**Direct Messages and Automations are out of beta.** Both are part of the paid plans and are turned on per organization on request: email [contact@bundle.social](mailto:contact@bundle.social) with your organization ID. Access is now per platform: one switch for Instagram and Facebook (DMs and automations), a separate one for TikTok automations, so a TikTok-only setup no longer needs the Meta switch and the other way around.
+
+**Status code change:** while access is not turned on, the [Direct Messages](/api-reference/direct-messages) and [Automations](/api-reference/automations) endpoints now answer `403` with a message that says how to request access, instead of `404`. A wrong ID still returns `404`. If your integration treated `404` as "not enabled", check for `403` as well.
+</Update>
+
 <Update label="2026-10-25">
 **TikTok posting options:** new `GET /api/v1/misc/tiktok/post-settings?teamId=...` returns the privacy levels the account accepts (`privacyLevelOptions`), whether comments, Duets and Stitches can be turned on (`commentDisabled`, `duetDisabled`, `stitchDisabled`) and the longest video it can publish (`maxVideoPostDurationSec`), read live from TikTok. Use it to build your composer's options. See [TikTok](/api-reference/platforms/tiktok#posting-options-of-an-account).
 

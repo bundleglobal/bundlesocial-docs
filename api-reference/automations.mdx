@@ -8,7 +8,7 @@ icon: robot
 ---
 
 <Warning>
-**Allowlist only.** Automations are not switched on by default. Email [support@bundle.social](mailto:support@bundle.social) with your **organization ID** (the `id` returned by `GET /api/v1/organization`) and we'll enable it. Planning TikTok comment automations? Mention it in the email, there is one extra switch we flip for that. Until then every endpoint in this section answers `404`.
+**Turned on per organization, on request.** Automations are part of the paid plans (the Free plan has no run allowance) and are switched on per organization, per platform: one switch covers Instagram and Facebook (shared with [Direct Messages](/api-reference/direct-messages)), a separate one covers TikTok. Email [contact@bundle.social](mailto:contact@bundle.social) with your **organization ID** (the `id` returned by `GET /api/v1/organization`) and say which platforms you need. Until then every endpoint in this section answers `403` with a message that says how to request access, and a flow for a platform that is not turned on is rejected with `403` too.
 
 Once it's on, two things are on you:
 
@@ -136,7 +136,7 @@ Need more? [Contact us](https://bundle.social/contact).
 
 ## Before You Start
 
-Once your organization is on the allowlist:
+Once automations are turned on for your organization:
 
 1. **Reconnect your Facebook and Instagram accounts** with `withMessagingScope: true`. This covers accounts that were already connected before the switch. Until they are reconnected they have no messaging permissions, and we don't receive their new comments either, so no flow on them can ever fire.
 2. **Subscribe each account to messages** with `POST /api/v1/social-account/messaging/enable`. This registers it for Meta's message webhooks. It's needed for any flow that reacts to DMs or button taps, or sends DMs or private replies. A flow that only replies publicly or likes comments works without it. Both steps are two API calls, see [Direct Messages → Setup](/api-reference/direct-messages/setup).
@@ -228,7 +228,7 @@ Some combinations make no sense (or Meta forbids them), so publishing rejects th
 
 Check in this order:
 
-1. Was the account reconnected **after** your organization was allowlisted? Accounts connected earlier don't send us comments or DMs. See [Before You Start](/api-reference/automations#before-you-start).
+1. Was the account reconnected **after** automations were turned on for your organization? Accounts connected earlier don't send us comments or DMs. See [Before You Start](/api-reference/automations#before-you-start).
 2. Is it a comment flow? The post in `postId` must be published through bundle.social on the same account.
 3. Did you edit it after publishing? Edits are drafts until you publish again.
 4. Do the keywords really match? They match whole words: `"link"` won't match "links".

@@ -5,7 +5,7 @@ icon: plug
 keywords: ["instagram dm setup", "messenger api setup", "withMessagingScope", "enable messaging"]
 ---
 
-Once your organization is on the allowlist, do this for **every** Facebook and Instagram account that should receive DMs:
+Once Direct Messages are turned on for your organization, do this for **every** Facebook and Instagram account that should receive DMs:
 
 1. **Reconnect it with messaging permissions.** This includes accounts that were already connected before we switched the feature on. They don't have the permissions yet.
 2. **Subscribe it to messages** with `messaging/enable`. This registers the account for Meta's message webhooks. Without it, no DM ever reaches us.
@@ -36,7 +36,7 @@ const { url } = await res.json(); // send your user here
 For the hosted portal, pass the same `withMessagingScope: true` to `POST /api/v1/social-account/create-portal-link`.
 
 <Warning>
-**Accounts connected before the feature was enabled must be reconnected.** That includes accounts connected with `withMessagingScope: true`, because the flag is ignored until your organization is on the allowlist. Meta only grants messaging permissions on its login screen, so there is no way to add them silently afterwards. The same reconnect also subscribes the account to new comments, which [comment automations](/api-reference/automations) need.
+**Accounts connected before the feature was enabled must be reconnected.** That includes accounts connected with `withMessagingScope: true`, because the flag is ignored until Direct Messages are turned on for your organization. Meta only grants messaging permissions on its login screen, so there is no way to add them silently afterwards. The same reconnect also subscribes the account to new comments, which [comment automations](/api-reference/automations) need.
 </Warning>
 
 ## Step 2: Subscribe The Account To Messages
@@ -67,7 +67,7 @@ The call is idempotent, so calling it twice is harmless.
 | :--- | :--- |
 | `200` | Subscribed, messaging is `ENABLED`. New DMs will start showing up. |
 | `400` | The account is missing the messaging permissions (reconnect it with `withMessagingScope: true`), the team has no account of that type, or no page or account was selected for the connection. The `message` says which. |
-| `404` | Your organization is not on the allowlist yet. |
+| `403` | Direct Messages are not turned on for your organization yet. The `message` says how to request access. |
 | `502` | Meta refused the subscription. The account keeps its previous status (normally `DISABLED`); retry in a bit. |
 
 ## Turning It Off

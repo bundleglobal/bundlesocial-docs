@@ -133,7 +133,7 @@ Validation runs on create and on every `PATCH` that carries a `definition`, and 
 - **Shape** (field types, lengths, counts, duplicate step ids): a `400` with an `issues` array, one entry per problem with its `path`.
 - **Everything else** (accounts, permissions, the post, whether steps fit the trigger), once the shape is valid: all problems come back in one `400` whose `message` joins them with `; `, so you can fix them in one go.
 
-A TikTok comment flow is also rejected while comment import is off for your organization. Publishing a flow that has no draft and no `definition` in the body returns `400`.
+A flow is also rejected with `403` while automations for its platform are not turned on for your organization (TikTok has its own switch, Instagram and Facebook share one). Publishing a flow that has no draft and no `definition` in the body returns `400`.
 
 ## Pause, Activate, Archive, Delete
 
