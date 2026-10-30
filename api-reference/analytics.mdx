@@ -66,6 +66,21 @@ By default, analytics are automatically refreshed every **24 hours**. However, w
 
 We will discuss these costs with you directly to determine the best solution for your use case.
 
+### When Collection Stops For An Account
+
+A daily refresh that fails is retried, and what happens next depends on the error:
+
+| Error | What we do | Force refresh returns |
+| :--- | :--- | :--- |
+| Temporary platform error (5xx, timeout, rate limit) | Try again on the next daily run | `5xx` while the platform keeps failing |
+| Expired or revoked token | Try again on the next daily run. Reconnect the account if the token is dead | the platform's auth error |
+| Permanent error (e.g. a missing permission) | Stop collecting for that account | `400` with `Analytics access is disabled for this social account.` |
+
+There is no status field for this on the account yet. To spot an account whose collection stopped, check
+the date of its newest analytics item: if it is older than your refresh period plus a day, force a refresh
+and read the response. For an account that returns the `400` above, reconnect it (Facebook and Instagram)
+or contact us with the social account ID.
+
 ---
 
 ## Data Retention

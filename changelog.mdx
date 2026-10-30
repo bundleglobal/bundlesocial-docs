@@ -6,6 +6,14 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
+<Update label="2026-10-29">
+**Threads profile views over 2 years again:** profile `views` is summed over the last 2 years (never before April 13, 2024) instead of 365 days. We now read the series in 90-day slices, because Threads kept failing on long views series for some profiles, which stopped their daily account analytics. Affected profiles resume on the next daily run. See [Threads](/api-reference/platforms/threads#profile-analytics).
+
+**An expired token no longer stops account analytics:** a failed refresh caused by an expired or revoked token is now retried on the next daily run instead of switching account analytics off. Accounts switched off this way during the token refresh problem on October 8-9 (mostly YouTube) are collecting again. See [When collection stops for an account](/api-reference/analytics#when-collection-stops-for-an-account).
+
+**Facebook Page posts accept up to 10 images**, as documented, instead of 4. See [Facebook](/api-reference/platforms/facebook).
+</Update>
+
 <Update label="2026-10-28">
 **Direct Messages and Automations are out of beta.** Both are part of the paid plans and are turned on per organization on request: email [contact@bundle.social](mailto:contact@bundle.social) with your organization ID. Access is now per platform: one switch for Instagram and Facebook (DMs and automations), a separate one for TikTok automations, so a TikTok-only setup no longer needs the Meta switch and the other way around.
 
