@@ -96,9 +96,10 @@ Polls, GIFs and link attachments only work on text-only posts - Threads rejects 
 
 | Field | Type | Notes |
 |---|---|---|
-| **`text`** | string | Required. ~3000 chars. Works for a personal profile or a company page depending on which account the user connected. |
+| **`text`** | string | ~3000 chars. A post needs text, media, a link or a poll. Works for a personal profile or a company page depending on which account the user connected. |
 | `uploadIds` | string[] | Images, a single video, or a document/PDF. |
-| `link` | string (URL) | For an article-preview post. |
+| `link` | string (URL) | For an article-preview post. Not with media or a poll. |
+| `poll` | `{ question, options, duration }` | Question 1-140 chars, 2-4 options of 1-30 chars, `duration` `ONE_DAY` \| `THREE_DAYS` (default) \| `SEVEN_DAYS` \| `FOURTEEN_DAYS`. Not with media or a link. See [LinkedIn polls](/api-reference/platforms/linkedin#polls). |
 | `thumbnail` | string (URL) | Cover image. |
 | `mediaTitle` | string | Title for a video or document post (LinkedIn otherwise shows the post date under videos). |
 | `privacy` | `CONNECTIONS` \| `PUBLIC` \| `LOGGED_IN` \| `CONTAINER` | Visibility. |
@@ -170,11 +171,13 @@ Account types are connected via Facebook or directly via Instagram (`instagramCo
 |---|---|---|
 | `type` | `VIDEO` \| `IMAGE` | `VIDEO` = 1 video; `IMAGE` = photo carousel. |
 | **`privacy`** | `PUBLIC_TO_EVERYONE` \| `MUTUAL_FOLLOW_FRIENDS` \| `FOLLOWER_OF_CREATOR` \| `SELF_ONLY` | Effectively required by TikTok. |
-| `text` | string | Caption. |
-| `uploadIds` | string[] | The video, or the photos for `type: IMAGE`. Video: MP4/MOV/WEBM, ≥540p, portrait 9:16 recommended, up to ~10 min. |
+| `text` | string | Caption. Max 2,200 characters for `VIDEO`, 4,000 for `IMAGE`. |
+| `title` | string | `IMAGE` only. Title of the photo post, max 90 characters. |
+| `uploadIds` | string[] | The video, or 1-35 photos for `type: IMAGE`. Video: MP4/MOV/WEBM, ≥540p, portrait 9:16 recommended, up to ~10 min. |
+| `locationId` / `locationName` | string | Location tag on the post, both together. Find one with `GET /api/v1/misc/tiktok/locations?teamId=...&q=...` ([TikTok](/api-reference/platforms/tiktok#location-tags)). |
 | `photoCoverIndex` | number | Which photo is the cover (for `type: IMAGE`). |
 | `thumbnailOffset` | number (ms) | Frame to use as the video cover. |
-| `thumbnail` | string (URL) | Cover image (alternative to offset). |
+| `thumbnail` | string (URL) | `VIDEO` only. Cover image (alternative to offset). Must be the `url` of an image uploaded to bundle.social; other URLs are rejected with `400`. |
 | `isBrandContent` / `isOrganicBrandContent` | boolean | Disclosure: paid third-party partnership / promoting your own business. |
 | `disableComments` / `disableDuet` / `disableStitch` | boolean | Interaction restrictions. |
 | `isAiGenerated` | boolean | Mark the video as AI-generated. |

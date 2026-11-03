@@ -194,8 +194,9 @@ Meta location search can be inconsistent. If you hit the permission/error path, 
 
 #### Collaborators behavior
 - Collaborators are normalized before publish (`@` stripped, trim, lowercase).
-- Automatic fallback retry without unavailable collaborators was removed.
-- Retry behavior now follows standard BullMQ worker retry policy.
+- If Instagram rejects a tagged user or collaborator (private profile, invalid username, or an account that can't be tagged), we publish the post without them instead of failing it. The same goes for a `locationId` Instagram rejects (for example when the Facebook Page behind it was removed or unpublished).
+- The post ends as `POSTED`, the dropped parts are listed in `externalData.INSTAGRAM.skippedTags` and `externalData.INSTAGRAM.skippedLocationId`, and `errors.INSTAGRAM` carries a warning such as `Posted without the Instagram tag(s) @handle: Instagram rejected them (private profile, invalid username, or the account cannot be tagged).` or `Posted without the location (ID 123): Instagram rejected it (the Facebook Page behind it may be removed or unpublished).`
+- On a `POSTED` post, read `errors.INSTAGRAM` as a warning.
 
 #### Trial Reels
 

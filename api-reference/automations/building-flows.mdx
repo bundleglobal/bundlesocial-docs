@@ -33,7 +33,7 @@ A flow definition is one `trigger` plus up to 100 `steps`. It's what you send as
 | `type` | all | Trigger type, see [Capabilities By Platform](/api-reference/automations#capabilities-by-platform) |
 | `platform` | all | `INSTAGRAM`, `FACEBOOK` or `TIKTOK` |
 | `socialAccountId` | all | The account the flow listens on |
-| `postId` | `COMMENT_CREATED` | **Required for comment triggers.** A post published through bundle.social on that account. **Must be left out** for DM and click triggers: a DM or click flow with a `postId` publishes fine but never fires. |
+| `postId` | `COMMENT_CREATED` | **Optional.** A post published through bundle.social on that account, to cover that one post. Leave it out (or send `null`) to cover every post on the account, including posts published outside bundle.social. An empty string counts as left out. Which flow wins when both kinds exist: [Comment Flows](/api-reference/automations/how-flows-behave#comment-flows). **Must be left out** for DM and click triggers: a DM or click flow with a `postId` publishes fine but never fires. |
 | `keywords` | comments, DMs | Up to 100, each up to 200 characters. Empty = every comment / message matches. |
 | `matchMode` | comments, DMs | `ANY` (default): one keyword is enough. `ALL`: every keyword must appear. |
 | `caseSensitive` | comments, DMs | Default `false` |

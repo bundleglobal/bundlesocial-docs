@@ -63,6 +63,10 @@ These are **daily limits per connected social account**, counted per **UTC calen
 | SNAPCHAT | 5 | 20 | 40 |
 
 <Note>
+**YouTube also has an organization-wide daily upload cap.** On top of the per-account limits above, new YouTube uploads are capped per organization per day. This day follows YouTube's quota day and resets at **midnight Pacific Time**, not UTC. When the cap is reached, the YouTube publish fails with `YT:orgDailyUploadLimit` and isn't retried automatically, see [Errors](/api-reference/errors#youtube). Need a higher cap? [Contact us](https://bundle.social/contact).
+</Note>
+
+<Note>
 **Example:** On Pro, each connected TikTok account gets its own 10 posts/day. Connect 5 **different** TikTok accounts → 50/day total (10 each, independent). But connect the **same** TikTok account to 5 teams → still 10/day total, because the quota follows the real account, not the connection.
 </Note>
 
@@ -116,6 +120,56 @@ On top of daily limits, there are monthly caps across the entire organization:
 <Note>
 **How the monthly cap is counted:** by **creation time**, in the **UTC calendar month** - i.e. when you *schedule* an item, not when it publishes. Scheduling a post for a future month still consumes the **current** month's quota. Drafts don't count; **failed or deleted items still count** (deleting doesn't refund). The window resets on the 1st of each month (UTC).
 </Note>
+
+### Monthly messages and automation runs (per account)
+
+[Direct Messages](/api-reference/direct-messages) and [Automations](/api-reference/automations) have their own monthly quotas, counted per connected Instagram, Facebook or TikTok account rather than per organization:
+
+| Tier | Outbound messages / account / month | Automation runs / account / month |
+| ---- | ----------------------------------- | --------------------------------- |
+| FREE | 0 | 0 |
+| PRO | 200 | 200 |
+| BUSINESS | 1,000 | 1,000 |
+
+For what counts toward each quota, see [Direct Messages: Plans and limits](/api-reference/direct-messages#plans-and-limits) and [Automations: Plans and limits](/api-reference/automations#plans-and-limits). Both reset on the 1st of each month (UTC). A higher limit agreed for your organization or for a single account replaces the plan default.
+
+### Check Monthly Message And Automation Usage
+
+**Endpoint:** `GET /api/v1/organization/usage/messages`
+
+Lists every Instagram, Facebook and TikTok account in your organization (newest first) with its usage in the current UTC month. It works even before Direct Messages or Automations are turned on for your organization, so you can read the limits up front.
+
+| Query | Required | Description |
+| :--- | :--- | :--- |
+| `teamId` | No | Only accounts in this team. |
+| `socialAccountType` | No | `INSTAGRAM`, `FACEBOOK` or `TIKTOK`. |
+| `socialAccountId` | No | Only this account. |
+| `offset` | No | Default `0`. |
+| `limit` | No | 1 to 100, default `10`. |
+
+```http
+GET /api/v1/organization/usage/messages?socialAccountType=INSTAGRAM&limit=20
+```
+
+```json
+{
+  "items": [
+    {
+      "id": "sa_123",
+      "type": "INSTAGRAM",
+      "username": "acme",
+      "displayName": "Acme",
+      "messagesUsed": 57,
+      "messagesLimit": 200,
+      "automationRunsUsed": 41,
+      "automationRunsLimit": 200
+    }
+  ],
+  "total": 1
+}
+```
+
+`messagesLimit` and `automationRunsLimit` are the limits we enforce for that account, including any override. There is no `remaining` field: subtract `*Used` from `*Limit`. Usage of an account you reconnected is summed with the account it replaced, the same way sending is counted.
 
 ---
 

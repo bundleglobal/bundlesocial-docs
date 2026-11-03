@@ -76,7 +76,7 @@ We validate everything before sending to the platform. If your content breaks a 
 ### Images (Photo Mode)
 | Constraint | Value |
 | :--- | :--- |
-| Files | 1-10 images |
+| Files | 1-35 images |
 | Format | **JPG/JPEG/WebP only** - PNG and other formats will be rejected for TikTok Photo Mode |
 | Max size | 20 MB each |
 | Max width | 1920px |
@@ -315,18 +315,29 @@ Bluesky has minimal media restrictions on their end. We enforce basic file count
 | Constraint | Value |
 | :--- | :--- |
 | Files | Exactly 1 image or MP4 video |
-| Max file size | 100 MB |
+| Max video file size | 400 MB |
+| Max image file size | 100 MB |
 | Video minimum resolution | 540x960 |
-| Video duration | 5-60 seconds |
+| Video duration | 5-180 seconds |
+
+### Saved Stories
+
+| Constraint | Value |
+| :--- | :--- |
+| Files | 1-20 images and/or MP4 videos |
+| Max file size | 400 MB per video, 100 MB per image |
+| Video minimum resolution | 540x960 |
+| Video duration | 5-180 seconds per video |
+| Combined length | Max 300 seconds (each image counts as 10 seconds) |
 
 ### Spotlights
 
 | Constraint | Value |
 | :--- | :--- |
 | Files | Exactly 1 MP4 video |
-| Max file size | 100 MB |
+| Max file size | 400 MB |
 | Minimum resolution | 540x960 |
-| Video duration | 6-60 seconds |
+| Video duration | 5-180 seconds |
 
 ---
 
@@ -338,7 +349,7 @@ Bluesky has minimal media restrictions on their end. We enforce basic file count
 | Instagram Reel | 1 | N/A (bitrate limit) | 15 min | - |
 | Instagram Story | 1 | 100 MB | 60s | 8 MB |
 | TikTok Video | 1 | 1 GB | 10 min | - |
-| TikTok Image | 10 | - | - | 20 MB |
+| TikTok Image | 35 | - | - | 20 MB |
 | YouTube Short | 1 | 5 GB | 3 min | - |
 | YouTube Video | 1 | 5 GB | 4 hours | - |
 | LinkedIn | 10 | 2 GB | 30 min | 5 MB |
@@ -354,8 +365,9 @@ Bluesky has minimal media restrictions on their end. We enforce basic file count
 | Mastodon | 4 | 99 MB | - | 16 MB |
 | Bluesky | 4 | - | - | - |
 | Google Business | 1 | - | - | 5 MB |
-| Snapchat Story | 1 | 100 MB | 60s | 100 MB |
-| Snapchat Spotlight | 1 | 100 MB | 60s | - |
+| Snapchat Story | 1 | 400 MB | 180s | 100 MB |
+| Snapchat Saved Story | 20 | 400 MB | 180s each, 300s combined | 100 MB |
+| Snapchat Spotlight | 1 | 400 MB | 180s | - |
 
 
 ## Text & Character Limits
@@ -363,7 +375,7 @@ Bluesky has minimal media restrictions on their end. We enforce basic file count
 | Platform | Main text field limit | Other text field limits |
 | :--- | :--- | :--- |
 | Instagram | `text`: 2,000 | `collaborators` username max 30, `tagged` username max 30, optional `altText` on image posts |
-| TikTok | `text`: 2,200 | - |
+| TikTok | `text`: 2,200 (video), 4,000 (photo) | `title` (photo only): 90, `locationName`: 255 |
 | YouTube | `text` (title): 100 | `description`: 5,000 |
 | LinkedIn | `text`: 3,000 | `mediaTitle`: 200 |
 | Twitter / X | `text`: 280 (Free/Basic), 25,000 (Premium/Premium+) | - |

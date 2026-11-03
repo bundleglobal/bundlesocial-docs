@@ -48,6 +48,8 @@ Recommended flow for most integrations: **GET/list first**, then send **PATCH/PO
 ### Location Selection Required
 After connecting your Google account, you must select a business location. This is similar to selecting a Facebook Page or LinkedIn Company Page.
 
+Each location is listed once in the account's `channels`, even when the login reaches it through several Google accounts or location groups. When you refresh channels and Google now lists the selected location under a different account or group, the selection is kept and follows it. It's cleared only when the login no longer has access to the location.
+
 ### Post Types
 Google Business supports different post types via the `topicType` field:
 *   `STANDARD`: Regular updates (default).

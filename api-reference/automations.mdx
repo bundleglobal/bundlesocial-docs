@@ -8,12 +8,12 @@ icon: robot
 ---
 
 <Warning>
-**Turned on per organization, on request.** Automations are part of the paid plans (the Free plan has no run allowance) and are switched on per organization, per platform: one switch covers Instagram and Facebook (shared with [Direct Messages](/api-reference/direct-messages)), a separate one covers TikTok. Email [contact@bundle.social](mailto:contact@bundle.social) with your **organization ID** (the `id` returned by `GET /api/v1/organization`) and say which platforms you need. Until then every endpoint in this section answers `403` with a message that says how to request access, and a flow for a platform that is not turned on is rejected with `403` too.
+**Turned on per organization, on request.** Automations are part of the paid plans (the Free plan has no run allowance). Access is per platform: one switch covers Instagram and Facebook and also turns on [Direct Messages](/api-reference/direct-messages), a separate one covers TikTok. [Contact us](https://bundle.social/contact) with your **organization ID** (the `id` returned by `GET /api/v1/organization`) and the platforms you need. Until then every endpoint in this section answers `403` with a message that says how to request access, and so does creating a flow for a platform that isn't turned on.
 
 Once it's on, two things are on you:
 
 1. **Reconnect** your Facebook and Instagram accounts with `withMessagingScope: true`, then **subscribe** each one to messages with `POST /api/v1/social-account/messaging/enable`. Accounts connected before the switch receive neither comments nor DMs until you do. See [Before You Start](/api-reference/automations#before-you-start).
-2. **Accept the new webhook events.** Your webhook starts receiving an event for every new comment on your posts and every new DM. Keep your endpoint answering `2xx`, or it gets disabled. See [Webhooks](/api-reference/automations/webhooks).
+2. **Accept the new webhook events.** Your webhook starts receiving an event for every new comment on the account's posts, including posts published outside bundle.social, and every new DM. Keep your endpoint answering `2xx`, or it gets disabled. See [Webhooks](/api-reference/automations/webhooks).
 </Warning>
 
 Automations reply for you. Someone comments "LINK" under your reel, and a second later they get a DM with the link. Someone asks "price?" in your inbox, and they get a message with buttons. Nobody on your team had to be awake for it.
@@ -129,6 +129,7 @@ Automations are a paid-plan feature. Each connected account has a monthly budget
 - Runs that fail **do** count, and so do [test runs](/api-reference/automations/testing-and-logs#test-a-flow), since they really send messages.
 - DMs sent by automations also count toward the account's [monthly message quota](/api-reference/direct-messages#plans-and-limits).
 - When the budget runs out, new runs are recorded as `SKIPPED` with the code `AUTOMATION_MONTHLY_LIMIT_REACHED`. Quotas reset on the 1st of every month (UTC).
+- Check how much each account has used with `GET /api/v1/organization/usage/messages` (`automationRunsUsed` and `automationRunsLimit`). See [Check Monthly Message And Automation Usage](/api-reference/rate-limits#check-monthly-message-and-automation-usage).
 
 Need more? [Contact us](https://bundle.social/contact).
 
@@ -141,7 +142,7 @@ Once automations are turned on for your organization:
 1. **Reconnect your Facebook and Instagram accounts** with `withMessagingScope: true`. This covers accounts that were already connected before the switch. Until they are reconnected they have no messaging permissions, and we don't receive their new comments either, so no flow on them can ever fire.
 2. **Subscribe each account to messages** with `POST /api/v1/social-account/messaging/enable`. This registers it for Meta's message webhooks. It's needed for any flow that reacts to DMs or button taps, or sends DMs or private replies. A flow that only replies publicly or likes comments works without it. Both steps are two API calls, see [Direct Messages → Setup](/api-reference/direct-messages/setup).
 3. **TikTok** accounts need comment management permissions. A regular TikTok connection has them. If publishing a flow complains about permissions, reconnect the account. Also give every TikTok flow a 5-10 second [delay](/api-reference/automations/building-flows#delays).
-4. **Comment flows** only work on posts **published through bundle.social** on that account. You point the flow at one with `postId`.
+4. **Comment flows** cover one post or all of them. Set `postId` to a post published through bundle.social to cover that post. Leave `postId` out to cover every post on the account, including posts published outside bundle.social (directly in the Instagram, Facebook or TikTok app).
 5. **Your webhook endpoint accepts the new events** (see [Webhooks](/api-reference/automations/webhooks)).
 
 If an account is missing permissions, publishing the flow fails with a clear message such as `Instagram account must be reconnected with messaging permissions`.
@@ -151,7 +152,7 @@ If an account is missing permissions, publishing the flow fails with a clear mes
 | ID | Where to get it |
 | :--- | :--- |
 | `teamId`, `socialAccountId` | `GET /api/v1/team/:id` returns the team with its `socialAccounts[]`. `messaging/enable` also returns the `socialAccountId`. |
-| `postId` | The `id` you got back from `POST /api/v1/post`. It's the bundle.social post, not the Instagram or TikTok post ID. |
+| `postId` | The `id` you got back from `POST /api/v1/post`. It's the bundle.social post, not the Instagram or TikTok post ID. Optional: leave it out for a flow on all posts. |
 | `conversationId` | `GET /api/v1/conversations`, or any `conversation.*` [webhook](/api-reference/automations/webhooks) |
 | `fetchedCommentId` | The `comment.id` of a `comment.received` [webhook](/api-reference/automations/webhooks), or `GET /api/v1/comment/import/comments` |
 | `senderExternalIds` | A person's platform ID: `externalParticipantId` on a conversation, or `authorExternalId` on a comment |
@@ -194,7 +195,7 @@ Flows are versioned, so you can edit safely while the old version keeps running.
 
 | Trigger | Instagram | Facebook | TikTok | Fires when |
 | :--- | :---: | :---: | :---: | :--- |
-| `COMMENT_CREATED` | ✅ | ✅ | ✅ | Someone comments on the post in `postId` |
+| `COMMENT_CREATED` | ✅ | ✅ | ✅ | Someone comments on the post in `postId`, or on any post of the account if `postId` is left out |
 | `DM_RECEIVED` | ✅ | ✅ | - | Someone sends a DM to the account |
 | `QUICK_REPLY_CLICKED` | ✅ | ✅ | - | Someone taps one of your quick replies |
 | `BUTTON_CLICKED` | ✅ | ✅ | - | Someone taps a `POSTBACK` button, an ice breaker, or a persistent menu item |
@@ -229,7 +230,7 @@ Some combinations make no sense (or Meta forbids them), so publishing rejects th
 Check in this order:
 
 1. Was the account reconnected **after** automations were turned on for your organization? Accounts connected earlier don't send us comments or DMs. See [Before You Start](/api-reference/automations#before-you-start).
-2. Is it a comment flow? The post in `postId` must be published through bundle.social on the same account.
+2. Is it a comment flow with a `postId`? That post must be published through bundle.social on the same account. Also, when a post has its own flow that matches the comment, flows on all posts don't run for it (see [Comment Flows](/api-reference/automations/how-flows-behave#comment-flows)).
 3. Did you edit it after publishing? Edits are drafts until you publish again.
 4. Do the keywords really match? They match whole words: `"link"` won't match "links".
 5. Look at the executions. If runs are there as `SKIPPED`, `error.code` tells you why. No error means a condition stopped the run, `output.skippedAtStepId` says which one.
@@ -254,7 +255,7 @@ Most likely TikTok wasn't ready for the comment yet when the step ran. Set `acti
 
 ### "Can one flow cover all my posts?"
 
-No. A comment flow always points at one post. Create one per post, ideally when you schedule it.
+Yes. Leave `postId` out of the `COMMENT_CREATED` trigger and the flow reacts to comments on every post of the account, including posts published outside bundle.social. You can still add flows for single posts: when one of them matches a comment, it runs instead of the all-posts flows. See [Comment Flows](/api-reference/automations/how-flows-behave#comment-flows).
 
 ### "Can I stop automations for one conversation when a human takes over?"
 

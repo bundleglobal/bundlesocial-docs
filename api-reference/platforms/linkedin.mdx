@@ -24,8 +24,36 @@ When you send a post with `data.LINKEDIN.link` and no media uploads, bundle.soci
 - `link` is the URL to preview, max 2048 characters.
 
 <Note>
-This is the correct way to build link posts on LinkedIn. If you include both a `link` and media uploads, the uploads take precedence and the link is ignored.
+This is the correct way to build link posts on LinkedIn. A `link` can't be combined with media uploads: such a post is rejected with `400` and `LinkedIn link preview posts cannot include media uploads.`
 </Note>
+
+### Polls
+
+Send `data.LINKEDIN.poll` to publish a LinkedIn poll. The post `text` is shown above the poll.
+
+| Field | Limit |
+| :--- | :--- |
+| `poll.question` | Required, 1-140 characters |
+| `poll.options` | 2-4 options, 1-30 characters each |
+| `poll.duration` | `ONE_DAY`, `THREE_DAYS` (default), `SEVEN_DAYS` or `FOURTEEN_DAYS` |
+
+```json
+{
+  "LINKEDIN": {
+    "text": "Help us pick the next webinar topic",
+    "poll": {
+      "question": "What should we cover next?",
+      "options": ["Analytics", "Automations", "Scheduling"],
+      "duration": "SEVEN_DAYS"
+    }
+  }
+}
+```
+
+- A poll can't have media or a `link`. Such a post is rejected with `400` (`A LinkedIn poll cannot be combined with media.` / `...with a link preview.`).
+- Validation errors point at the exact field, for example `data.LINKEDIN.poll.options.2` with `Max 30 characters per poll option`.
+- LinkedIn doesn't let you edit a poll after it's published.
+- Poll results (votes per option) aren't available in analytics.
 
 ### The URN Nightmare
 LinkedIn uses "URNs" (Uniform Resource Names) to identify everything.
@@ -55,9 +83,10 @@ See [Platform Limits](/api-reference/limits#linkedin) for the full breakdown.
 
 | Field | Type | Description |
 | :--- | :--- | :--- |
-| `text` | `string` | **Required.** Post text. Max 3,000 characters. |
+| `text` | `string` | Post text. Max 3,000 characters. A post needs text, media, a link or a poll. |
 | `uploadIds` | `string[]` | Images, one video, one PDF document, or GIF media. Media types cannot be freely mixed. |
-| `link` | `string` | Optional URL for LinkedIn article preview posts. Ignored when media uploads are present. |
+| `link` | `string` | Optional URL for LinkedIn article preview posts. Can't be combined with media uploads or a poll. |
+| `poll` | `object` | `{ question, options, duration }`. See [Polls](#polls). Can't be combined with media or a link. |
 | `thumbnail` | `string` | URL to an uploaded thumbnail image. |
 | `mediaTitle` | `string` | Title for video or document posts. Max 200 characters. |
 | `privacy` | `CONNECTIONS` \| `PUBLIC` \| `LOGGED_IN` \| `CONTAINER` | Visibility setting. |
@@ -202,8 +231,8 @@ For general analytics concepts (refresh rates, data retention, what "Returns 0" 
 | :--- | :--- | :--- |
 | `impressions` | View count | |
 | `impressionsUnique` | Unique view count | |
-| `views` | - | Returns `0` (not provided for individual org posts) |
-| `viewsUnique` | - | Returns `0` |
+| `views` | Video views (LinkedIn counts plays of at least 3 seconds) | Video posts only, `0` for other posts |
+| `viewsUnique` | Unique video viewers | Video posts only, `0` for other posts |
 | `likes` | Reactions | |
 | `comments` | Comments | |
 | `shares` | Reposts | |
@@ -212,6 +241,12 @@ For general analytics concepts (refresh rates, data retention, what "Returns 0" 
 ### Raw Analytics
 
 Raw analytics for LinkedIn retain **reaction** breakdowns from the platform (per reaction type) where available. Our standard post schema still exposes a single aggregated likes/reactions-style metric; use raw data when you need the full split.
+
+**Organization video posts** also get:
+
+- `videoAnalytics` with LinkedIn's `VIDEO_VIEW`, `VIEWER` and `TIME_WATCHED_FOR_VIDEO_VIEWS` elements exactly as LinkedIn returns them (lifetime totals; watch time in milliseconds). A type is `null` when LinkedIn didn't answer for it.
+- In `metrics`: `isVideo` (on every organization post), `videoWatchTimeSeconds` and `videoAvgWatchTimeSeconds` (in seconds), and `viewsSource` / `viewsUniqueSource`, which say where the numbers came from: `videoAnalytics` (read now), `carriedForward` (LinkedIn didn't answer, the last stored value is kept), `unavailable` or `unsupportedUrn`.
+- Video views are read for posts with a `urn:li:ugcPost:` ID. Older video posts with a `urn:li:share:` ID get `0`.
 
 #### Post Raw Example
 
@@ -278,6 +313,6 @@ Profile raw analytics for a LinkedIn Page include `followerStatistics`, the Page
 ### Quirks
 
 - **Personal accounts** do NOT have views analytics for profiles - only organizations get page views.
-- **Organization accounts** have page views for profile analytics but NOT for individual posts. Yes, it's confusing.
+- **Organization accounts** have page views for profile analytics. For individual posts, views exist only on video posts (video views); other posts return `0`.
 - Post count and following count are not provided through the LinkedIn API for either account type.
 - Organization post analytics only include posts from the last 30 days.

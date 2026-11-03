@@ -154,6 +154,8 @@ None of these take a body.
 { "sourceTeamId": "team_123", "targetTeamId": "team_456", "flowId": "flow_abc" }
 ```
 
-Leave out `flowId` to copy every flow of the source team (archived ones included). Copies land as **drafts** in the target team, with the account-specific bits cleared (`socialAccountId`, `postId`, `senderExternalIds`). Point them at the new team's accounts with `PATCH`, then publish. Perfect for agencies rolling out the same automations to many clients.
+Leave out `flowId` to copy every flow of the source team (archived ones included). Copies land as **drafts** in the target team, with the account-specific bits cleared (`socialAccountId`, `postId`, `senderExternalIds`). A comment flow that pointed at one post becomes a flow on all posts, and its name gets the suffix ` (copy, all posts)` so you can spot it. Set a `postId` again if it should stay on one post. Point them at the new team's accounts with `PATCH`, then publish. Perfect for agencies rolling out the same automations to many clients.
 
-Create and copy answer `201`. Copy returns `{ items, total }` with the new flows. Source and target team must be different.
+Create and copy answer `201`. Copy returns `{ items, total, skipped }`: the new flows, plus how many source flows were left out because their platform isn't turned on in the source or target organization (for example TikTok flows when the target only has Instagram and Facebook). Copying one flow with `flowId` answers `403` in that case instead. Source and target team must be different.
+
+`GET /api/v1/automations` also leaves out flows whose platform isn't turned on for your organization.

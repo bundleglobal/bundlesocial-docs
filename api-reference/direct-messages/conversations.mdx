@@ -155,7 +155,7 @@ Useful fields:
 - `error` / `failedAt` - why and when an outbound message failed.
 
 <Note>
-Platform-hosted attachment URLs (images someone sent you) are signed by Meta and **expire**. If you need them long-term, download and store them yourself.
+Platform-hosted attachment URLs (images someone sent you) are signed by Meta and **expire**. If you need them long-term, download and store them yourself. Story URLs (`STORY_MENTION` attachments and `platformData.storyReply.url`) stop working once the story expires, usually after 24 hours, so show a fallback when they no longer load.
 </Note>
 
 ### Story Replies And Mentions

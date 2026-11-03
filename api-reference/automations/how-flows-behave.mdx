@@ -9,7 +9,9 @@ Read this before you build. Most "why did my automation do that?" questions are 
 
 ## Comment Flows
 
-- **One flow = one post.** A comment trigger always points at one `postId`, and there's no "all my posts" flow. Create one flow per post. The easiest moment is right when you schedule the post: the flow can be published before the post goes live and is armed the moment it does.
+- **One post or all posts.** A comment trigger with a `postId` covers that one post, published through bundle.social. The easiest moment to create it is right when you schedule the post: the flow can be published before the post goes live and is armed the moment it does. A comment trigger without `postId` covers every post on the account, including posts published outside bundle.social and posts that are already live.
+- **A post's own flows go first.** For each comment we first check the flows set on that post. If at least one of them matches (keywords included), only those run. If none matches, or the post has no flow of its own, the all-posts flows run. One comment never runs both kinds. Comments on posts published outside bundle.social can only match all-posts flows.
+- **Facebook visitor posts are left out.** Comments under posts that other people wrote on your Page's timeline don't trigger flows.
 - **Replies are comments too.** A reply inside a comment thread fires the trigger like any other comment. That includes people answering "thanks!" under your automated public reply. Without keywords, the flow answers those too, so use keywords.
 - **Every comment gets its own answer.** On Instagram and Facebook there's no per-person cooldown for comment flows. If the same person comments "LINK" three times, they get three answers. Meta allows exactly one private reply per comment, so each comment gets at most one.
 - **Hidden comments never trigger anything** (TikTok).
@@ -25,6 +27,7 @@ Read this before you build. Most "why did my automation do that?" questions are 
 - **URL buttons don't trigger anything.** Platforms don't report when someone opens a link. Use a `POSTBACK` button if the tap should lead somewhere.
 - **There's no per-conversation pause.** When someone from your team takes over a chat, your automations keep answering whatever their triggers match. Pausing a flow stops it for everyone. Archiving a conversation doesn't stop it either, since a new message reopens the conversation. If humans answer in the same inbox, build your flows around keywords and buttons rather than a catch-all.
 - **Your team's messages never trigger flows.** Messages sent through bundle.social, or typed in the Instagram or Messenger app, are ignored.
+- **Story replies and story mentions are DMs.** On Instagram, a reply to your story fires `DM_RECEIVED` like any other message, so keywords match what the person wrote ("reply LINK to my story" works). A story mention has no text, so only flows without keywords pick it up. Each run's `input` tells them apart: `isStoryReply`, `storyId`, `storyLinkStickerUrl` and `isStoryMention` (see [Execution Logs](/api-reference/automations/testing-and-logs)).
 
 ## When Something Fails
 

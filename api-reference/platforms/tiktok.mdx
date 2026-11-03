@@ -12,7 +12,7 @@ TikTok is the place for short-form video. The API has specific restrictions arou
 ## Supported Content Types
 
 *   **Videos:** 1 video, up to 10 minutes. The bread and butter.
-*   **Photo Mode (Images):** 1-10 images. **JPG, JPEG, or WebP only.** Max **20 MB per image**. PNG will be rejected.
+*   **Photo Mode (Images):** 1-35 images. **JPG, JPEG, or WebP only.** Max **20 MB per image**. PNG will be rejected.
 
 ## Quirks & Gotchas
 
@@ -46,7 +46,10 @@ See [Platform Limits](/api-reference/limits#tiktok) for the full breakdown.
 
 | Field | Limit |
 | :--- | :--- |
-| `text` | Max 2,200 characters |
+| `text` (`VIDEO`) | Max 2,200 characters |
+| `text` (`IMAGE`) | Max 4,000 characters |
+| `title` (`IMAGE` only) | Max 90 characters |
+| `locationName` | Max 255 characters |
 
 ---
 
@@ -55,8 +58,11 @@ See [Platform Limits](/api-reference/limits#tiktok) for the full breakdown.
 | Field | Type | Description |
 | :--- | :--- | :--- |
 | `type` | `VIDEO` \| `IMAGE` | Defaults to `VIDEO`. `IMAGE` is TikTok Photo Mode. |
-| `text` | `string` | Caption text. Max 2,200 characters. |
-| `uploadIds` | `string[]` | One video, or 1-10 Photo Mode images. |
+| `text` | `string` | Caption text. Max 2,200 characters for `VIDEO`, 4,000 for `IMAGE`. |
+| `title` | `string` | `IMAGE` only. Title of the photo post, max 90 characters. Rejected on `VIDEO` posts with `title is available only for IMAGE type posts.` |
+| `uploadIds` | `string[]` | One video, or 1-35 Photo Mode images. |
+| `locationId` | `string` | Location tag shown on the post, from [Location tags](#location-tags). `VIDEO` and `IMAGE`. Send together with `locationName`. |
+| `locationName` | `string` | Name of the location tag, as returned with `locationId`. Send together with `locationId`. |
 | `thumbnail` | `string` | VIDEO only. Custom cover: the `url` of an image uploaded to bundle.social (`POST /upload`). URLs hosted elsewhere are rejected with `400`, since TikTok only fetches covers from verified domains. JPG/PNG/WebP, 360x360 to 1080x1920, up to 20 MB. Overrides `thumbnailOffset`. |
 | `privacy` | `SELF_ONLY` \| `PUBLIC_TO_EVERYONE` \| `MUTUAL_FOLLOW_FRIENDS` \| `FOLLOWER_OF_CREATOR` | TikTok visibility setting. |
 | `photoCoverIndex` | `number` | Zero-based cover image index for Photo Mode. |
@@ -137,6 +143,36 @@ A value the account doesn't allow is not rejected when you create the post. It f
 <Note>
 Each call counts against the account's TikTok rate limit, so fetch it when building your composer, not before every publish. If TikTok returns incomplete settings, the endpoint returns `502`.
 </Note>
+
+### Location Tags
+
+**Endpoint:** `GET /api/v1/misc/tiktok/locations`
+
+Searches TikTok's location tags for the team's TikTok account. Put the chosen tag on a post with `locationId` and `locationName`.
+
+| Param | Required | Description |
+| :--- | :--- | :--- |
+| `teamId` | Yes | Team with a connected TikTok account. |
+| `q` | Yes | Search text, 1 to 100 characters. |
+
+```http
+GET /api/v1/misc/tiktok/locations?teamId=team_123&q=warsaw
+```
+
+```json
+{
+  "items": [
+    { "locationId": "123456789", "name": "Warsaw", "address": "Poland" },
+    { "locationId": "987654321", "name": "Warsaw Old Town", "address": "Rynek Starego Miasta, Warsaw, Poland" }
+  ]
+}
+```
+
+`address` can be a country, region, city or full street address, and can be `null`. Send both fields with the post; either one alone is rejected:
+
+```json
+{ "TIKTOK": { "type": "VIDEO", "text": "Launch day", "uploadIds": ["upl_vid_1"], "privacy": "PUBLIC_TO_EVERYONE", "locationId": "123456789", "locationName": "Warsaw" } }
+```
 
 ---
 
