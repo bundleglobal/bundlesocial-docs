@@ -49,7 +49,7 @@ See [Platform Limits](/api-reference/limits#facebook) for the full breakdown of 
 | :--- | :--- |
 | `text` | Max 50,000 characters |
 | `link` | Max 2,048 characters |
-| `mediaTitle` | Max 255 characters |
+| `mediaTitle` | Max 255 characters. Facebook counts bytes, so a video title over 255 UTF-8 bytes (accents and emoji take 2-4 bytes each) is cut to fit. |
 | `altText` | Optional. Accessibility description for **image** posts (screen readers and when images fail to load). |
 
 <Note>
@@ -68,7 +68,7 @@ See [Platform Limits](/api-reference/limits#facebook) for the full breakdown of 
 | `mediaItems` | `array` | Per-upload metadata, currently used for image `altText`. Each item needs `uploadId`. |
 | `link` | `string` | URL for Page posts. Only for `type: "POST"`. |
 | `thumbnail` | `string` | URL to an uploaded thumbnail image. |
-| `mediaTitle` | `string` | Video title for `POST` video uploads. Max 255 characters. |
+| `mediaTitle` | `string` | Video title for `POST` video uploads. Max 255 characters; titles over 255 UTF-8 bytes are cut to 255 bytes on a character boundary. |
 | `nativeScheduleTime` | `date` | Schedule inside Meta instead of immediately publishing through bundle.social. Max 30 days ahead. |
 
 ```json

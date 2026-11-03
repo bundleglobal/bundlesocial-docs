@@ -6,18 +6,56 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
+<Update label="2026-11-03">
+**LinkedIn polls:** publish a poll with `data.LINKEDIN.poll`: a question, 2-4 options and a duration. Polls can't include media or a `link`. See [LinkedIn polls](/api-reference/platforms/linkedin#polls).
+
+**Google Business:** a location reachable through several Google accounts or groups is listed once in `channels`, and refreshing channels keeps the selected location when Google moves it. See [Google Business](/api-reference/platforms/google-business).
+</Update>
+
+<Update label="2026-11-02">
+**Comments on posts published outside bundle.social:** with Direct Messages or Automations turned on, new Instagram, Facebook and TikTok comments arrive in real time on every post, including posts published directly in the app. In `comment.received` they have `postId: null` and a `comment.importedPostId`. See [Comments](/api-reference/comments).
+
+**Comment automations on all posts:** `postId` is now optional in a `COMMENT_CREATED` trigger. Without it the flow covers every post on the account; a post's own matching flow takes priority. See [Comment Flows](/api-reference/automations/how-flows-behave#comment-flows).
+
+**Message and automation usage:** new `GET /api/v1/organization/usage/messages` shows messages and automation runs used and allowed this month, per account. See [Rate Limits](/api-reference/rate-limits#check-monthly-message-and-automation-usage).
+
+**TikTok:**
+- Location tags with `locationId` and `locationName`, searchable with `GET /api/v1/misc/tiktok/locations`. See [Location tags](/api-reference/platforms/tiktok#location-tags).
+- Photo Mode: up to 35 images (was 10), captions up to 4,000 characters and a `title` of up to 90.
+
+**LinkedIn analytics:** organization video posts now report `views` and `viewsUnique` instead of `0`, and raw data adds video watch time. See [LinkedIn](/api-reference/platforms/linkedin).
+
+**Snapchat:** videos can be up to 400 MB (was 100 MB). See [Snapchat](/api-reference/platforms/snapchat).
+
+**YouTube:** uploads are now capped per organization per day (`YT:orgDailyUploadLimit`), and when YouTube's own quota runs out they fail right away with `YT:uploadCapacityExhausted`. See [Errors](/api-reference/errors#youtube).
+</Update>
+
 <Update label="2026-10-29">
 **Threads profile views over 2 years again:** profile `views` is summed over the last 2 years (never before April 13, 2024) instead of 365 days. We now read the series in 90-day slices, because Threads kept failing on long views series for some profiles, which stopped their daily account analytics. Affected profiles resume on the next daily run. See [Threads](/api-reference/platforms/threads#profile-analytics).
 
 **An expired token no longer stops account analytics:** a failed refresh caused by an expired or revoked token is now retried on the next daily run instead of switching account analytics off. Accounts switched off this way during the token refresh problem on October 8-9 (mostly YouTube) are collecting again. See [When collection stops for an account](/api-reference/analytics#when-collection-stops-for-an-account).
 
 **Facebook Page posts accept up to 10 images**, as documented, instead of 4. See [Facebook](/api-reference/platforms/facebook).
+
+**TikTok comment import on a deleted video:** the import now ends right away with `status: "FAILED"` instead of retrying. Comments already imported are kept.
 </Update>
 
 <Update label="2026-10-28">
-**Direct Messages and Automations are out of beta.** Both are part of the paid plans and are turned on per organization on request: email [contact@bundle.social](mailto:contact@bundle.social) with your organization ID. Access is now per platform: one switch for Instagram and Facebook (DMs and automations), a separate one for TikTok automations, so a TikTok-only setup no longer needs the Meta switch and the other way around.
+**Direct Messages and Automations are out of beta.** Both are part of the paid plans and are turned on per organization on request: [contact us](https://bundle.social/contact) with your organization ID. Access is now per platform: one switch for Instagram and Facebook (DMs and automations), a separate one for TikTok automations, so a TikTok-only setup no longer needs the Meta switch and the other way around.
 
 **Status code change:** while access is not turned on, the [Direct Messages](/api-reference/direct-messages) and [Automations](/api-reference/automations) endpoints now answer `403` with a message that says how to request access, instead of `404`. A wrong ID still returns `404`. If your integration treated `404` as "not enabled", check for `403` as well.
+
+**Automations across organizations:** `POST /api/v1/automations/copy` now returns `{ items, total, skipped }` and leaves out flows whose platform isn't turned on; `GET /api/v1/automations` hides them too. See [Managing Flows](/api-reference/automations/managing-flows).
+
+**Instagram tags and location no longer fail a post:** rejected tags, collaborators or `locationId` are dropped and the post is published, with a warning in `errors.INSTAGRAM`. See [Instagram](/api-reference/platforms/instagram).
+
+**Facebook video titles:** a `mediaTitle` over 255 bytes is cut to fit instead of failing the publish.
+
+**Comment import:** an empty re-import no longer marks the post's stored comments as deleted, and TikTok errors are no longer read as zero comments.
+</Update>
+
+<Update label="2026-10-27">
+**Post history import on TikTok:** imports no longer stop after 3 pages of posts you already have. See [What `count` means](/api-reference/import-posts#what-count-means-and-onlylatest).
 </Update>
 
 <Update label="2026-10-25">
@@ -53,6 +91,8 @@ keywords: ["product updates", "new features", "release notes", "social media api
 **Threads account analytics:** `views` is now summed over the last 365 days instead of about 2 years, because Threads fails on the longer series. Account-level Threads `views` drop once as a result. Likes, replies, reposts, quotes and followers are unchanged. See [Threads](/api-reference/platforms/threads).
 
 **API errors:** endpoints can now return `503` or `504` when a platform is temporarily unavailable or timed out, instead of a generic `500`. Both are safe to retry with backoff. See [HTTP Status Codes](/api-reference/errors#http-status-codes).
+
+**Direct Messages setup:** messaging now requires the `pages_manage_metadata` permission; without it, enabling messaging returns `400` instead of `502`. Reconnect accounts connected long ago. See [Setup](/api-reference/direct-messages/setup).
 </Update>
 
 <Update label="2026-10-19">
@@ -160,6 +200,14 @@ Instagram (Instagram Login): fixed an "Invalid scope" error when connecting whil
 TikTok: a custom `thumbnail` must be an image uploaded to bundle.social. Other URLs are rejected with a `400` up front, since TikTok only accepts covers from verified domains.
 </Update>
 
+<Update label="2026-10-01">
+**Reddit and Discord:** revoked access now returns `401` and goes through the normal disconnect flow with a `deleteOn`. See [Remote Disconnection Detection](/api-reference/webhooks#remote-disconnection-detection).
+
+**LinkedIn force refresh:** LinkedIn's own `4xx` answers (for example when it has no statistics for a post) are passed through instead of a `500`.
+
+**`forceBrowserOAuth`:** now makes Instagram ask for a fresh login; in the hosted portal it applies only on iPhone and iPad. See [forceBrowserOAuth](/api-reference/connect-social-accounts/oauth-options#forcebrowseroauth).
+</Update>
+
 <Update label="2026-09-30">
 Instagram analytics: posts Instagram has no insights for (published before the account switched to professional, or too few viewers) now return no data instead of a row of zeros. Posts that can never have insights stop being refreshed, and a forced refresh returns `400` with Meta's reason.
 
@@ -190,6 +238,12 @@ Bluesky: URLs in post text become clickable links, including ones written withou
 LinkedIn post history import: imported posts include their image and video media and thumbnails, and single-image and single-video posts get the right post type.
 </Update>
 
+<Update label="2026-09-23">
+**Post analytics refresh by post age:** recent posts follow your refresh interval, posts up to 30 days old refresh daily and older ones weekly. See [Default Refresh](/api-reference/analytics#default-refresh).
+
+**Publishing with rejected media:** the post now fails right away instead of after 3 attempts.
+</Update>
+
 <Update label="2026-09-18">
 X reposts: `POST /api/v1/misc/twitter/retweet` reposts any X post from a connected account and `DELETE /api/v1/misc/twitter/retweet` undoes it. Billed from X credits once per post, per account, per UTC day.
 
@@ -207,7 +261,7 @@ TikTok video posts: a custom `thumbnail` is now sent to TikTok as the video cove
 </Update>
 
 <Update label="2026-09-11">
-Forced analytics refreshes: the limit is now 6 per social account and 6 per post in a rolling 24 hours, up from 5.
+Forced analytics refreshes: the limit is now 6 per social account and 6 per post in a rolling 24 hours, up from 5, and can be raised per organization up to 48. See [Analytics](/api-reference/analytics).
 
 TikTok comments: comment text (including `firstComment`) can be up to 1,200 characters, up from 150. New TikTok comments can also be imported automatically as they arrive; this is off by default and enabled per organization on request.
 

@@ -55,7 +55,7 @@ Redirect the user to `url`.
 | `serverUrl` | No | Mastodon or Bluesky server URL. Mastodon requires a server when it is offered in the portal. |
 | `disableAutoLogin` | No | Facebook, Instagram via Facebook, Instagram direct OAuth, and TikTok paths use this to avoid silently reusing the last logged-in platform session where supported. Defaults to `false`. |
 | `tiktokForceLogin` | No | Experimental TikTok-only option. Routes TikTok through logout to request a fresh login session. Defaults to `false`. |
-| `forceBrowserOAuth` | No | Instagram direct OAuth only. On phones, tries browser OAuth instead of the Instagram app flow. Defaults to `false`. |
+| `forceBrowserOAuth` | No | Instagram direct OAuth only. Instagram asks for a fresh login instead of reusing the account already logged in on that browser. In the hosted portal it applies only on iPhone/iPad. Defaults to `false`. See [forceBrowserOAuth](/api-reference/connect-social-accounts/oauth-options#forcebrowseroauth). |
 | `instagramConnectionMethod` | No | Instagram only. Use `FACEBOOK` or `INSTAGRAM` to preselect the hosted portal connection method. |
 | `withBusinessScope` | No | Facebook, Instagram via Facebook, and YouTube. When provided, the hosted page skips the business vs standard scope chooser and uses your value. For YouTube it adds the monetary analytics scope that enables revenue/monetization data. |
 | `expiresIn` | No | Link lifetime in minutes. Min `5`, max `2880` (48 hours). Defaults to `10`. |

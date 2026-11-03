@@ -11,6 +11,10 @@ icon: comments
 Comment import works for posts published through bundle.social and for posts returned by [Post History Import](/api-reference/import-posts). Use exactly one of `postId` or `importedPostId`.
 </Note>
 
+<Info>
+**Real-time comments on any post.** With [Direct Messages or Automations](/api-reference/automations) turned on, new comments on Instagram, Facebook and TikTok arrive on their own, including comments on posts published directly on the platform. Such a post gets an `importedPostId` when its first comment arrives (or keeps the one from Post History Import). It comes in the `comment.received` [webhook](/api-reference/automations/webhooks) as `comment.importedPostId`, and you can use it to list the post's comments with `GET /api/v1/comment/import/comments` and to reply to them. These posts don't count toward your post import limit.
+</Info>
+
 With the Comments API you can:
 
 - import comments from a published post,

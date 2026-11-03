@@ -637,7 +637,7 @@ This Page access token belongs to a Page that is not accessible.
 
 **Why this happens:** The platform could not access one or more tagged users. The tagged account may be private, invalid, blocked, or not eligible for tagging.
 
-**What the user should do:** Ask the user to remove or change the tagged users and retry.
+**What the user should do:** On Instagram the post still goes out: we publish it without the rejected users, list them in `externalData.INSTAGRAM.skippedTags` and leave a `Posted without the Instagram tag(s) ...` warning in `errors.INSTAGRAM` while the post is `POSTED`. Ask the user to check the handles if the tag matters. On other platforms, remove or change the tagged users and retry.
 
 ---
 
@@ -1024,6 +1024,34 @@ The user has exceeded the number of videos they may upload.
 **Why this happens:** YouTube rejected the upload because the channel exceeded its current upload allowance. YouTube documents daily upload limits and API upload limits for safety.
 
 **What the user should do:** Ask the user to wait until the upload limit resets, usually up to 24 hours, then retry.
+
+---
+
+**Platform code(s):** `YT:orgDailyUploadLimit`
+
+**Message we received:**
+
+```text
+Your organization reached its daily YouTube upload limit (N videos). It resets at midnight Pacific Time.
+```
+
+**Why this happens:** bundle.social caps how many new YouTube videos one organization can upload per day, counted across all its YouTube accounts. The day follows YouTube's own quota day and resets at midnight Pacific Time. Resuming an upload that already started doesn't count. The error is not retried automatically, so the YouTube part of the post ends in `ERROR`.
+
+**What the user should do:** Publish the video again after midnight Pacific Time. If your organization regularly needs more uploads per day, [contact us](https://bundle.social/contact).
+
+---
+
+**Platform code(s):** `YT:uploadCapacityExhausted`
+
+**Message we received:**
+
+```text
+YouTube's daily upload capacity is currently exhausted. It resets at midnight Pacific Time, please retry after that.
+```
+
+**Why this happens:** YouTube's daily upload quota for our API project was used up. For a while after that, new YouTube uploads fail right away with this error, so they don't each wait for YouTube to refuse them. It isn't retried automatically.
+
+**What the user should do:** Publish the video again after midnight Pacific Time.
 
 ---
 

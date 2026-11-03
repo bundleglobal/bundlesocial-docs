@@ -301,10 +301,10 @@ When we detect a disconnection, the webhook includes a `socialAction` object wit
 
 ### The `deleteOn` Grace Period
 
-When an account is scheduled for deletion, `deleteOn` tells you exactly when it will be removed. The delay is controlled by `deleteAccountAfter` on your organization settings (0-24 hours).
+When an account is scheduled for deletion, `deleteOn` tells you exactly when it will be removed. The delay is controlled by `deleteAccountAfter` on your organization settings (0-168 hours), with a floor of **48 hours**.
 
-- **Default: 0 hours** - account is removed almost immediately.
-- **If you set it to e.g. 6 hours** - you get a 6-hour window to notify your user before the account is gone.
+- **Default: 48 hours** - you have two days to notify your user before the account is gone.
+- **Values below 48 (including 0) still give 48 hours.** Set it higher, up to 168 hours (7 days), for a longer window.
 
 **Why does this matter?** When an account is deleted:
 
@@ -313,7 +313,7 @@ When an account is scheduled for deletion, `deleteOn` tells you exactly when it 
 - If the user reconnects before `deleteOn`, the account stays.
 
 <Important>
-**Set `deleteAccountAfter` to something greater than 0** if you want time to notify your users. With the default (0), the account disappears on the next cleanup run - which is every minute. That's fast. Maybe too fast if you want to show a "hey, reconnect your Instagram" banner first.
+When `social-account.updated` arrives with a `deleteOn`, show a "hey, reconnect your Instagram" banner right away. If the user reconnects before `deleteOn`, nothing is removed. Need more than two days? Raise `deleteAccountAfter`, up to 168 hours.
 </Important>
 
 ---

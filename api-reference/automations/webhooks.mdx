@@ -9,10 +9,10 @@ As soon as the feature is on, your [webhook](/api-reference/webhooks) starts rec
 
 | Event | When it fires |
 | :--- | :--- |
-| `comment.received` | Someone else commented on one of your posts. Facebook and Instagram: posts published through bundle.social. TikTok: those plus imported videos, once we've flipped the TikTok switch for you. |
+| `comment.received` | Someone else commented on one of the account's posts on Instagram, Facebook or TikTok, whether it was published through bundle.social or directly on the platform. TikTok comments arrive once we've flipped the TikTok switch for you. |
 | `conversation.created`, `conversation.message.created`, ... | New DMs and conversation changes, see [Direct Messages → Webhooks](/api-reference/direct-messages/webhooks) |
 
-`comment.received` fires for every such comment (comments by the account itself and your automated replies are left out), whether or not a flow reacts to it, so you can also use it to build a live comments feed. `data.comment` has the same shape as items from the [Comments API](/api-reference/comments) (on imported TikTok videos, `postId` is `null` both there and in `data`, and `comment.importedPostId` is set instead), and its `id` is exactly the `fetchedCommentId` you use for [private replies](/api-reference/direct-messages/private-replies) and [test runs](/api-reference/automations/testing-and-logs#test-a-flow).
+`comment.received` fires for every such comment (comments by the account itself and your automated replies are left out), whether or not a flow reacts to it, so you can also use it to build a live comments feed. `data.comment` has the same shape as items from the [Comments API](/api-reference/comments) (on posts published outside bundle.social, `postId` is `null` both there and in `data`, and `comment.importedPostId` is set instead; use it as `importedPostId` in the [Comments API](/api-reference/comments)), and its `id` is exactly the `fetchedCommentId` you use for [private replies](/api-reference/direct-messages/private-replies) and [test runs](/api-reference/automations/testing-and-logs#test-a-flow).
 
 ```json
 {

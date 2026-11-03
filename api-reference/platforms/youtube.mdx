@@ -55,7 +55,7 @@ Send YouTube-specific options inside `data.YOUTUBE`.
 | `uploadIds` | `string[]` | Required. One uploaded video. |
 | `text` | `string` | Video title. Max 100 characters. |
 | `description` | `string` | Video description. Max 5,000 characters. |
-| `thumbnail` | `string` | Optional thumbnail image URL uploaded through bundle.social. |
+| `thumbnail` | `string` | Optional thumbnail image URL uploaded through bundle.social. If YouTube rejects it (often while a new video is still processing), we retry a few times; if it still fails, the post stays `POSTED` and YouTube's reason is in `errors.YOUTUBE`. |
 | `privacy` | `enum` | `PRIVATE`, `PUBLIC`, or `UNLISTED`. Default sent to YouTube is public if omitted. |
 | `defaultLanguage` | `string` | BCP-47 language for the video's title and description, for example `en` or `pl`. Max 35 characters. |
 | `defaultAudioLanguage` | `string` | BCP-47 language for the video's default audio track, for example `en` or `pl`. Max 35 characters. |

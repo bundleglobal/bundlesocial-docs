@@ -184,7 +184,7 @@ Each row is one post. Column names map to post fields:
 | :--- | :--- | :--- |
 | `teamId` | Yes | Which team this post belongs to |
 | `title` | Yes | Internal post title shown in bundle.social |
-| `postDate` | Yes | ISO 8601 date-time with timezone, for example `2026-04-05T10:00:00Z` |
+| `postDate` | Yes | ISO 8601 date-time with timezone, for example `2026-04-05T10:00:00Z`. A `SCHEDULED` row more than 10 minutes in the past is rejected with `Scheduled date cannot be more than 10 minutes in the past`, before its media is downloaded. |
 | `status` | Yes | `DRAFT` or `SCHEDULED` |
 | `socialAccountTypes` | Yes | Comma-separated platforms (e.g. `INSTAGRAM,TIKTOK,LINKEDIN`) |
 | `text` | - | Post body text |

@@ -8,12 +8,12 @@ icon: inbox
 ---
 
 <Warning>
-**Turned on per organization, on request.** Direct Messages are part of the paid plans (the Free plan has no message allowance) and are switched on per organization. Email [contact@bundle.social](mailto:contact@bundle.social) with your **organization ID** (the `id` returned by `GET /api/v1/organization`) and we'll turn it on. Until then every endpoint in this section answers `403` with a message that says how to request access.
+**Turned on per organization, on request.** Direct Messages are part of the paid plans (the Free plan has no message allowance) and are switched on per organization. The same switch also turns on [Automations](/api-reference/automations) for Instagram and Facebook. [Contact us](https://bundle.social/contact) with your **organization ID** (the `id` returned by `GET /api/v1/organization`) and we'll turn it on. Until then every endpoint in this section answers `403` with a message that says how to request access.
 
 Once it's on, two things are on you:
 
 1. **Reconnect** every Facebook and Instagram account with `withMessagingScope: true`, then **subscribe** each one to messages with `POST /api/v1/social-account/messaging/enable`. Accounts connected before the switch don't get DMs until you do. See [Setup](/api-reference/direct-messages/setup).
-2. **Accept the new webhook events.** Your webhook starts receiving an event for every new DM and every new comment on posts you published through bundle.social. Keep your endpoint answering `2xx`, or it gets disabled. See [Webhooks](/api-reference/direct-messages/webhooks).
+2. **Accept the new webhook events.** Your webhook starts receiving an event for every new DM and every new comment on the account's posts, including posts published outside bundle.social. Keep your endpoint answering `2xx`, or it gets disabled. See [Webhooks](/api-reference/direct-messages/webhooks).
 </Warning>
 
 The Direct Messages API gives you a unified inbox for Instagram and Facebook. New DMs land in bundle.social, we tell you about them with a webhook, and you answer through one endpoint no matter which platform the person wrote from.
@@ -102,7 +102,7 @@ Sending DMs is a paid-plan feature. Each connected account has a monthly quota o
 
 What counts: every message sent through bundle.social, whether it came from your API call, the dashboard, or an [automation](/api-reference/automations), including [private replies](/api-reference/direct-messages/private-replies). What doesn't count: incoming messages, messages that failed, messages the account owner typed directly in the Instagram or Messenger app, reactions, and marking a conversation as read. Quotas reset on the 1st of every month (UTC).
 
-When the quota runs out, sends return `403` with `Monthly message limit reached`. Need a bigger bucket? [Contact us](https://bundle.social/contact).
+When the quota runs out, sends return `403` with `Monthly message limit reached`. Check each account's usage with `GET /api/v1/organization/usage/messages` (`messagesUsed` and `messagesLimit`, including any higher limit agreed for your organization). See [Check Monthly Message And Automation Usage](/api-reference/rate-limits#check-monthly-message-and-automation-usage). Need a bigger bucket? [Contact us](https://bundle.social/contact).
 
 <Info>
 **Messages are kept for 30 days.** Each message is deleted 30 days after it was created, and a conversation goes once it has been quiet for 30 days. Need a longer history? Store messages on your side as they arrive via [DM webhooks](/api-reference/direct-messages/webhooks). Details in [Data Retention](/api-reference/data-retention).

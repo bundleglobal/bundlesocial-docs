@@ -22,7 +22,18 @@ spent on the free plan. Analytics are included on Pro, Business, and Enterprise.
 
 ### Default Refresh
 
-Analytics are automatically refreshed every **24 hours**. You don't need to run your own refresh job for standard analytics updates.
+Analytics are refreshed automatically, so you don't need to run your own refresh job for standard updates:
+
+- **Account analytics:** every **24 hours**.
+- **Post analytics**, depending on the post's age:
+
+| Post age | Refreshed |
+| :--- | :--- |
+| Up to 2 days | Every 24 hours, or your organization's custom interval |
+| 2 to 30 days | Every 24 hours (a shorter custom interval doesn't apply) |
+| Over 30 days | Once a week |
+
+Older posts keep being refreshed, just less often, since their numbers barely move. Need fresh numbers for an older post? Use [Force Refresh](#force-refresh).
 
 ### Force Refresh
 
@@ -55,14 +66,14 @@ We had such cases. We are not joking. Someone actually did this in production.
 
 A refresh that fails doesn't count against the limit. If you exceed the limit, the API returns `429 Too Many Requests`.
 
-Need more? Reach out and we can raise it for your organization.
+Need more? Reach out and we can raise it for your organization, up to **48** per account and per post in 24 hours. Your current allowances are in `GET /api/v1/organization` as `forcedAccountAnalyticsDailyLimit` and `forcedPostAnalyticsDailyLimit` (`null` = the default of 6). An organization can also have manual refreshes turned off (limit `0`): the force endpoints then answer `403` with `Manual account analytics refreshes are disabled for your organization.` (or `post`).
 </Note>
 
 ### Custom Refresh Periods
 
-By default, analytics are automatically refreshed every **24 hours**. However, we can configure custom refresh periods based on your organization's needs.
+By default, analytics are automatically refreshed every **24 hours** (see [Default Refresh](#default-refresh) for how post age changes that). However, we can configure custom refresh periods based on your organization's needs. The shortest possible period is **1 hour**, and for posts it applies only during their first 2 days.
 
-**Important**: If you require a higher refresh rate (e.g., every 15 minutes for large organizations), there may be additional charges due to increased data costs.
+**Important**: If you require a higher refresh rate (e.g., every hour for large organizations), there may be additional charges due to increased data costs.
 
 We will discuss these costs with you directly to determine the best solution for your use case.
 
@@ -80,6 +91,13 @@ There is no status field for this on the account yet. To spot an account whose c
 the date of its newest analytics item: if it is older than your refresh period plus a day, force a refresh
 and read the response. For an account that returns the `400` above, reconnect it (Facebook and Instagram)
 or contact us with the social account ID.
+
+### Posts Deleted On The Platform
+
+When a post is deleted on TikTok, YouTube, Instagram or Threads, its profile post gets `externallyDeletedAt` (the time we noticed) on the next analytics refresh and is no longer refreshed. The analytics collected before stay. This applies to published and imported posts.
+
+- **Instagram and Threads** return the same error for a deleted post and for one the account can't access, so a post is marked only when it's also missing from the account's own post list. Very old posts (beyond the account's latest ~500 on Instagram, ~1,000 on Threads) aren't checked.
+- Facebook and the other platforms don't set `externallyDeletedAt`.
 
 ---
 
@@ -245,7 +263,7 @@ A quick reference for what each platform gives us (and what it doesn't).
 | [Instagram](/api-reference/platforms/instagram) | Rolling (30d) | Lifetime | Views (Unique) returns 0 |
 | [Facebook](/api-reference/platforms/facebook) | Rolling (30d) | Lifetime | Profile: likes, comments, post count all return 0 |
 | [LinkedIn (Personal)](/api-reference/platforms/linkedin) | Rolling (30d) | Rolling (30d) | Views, post count, following return 0 |
-| [LinkedIn (Org)](/api-reference/platforms/linkedin) | Rolling (30d) | Rolling (30d) | Post count, following, post views/saves return 0 |
+| [LinkedIn (Org)](/api-reference/platforms/linkedin) | Rolling (30d) | Rolling (30d) | Post count, following, post saves return 0; post views only for video posts |
 | [Twitter/X](/api-reference/platforms/twitter) | On demand | On demand | Forced refresh only, billed from X credits; profile returns followers, following and post count only |
 | [TikTok](/api-reference/platforms/tiktok) | Rolling (30d) | Lifetime | Post saves return 0 |
 | [YouTube](/api-reference/platforms/youtube) | Lifetime | Lifetime | Profile likes, following, post shares return 0 |
