@@ -98,6 +98,7 @@ When a post is deleted on TikTok, YouTube, Instagram or Threads, its profile pos
 
 - **Instagram and Threads** return the same error for a deleted post and for one the account can't access, so a post is marked only when it's also missing from the account's own post list. Very old posts (beyond the account's latest ~500 on Instagram, ~1,000 on Threads) aren't checked.
 - Facebook and the other platforms don't set `externallyDeletedAt`.
+- To hear about it as it happens, subscribe to the [`post.externally-deleted`](/api-reference/webhooks#externally-deleted-posts-payload) webhook. It's sent once per post.
 
 ---
 

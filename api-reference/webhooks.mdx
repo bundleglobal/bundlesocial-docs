@@ -30,9 +30,10 @@ Webhooks are how you know if a post actually went live or failed permanently. In
 | Event | When it fires |
 | :--- | :--- |
 | `post.published` | Post finished processing. Check `data.status`: `POSTED` means live, `ERROR` means it failed permanently. |
+| `post.externally-deleted` | A post was deleted on the platform itself, detected on an analytics refresh. See [Externally Deleted Posts](#externally-deleted-posts-payload). |
 | `comment.published` | Comment finished processing. Check `data.status`: `POSTED` means published, `ERROR` means it failed permanently. |
 | `social-account.created` | User connected a new social account |
-| `social-account.updated` | Social account changed (channel unset, remote disconnection detected) |
+| `social-account.updated` | Social account changed (channel unset, remote disconnection detected, token refresh failed) |
 | `social-account.deleted` | Social account was disconnected or removed |
 | `team.created` | A new team was created |
 | `team.updated` | Team details changed (name, avatar, social accounts added/removed) |
@@ -127,6 +128,31 @@ When you receive `post.published`, the `data` field contains the full post objec
 For failed posts, the event type is still `post.published`, but `data.status` is `ERROR` and `data.error`, `data.errors`, or `data.errorsVerbose` contains the failure details.
 
 A `POSTED` post can still carry a non-fatal warning in `data.errors`, for example when YouTube rejected the custom thumbnail but the video itself was published. Check `data.status`, not just whether `errors` is empty.
+
+### Externally Deleted Posts Payload
+
+`post.externally-deleted` fires when an analytics refresh finds that a post was deleted on the platform (TikTok, YouTube, Instagram and Threads, see [Posts Deleted On The Platform](/api-reference/analytics#posts-deleted-on-the-platform)). It covers posts published through bundle.social and imported posts.
+
+`data` is the profile post, plus `teamId` and `socialAccountType`. `data.postId` is the bundle.social post it was published from, or `null` for an imported post.
+
+```json
+{
+  "type": "post.externally-deleted",
+  "data": {
+    "id": "pp_123",
+    "socialAccountId": "sa_789",
+    "postId": "post_abc123",
+    "externalId": "17900000000000000",
+    "permalink": "https://www.instagram.com/p/example/",
+    "publishedAt": "2026-01-15T10:00:02.000Z",
+    "externallyDeletedAt": "2026-02-02T08:14:00.000Z",
+    "teamId": "team_xyz",
+    "socialAccountType": "INSTAGRAM"
+  }
+}
+```
+
+It's sent once per post. `externallyDeletedAt` never changes after that, and the post stops getting analytics refreshes. Webhooks with no event filter receive it automatically, so make sure your handler ignores event types it doesn't know.
 
 ### Comment Events Payload
 
@@ -289,6 +315,14 @@ When we detect a disconnection, the webhook includes a `socialAction` object wit
 ```
 
 `details.errorCategory` is `UNAUTHORIZED` (the token is no longer valid) or `TRANSIENT_OR_UNKNOWN`. `details.providerError` is what the platform answered, when we have it: `httpStatus` and `message`, plus `code`, `subcode`, `type` and `fbtraceId` when the platform provides them (Meta does; quote `fbtraceId` when you contact Meta support). Every field is optional, so check before reading.
+
+### Token Refresh Failures
+
+We also refresh access tokens before they expire. When a refresh keeps failing, you get a `social-account.updated` with `socialAction.type: "refresh"` and the same `details` shape as above, plus `refreshBy` (when the current token expires, if the platform has a deadline).
+
+- **One webhook per failed refresh job.** The in-between retries don't send anything, so `attemptNumber` always equals `attemptsTotal`.
+- **After a final failure we wait 6 hours** before trying that account again. Timeouts, `429` and `502`-`504` from the platform are retried sooner.
+- **TikTok:** `providerError.code` is TikTok's error code and `providerError.type` is our reading of it: `DEAD_TOKEN` (the refresh token is expired or invalid, the user has to reconnect), `TRANSIENT` (rate limit or a TikTok-side error) or `UNKNOWN`.
 
 ### Status Codes
 

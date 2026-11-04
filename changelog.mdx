@@ -6,6 +6,20 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
+<Update label="2026-11-04">
+**New webhook `post.externally-deleted`:** sent once when an analytics refresh finds a post was deleted on TikTok, YouTube, Instagram or Threads. The payload is the profile post with `externallyDeletedAt`, `teamId` and `socialAccountType`. Webhooks without an event filter get it automatically, so make sure your handler ignores types it doesn't know. See [Externally Deleted Posts](/api-reference/webhooks#externally-deleted-posts-payload).
+
+**Pinterest carousel Pins:** 2 to 5 images in `uploadIds` publish as one carousel Pin, with optional per-slide `title`, `description` and `link` in `carouselItems`. Images must share one aspect ratio. Post history import now reads carousel slides, and image Pins report impressions as `views` instead of `0`. See [Carousel Pins](/api-reference/platforms/pinterest#carousel-pins).
+
+**Why Facebook found no Page:** when a Facebook or Instagram (through Facebook) connection ends with `facebook-not-enough-pages` or `instagram-not-enough-accounts`, a new `errorReason` parameter tells you why (two-factor authentication, Page not selected, no content access and more). Pages without a Page token are no longer offered. Refreshing Facebook channels that finds no usable Page now returns `400` and keeps the stored channels. See [Error Reasons](/api-reference/connect-social-accounts/callbacks#error-reasons-facebook-and-instagram).
+
+**Instagram follow status in Direct Messages:** conversations have `platformData.participantFollowsBusiness` and `platformData.businessFollowsParticipant`. See [Conversations](/api-reference/direct-messages/conversations).
+
+**Fewer `social-account.updated` webhooks:**
+- A failed token refresh now sends one webhook per failed job instead of one per attempt, so `attemptNumber` always equals `attemptsTotal`. The account is tried again after 6 hours. For TikTok, `providerError` includes TikTok's `code` and a `type` (`DEAD_TOKEN`, `TRANSIENT` or `UNKNOWN`). See [Token Refresh Failures](/api-reference/webhooks#token-refresh-failures).
+- Avatar updates no longer fire a webhook when the image didn't change. `avatarUrl` is our stored copy of the image, unless storing it failed.
+</Update>
+
 <Update label="2026-11-03">
 **LinkedIn polls:** publish a poll with `data.LINKEDIN.poll`: a question, 2-4 options and a duration. Polls can't include media or a `link`. See [LinkedIn polls](/api-reference/platforms/linkedin#polls).
 

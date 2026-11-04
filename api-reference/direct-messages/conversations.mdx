@@ -49,7 +49,9 @@ curl "https://api.bundle.social/api/v1/conversations?teamId=team_123&status=OPEN
       "unreadCount": 1,
       "platformSeenAt": null,
       "platformData": {
-        "lastInboundAt": "2026-09-26T09:30:00.000Z"
+        "lastInboundAt": "2026-09-26T09:30:00.000Z",
+        "participantFollowsBusiness": true,
+        "businessFollowsParticipant": false
       },
       "socialAccount": { "id": "sa_789", "type": "INSTAGRAM", "username": "mybrand" },
       "createdAt": "2026-09-26T09:30:00.000Z",
@@ -67,6 +69,7 @@ Useful fields:
 - `platformSeenAt` - when the participant last read your messages.
 - `lastActivityAt` - what the list is sorted by.
 - `platformData.lastInboundAt` / `canReply` - the [24-hour rule](/api-reference/direct-messages#the-24-hour-rule).
+- `platformData.participantFollowsBusiness` / `businessFollowsParticipant` - Instagram only: whether the participant follows your account and whether your account follows them. Read from Instagram when we fetch the participant's profile, so it's a snapshot, not live. Missing when Instagram didn't return it; a later fetch without it keeps the last known value.
 - `socialAccount` - the connected account the conversation belongs to.
 - `externalConversationId` / `externalParticipantId` - the platform's own IDs for the thread and the person.
 

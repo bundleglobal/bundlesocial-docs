@@ -4,14 +4,15 @@ description: "Pins, Boards, and a mixed bag of analytics periods. Every post nee
 icon: pinterest
 keywords: ["pinterest api", "pinterest pins api", "social media api", "pinterest analytics", "pinterest automation", "pinterest post scheduling"]
 "og:title": "Pinterest API Integration - Pins, Boards & Analytics"
-"og:description": "Pinterest API guide: Create pins (image or video), board requirements, saves metric, and analytics periods."
+"og:description": "Pinterest API guide: Create pins (image, video or carousel), board requirements, saves metric, and analytics periods."
 ---
 
 Pinterest is about discovery, not just a feed. People come here to find ideas and save them for later. The API reflects this - "saves" are the key metric, not likes.
 
 ## Supported Content Types
 
-*   **Pins:** 1 image or 1 video. That's it - one file per pin.
+*   **Pins:** 1 image or 1 video.
+*   **Carousel Pins:** 2 to 5 images in one Pin. See [Carousel Pins](#carousel-pins).
 
 ## Quirks & Gotchas
 
@@ -26,7 +27,8 @@ You can't pin to thin air. Every Pinterest post needs `boardName`. Use a board f
 
 | Constraint | Value |
 | :--- | :--- |
-| Files | 1 (image or video, required) |
+| Files | 1 image or video, or 2-5 images for a carousel (required) |
+| Carousel images | Same aspect ratio, no videos |
 | Video max size | 2 GB |
 | Video aspect ratio | 1:2 to 1.91:1 |
 | Video duration | 4s - 15 min |
@@ -54,7 +56,8 @@ See [Platform Limits](/api-reference/limits#pinterest) for more details.
 | `boardName` | `string` | **Required.** Board name from `socialAccount.channels`. |
 | `text` | `string` | Pin title. Max 100 characters. |
 | `description` | `string` | Pin description. Max 800 characters. |
-| `uploadIds` | `string[]` | One image or video upload. |
+| `uploadIds` | `string[]` | One image or video, or 2-5 images for a carousel Pin. The order is the slide order. |
+| `carouselItems` | `object[]` | Optional per-slide `title`, `description` and `link` for a carousel Pin. See [Carousel Pins](#carousel-pins). |
 | `thumbnail` | `string` | URL to an uploaded thumbnail image. |
 | `link` | `string` | Destination URL. Max 2,048 characters. |
 | `altText` | `string` | Image alt text. Max 500 characters. |
@@ -79,6 +82,42 @@ See [Platform Limits](/api-reference/limits#pinterest) for more details.
   }
 }
 ```
+
+### Carousel Pins
+
+Send 2 to 5 image uploads in `uploadIds` and they're published as one carousel Pin, in that order.
+
+- All images need the same aspect ratio (we allow 1% for rounding). Otherwise the post is rejected with `400`.
+- No videos in a carousel, and each upload can appear only once.
+- Every slide uses the Pin's `text`, `description` and `link` by default. To set them per slide, add `carouselItems`: one entry per slide you want to change, matched by `uploadId`. A missing or empty field falls back to the Pin value.
+
+| `carouselItems[]` field | Type | Description |
+| :--- | :--- | :--- |
+| `uploadId` | `string` | **Required.** One of the `uploadIds`. |
+| `title` | `string` | Slide title. Max 100 characters. |
+| `description` | `string` | Slide description. Max 800 characters. |
+| `link` | `string` | Slide destination URL. Max 2,048 characters. |
+
+```json
+{
+  "data": {
+    "PINTEREST": {
+      "boardName": "Product ideas",
+      "text": "Spring collection",
+      "description": "Five looks for small teams",
+      "link": "https://example.com/spring",
+      "uploadIds": ["upl_img_1", "upl_img_2", "upl_img_3"],
+      "carouselItems": [
+        { "uploadId": "upl_img_2", "title": "The desk setup", "link": "https://example.com/spring/desk" }
+      ]
+    }
+  }
+}
+```
+
+`carouselItems` needs at least 2 `uploadIds`. Pinterest downloads every slide while creating the Pin, so a carousel takes longer to publish than a single image.
+
+**Post history import:** carousel Pins are imported with the first slide as the thumbnail. With `importCarousels: true`, every slide is added to `extraData.media[]`. See [Import Posts](/api-reference/import-posts).
 
 ---
 

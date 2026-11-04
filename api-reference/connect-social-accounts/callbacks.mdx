@@ -2,7 +2,7 @@
 title: Callback Parameters
 description: Handle success and error query parameters after social account OAuth completes.
 icon: route
-keywords: ["oauth callback parameters", "social account callback", "connect social account error", "not enough permissions"]
+keywords: ["oauth callback parameters", "social account callback", "connect social account error", "not enough permissions", "facebook no pages", "errorReason"]
 ---
 
 Whether you use hosted or custom UI, the user eventually comes back to your `redirectUrl` with query parameters.
@@ -79,3 +79,26 @@ Whether you use hosted or custom UI, the user eventually comes back to your `red
 <Tip>
 Handle `not-enough-permissions` gracefully. Tell the user the permissions are required for publishing, then let them reconnect.
 </Tip>
+
+---
+
+## Error Reasons (Facebook And Instagram)
+
+When a Facebook or Instagram (through Facebook) connection finds no Page to publish to, the error stays `facebook-not-enough-pages` or `instagram-not-enough-accounts`, and an extra `errorReason` parameter says why. It's optional, so fall back to the error message when it's missing.
+
+```
+https://your-app.com/connect?error=facebook-not-enough-pages&errorReason=facebook-two-factor-required
+```
+
+| `errorReason` | What happened | What to tell the user |
+| :--- | :--- | :--- |
+| `facebook-two-factor-required` | The business portfolio requires two-factor authentication and the Facebook session didn't pass it. | Log out of Facebook, log back in with the security code, then connect again. |
+| `facebook-page-token-withheld` | Meta listed the Page but gave no access to it: it was deselected on the consent screen, or the portfolio requires two-factor authentication. | Connect again and select the Page. If the portfolio uses two-factor authentication, log out of Facebook and back in with the security code first. |
+| `facebook-no-publish-access` | Pages were found, but the user can't create content on any of them. | Ask a Page admin for full control or content access. |
+| `facebook-business-access-required` | Nothing was found with Standard access. | Connect again and select the Page. If it belongs to a business portfolio, choose Business access. |
+| `facebook-business-permission-declined` | Business access was chosen, but the business management permission was turned off. | Connect again and leave that permission on. |
+| `facebook-no-pages-found` | No Page is assigned to this Facebook profile. | Check the right profile is logged in, the Page is assigned to them in the business portfolio, and it was selected when connecting. |
+
+Pages that Meta lists without a Page token are no longer offered for selection, because publishing to them would fail later. They count as `facebook-page-token-withheld`.
+
+**Refresh channels:** if refreshing a Facebook account's channels finds no usable Page, the call returns `400` with the matching message above and keeps the stored channels, instead of saving an empty list.

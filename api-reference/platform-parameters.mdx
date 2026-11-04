@@ -283,7 +283,8 @@ Set the location up in the dashboard first; details/categories/hours are managed
 | Field | Type | Notes |
 |---|---|---|
 | **`boardName`** | string | The board to pin to. |
-| `uploadIds` | string[] | One image (or video). |
+| `uploadIds` | string[] | One image or video, or 2-5 images for a carousel Pin (same aspect ratio). |
+| `carouselItems` | object[] | Per-slide `title`, `description`, `link` by `uploadId`. See [Carousel Pins](/api-reference/platforms/pinterest#carousel-pins). |
 | `text` | string | The Pin title. |
 | `description` | string | Pin description. |
 | `link` | string (URL) | Where the Pin links to. |
