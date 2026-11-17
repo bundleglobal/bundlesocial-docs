@@ -7,6 +7,14 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
 <Update label="2026-11-17">
+**Page size on list endpoints:** every list endpoint takes `limit` from 1 to 1000 and an `offset` of 0 or more, both whole numbers. `0` or an empty `limit` means the endpoint's default (10 on most lists, 20 or 50 on CSV and comment imports, reviews and recommendations). A `limit` above 1000 now returns `400` with `limit: must be at most 1000. Use offset to fetch more.`, and a negative or fractional value returns `400` too. Lists that capped `limit` at 100 or 500 (reviews, recommendations, conversations, flow executions) now go up to 1000. Validation errors on query parameters name the field that failed.
+
+**Uploads:** a connection dropped while we save a file to storage is retried on our side. If it still fails, `POST /api/v1/upload` returns `500` instead of `400`, so it no longer looks like a problem with your file. You can send it again; in rare cases the first attempt was saved too and you end up with an extra upload you can delete.
+
+**First comments:** a post's `firstComment` is now published on the platforms where the post went live, even if another platform in the same post failed. It used to stay unpublished.
+
+**Snapchat uploads:** media is sent in smaller parts with a longer timeout, and each part is retried, so large Snapchat videos fail less often on timeouts.
+
 **TikTok Spark Ads codes:** turn on ad authorization for a public TikTok post and get its Spark Ads code to hand to an advertiser, with `GET`, `POST` and `DELETE /api/v1/misc/tiktok/ad-authorization` and `POST /api/v1/misc/tiktok/ad-authorization/extend`. Address the post with `postId` or, for posts published outside bundle.social, `platformPostId`. No new TikTok permissions are needed. See [Spark Ads Authorization Code](/api-reference/platforms/tiktok#spark-ads-authorization-code).
 
 **Threads ghost posts:** `data.THREADS.isGhostPost: true` publishes a text post that Threads archives after 24 hours. Ghost posts are text only: media, polls, GIFs, link attachments, a topic tag, reply control, country restrictions and Instagram Story cross-sharing return `400`. See [Ghost Posts](/api-reference/platforms/threads#ghost-posts).
