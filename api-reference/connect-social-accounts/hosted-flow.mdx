@@ -74,7 +74,7 @@ For Facebook and Instagram via Facebook, tell users to select **all Pages and In
 | `userLogoUrl` | No | HTTPS user logo or avatar shown on the hosted page. |
 | `userName` | No | User name shown on the hosted page. |
 | `goBackButtonText` | No | Text for the back button. |
-| `language` | No | Page language. Defaults to `en`. |
+| `language` | No | Page language: `en` (default), `pl`, `fr`, `hi`, `sv`, `de`, `es`, `it`, `nl`, `pt`, `ru`, `tr`, `zh`, `da`, `no`, `th`, `ko`, `he` or `ar`. |
 | `hidePoweredBy` | No | Hide the "powered by" text. |
 | `hideGoBackButton` | No | Hide the back button. |
 | `hideUserLogo` | No | Hide the user logo. |
@@ -115,4 +115,4 @@ For Facebook and Instagram via Facebook, tell users to select **all Pages and In
 
 For return query parameters, see [Callback Parameters](/api-reference/connect-social-accounts/callbacks).
 
-Snapchat uses the Public Profile returned during OAuth and does not show a separate channel picker.
+Snapchat connected with `PERSONAL` uses the Public Profile returned during OAuth and shows no channel picker. With `BUSINESS`, the portal shows a picker with the Public Profiles of the login's Snap Business organizations. Set `snapchatConnectionMethod` on the portal link to fix the method; leave it out to let the user choose.

@@ -6,6 +6,49 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
+<Update label="2026-11-17">
+**TikTok Spark Ads codes:** turn on ad authorization for a public TikTok post and get its Spark Ads code to hand to an advertiser, with `GET`, `POST` and `DELETE /api/v1/misc/tiktok/ad-authorization` and `POST /api/v1/misc/tiktok/ad-authorization/extend`. Address the post with `postId` or, for posts published outside bundle.social, `platformPostId`. No new TikTok permissions are needed. See [Spark Ads Authorization Code](/api-reference/platforms/tiktok#spark-ads-authorization-code).
+
+**Threads ghost posts:** `data.THREADS.isGhostPost: true` publishes a text post that Threads archives after 24 hours. Ghost posts are text only: media, polls, GIFs, link attachments, a topic tag, reply control, country restrictions and Instagram Story cross-sharing return `400`. See [Ghost Posts](/api-reference/platforms/threads#ghost-posts).
+
+**Snapchat Public Profiles of Snap Business organizations:** connect with `snapchatConnectionMethod: "BUSINESS"` to pick any Public Profile of the organizations the login belongs to with `set-channel`. `PERSONAL` stays the default. Portal links accept it too, or let the user choose when it's left out. A login with no role on any profile ends with `snapchat-no-business-profiles`. See [Connection Methods](/api-reference/platforms/snapchat#connection-methods).
+
+**Interrupted publishes have a reason:** a publish cut off on our side before the platform answered now ends with `PUBLISH:INTERRUPTED` and says whether the post may already be live, instead of an `ERROR` with no reason. See [Interrupted Publishes](/api-reference/errors#interrupted-publishes).
+
+**Clearer Meta errors:** the per-Page posting limit (`Meta:368:1390008`), blocked content (`Meta:368:1404132`) and the Facebook login checkpoint (`Meta:190:459`) get their own `userFacingMessage` in any language Meta answers in. Token errors that a reconnect can't fix no longer tell the user to reconnect.
+
+**Fewer failed video uploads:** Facebook, X and LinkedIn videos are read from storage in chunks with retries, so a connection dropped while reading the file is retried instead of failing the post with `NET:ECONNRESET`.
+
+**Link in bio:** each click is counted once. Clicks were saved several times a night before, and the extra rows have been removed. Clicks on an item that isn't in the bio return `404`.
+</Update>
+
+<Update label="2026-11-10">
+**YouTube Shorts thumbnails:** a Short's custom thumbnail is now set after YouTube finishes processing the video, the way YouTube requires. The post is `POSTED` right away with `externalData.YOUTUBE.thumbnailStatus: "PENDING"`, which becomes `APPLIED` or `FAILED` later. See [Custom Thumbnails](/api-reference/platforms/youtube#custom-thumbnails).
+
+**Webhook events are kept for 2 days** after delivery (was 7). Events still waiting for delivery are kept until they are delivered. Resend within that window. See [Data Retention](/api-reference/data-retention#webhook-events).
+</Update>
+
+<Update label="2026-11-08">
+**LinkedIn analytics:**
+- Personal posts report `saves`, and raw `metrics` add `clicks`, `sends`, `followersGained` and `profileViews`.
+- Account snapshots carry a `daily` series for the last 364 days, from `GET /api/v1/analytics/social-account/raw`.
+- A personal profile's headline is stored in `bio`.
+
+See [LinkedIn](/api-reference/platforms/linkedin#raw-analytics).
+
+**Google review replies show their moderation state:** after you reply, we check Google for `reviewReplyState` and `reviewReplyPolicyViolation`, and `reviewReplyStateCheckedAt` says when we last asked. See [Reply Moderation State](/api-reference/platforms/google-business-reviews#reply-moderation-state).
+
+**Daily posting limits are counted exactly** for the accounts in each request. A cached count could let a post through just over the limit before.
+</Update>
+
+<Update label="2026-11-06">
+**Norwegian:** the app and the hosted connect portal (`language: "no"`) are available in Norwegian.
+</Update>
+
+<Update label="2026-11-05">
+**YouTube uploads paused by YouTube's daily quota** resume right at YouTube's midnight Pacific reset, not up to 10 minutes later.
+</Update>
+
 <Update label="2026-11-04">
 **New webhook `post.externally-deleted`:** sent once when an analytics refresh finds a post was deleted on TikTok, YouTube, Instagram or Threads. The payload is the profile post with `externallyDeletedAt`, `teamId` and `socialAccountType`. Webhooks without an event filter get it automatically, so make sure your handler ignores types it doesn't know. See [Externally Deleted Posts](/api-reference/webhooks#externally-deleted-posts-payload).
 

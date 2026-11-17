@@ -48,6 +48,7 @@ These are the available body fields for the custom flow.
 | `tiktokForceLogin` | No | Experimental TikTok-only option. Routes authorization through TikTok logout to request a fresh login session. Defaults to `false`. |
 | `forceBrowserOAuth` | No | Instagram direct OAuth only. Instagram asks for a fresh login instead of reusing the account already logged in on that browser. Defaults to `false`. See [forceBrowserOAuth](/api-reference/connect-social-accounts/oauth-options#forcebrowseroauth). |
 | `instagramConnectionMethod` | No | Instagram only. Use `FACEBOOK` or `INSTAGRAM`. If omitted, the Facebook login path is used. |
+| `snapchatConnectionMethod` | No | Snapchat only. `PERSONAL` (default) or `BUSINESS`. See [Snapchat connection methods](/api-reference/platforms/snapchat#connection-methods). |
 | `withBusinessScope` | No | Facebook, Instagram via Facebook, and YouTube. Adds broader Meta business scopes for Meta, or the monetary analytics scope (revenue/monetization data) for YouTube, when `true`. Defaults to `false`. |
 
 ### Supported Types
@@ -63,6 +64,7 @@ These are the available body fields for the custom flow.
 | `serverUrl` | Mastodon, Bluesky | Mastodon requires it. Bluesky can use it for a custom issuer/server. |
 | `instagramConnectionMethod: "FACEBOOK"` | Instagram | Uses Facebook Login and supports Page/account channel selection, comments, insights, locations, and Instagram audio search. |
 | `instagramConnectionMethod: "INSTAGRAM"` | Instagram | Uses direct Instagram OAuth. No `set-channel`, `unset-channel`, or `refresh-channels`. Some Facebook-backed features are not available. |
+| `snapchatConnectionMethod: "BUSINESS"` | Snapchat | Lists the Public Profiles of the login's Snap Business organizations. Needs `set-channel`. |
 | `disableAutoLogin` | Facebook, Instagram via Facebook, Instagram direct OAuth, TikTok | Helps users pick the correct platform account when many accounts are used in one browser. |
 | `tiktokForceLogin` | TikTok | Experimental stronger fresh-login flow. Redirects through TikTok logout before authorization. |
 | `forceBrowserOAuth` | Instagram direct OAuth | Makes Instagram ask for a fresh login instead of reusing the account logged in on that browser. |
@@ -83,7 +85,7 @@ For Facebook and Instagram via Facebook, ask users to select **all Pages and Ins
 5. If `socialAccount.channels` contains selectable targets, show them in your UI.
 6. Call `POST /api/v1/social-account/set-channel` when required.
 
-Snapchat connects the Public Profile returned by OAuth and does not need channel selection.
+Snapchat connected with `PERSONAL` (the default) uses the Public Profile returned by OAuth and needs no channel selection. With `BUSINESS`, pick a profile with `set-channel`.
 
 ![Connect social account flow](/images/api-reference/connect-social-account/connect-social-account.png)
 

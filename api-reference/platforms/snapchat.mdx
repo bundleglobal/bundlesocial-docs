@@ -18,7 +18,16 @@ SNAPCHAT SUPPORT USES THE **PUBLIC PROFILE API**. THE CONNECTED SNAPCHAT ACCOUNT
 - Spotlights with one MP4 video.
 - Profile, Story, and Spotlight analytics.
 
-Snapchat does not require a separate `set-channel` call. The Public Profile returned during OAuth becomes the publishing target.
+## Connection Methods
+
+Pass `snapchatConnectionMethod` to [`connect`](/api-reference/connect-social-accounts/custom-ui-flow) or to a [portal link](/api-reference/connect-social-accounts/hosted-flow):
+
+| Method | What it connects | Needs `set-channel`? |
+| :--- | :--- | :--- |
+| `PERSONAL` (default) | The Public Profile of the Snapchat login itself. | No. The profile returned during OAuth becomes the publishing target. |
+| `BUSINESS` | Any Public Profile of the Snap Business organizations the login belongs to. We also request the `snapchat-marketing-api` scope. | Yes. The profiles are listed in `socialAccount.channels`; pick one with `set-channel`. `refresh-channels` reloads the list. |
+
+The login needs the **Admin or Collaborator** role on a profile for it to be listed under `BUSINESS`. If it has a role on none, the connection ends with `snapchat-no-business-profiles`. Accounts connected before `BUSINESS` existed have `snapchatConnectionMethod: null` and behave as `PERSONAL`. On a portal link without `snapchatConnectionMethod`, the user chooses the method in the portal.
 
 ## Post Options
 
@@ -108,6 +117,7 @@ Snapchat does not require a separate `set-channel` call. The Public Profile retu
 
 | Error | What it means | Fix |
 | :--- | :--- | :--- |
+| `snapchat-no-business-profiles` (on connect with `BUSINESS`) | The login has no role on any Public Profile of its Snap Business organizations. | Ask an organization admin to give the login the Admin or Collaborator role on a profile, then connect again. |
 | "This Snapchat account has no Public Profile" (on connect) | The Snapchat login has no Public Profile. Snapchat's API can only publish as a Public Profile. | Create a Public Profile in the Snapchat app, or log in with the account that owns it, then connect again. |
 | `SNAP:AUTHORIZATION_PERMISSION_DENIED` "Could not upload Snapchat media" | The connected Snapchat account can see the profile but is not its **Owner or Admin** (e.g. a collaborator, or access only through Ads Manager). | Give that account the Admin role on the Public Profile, or reconnect with the account that owns it. |
 | `SNAP:MEDIA_NOT_VALID_FOR_STORY_POSTING` | The media doesn't meet Snapchat's Story requirements. | Use an MP4 video of 5-180 seconds, at least 540x960. |

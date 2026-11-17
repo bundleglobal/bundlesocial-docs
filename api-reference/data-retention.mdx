@@ -1,6 +1,6 @@
 ---
 title: Data Retention
-description: "What we keep, for how long, and when it disappears. Analytics 30 days, webhook events 7, deleted uploads 2, stale uploads 14, imported posts 30, DMs and automation logs 30. Plan accordingly."
+description: "What we keep, for how long, and when it disappears. Analytics 30 days, webhook events 2, deleted uploads 2, stale uploads 14, imported posts 30, DMs and automation logs 30. Plan accordingly."
 icon: clock-rotate-left
 keywords: ["data retention", "analytics retention", "webhook retention", "cleanup policy", "data deletion"]
 ---
@@ -74,13 +74,13 @@ With this running, you have full analytics history in your own database. Build d
 
 ---
 
-## Webhook Events - 7 Days
+## Webhook Events
 
 **What:** All webhook event records (delivery attempts, payloads, responses).
 
-**Retention:** **7 days** from the date the event was created.
+**Retention:** **2 days** from the date the event was created, once the event is finished: delivered more than an hour ago, or undeliverable because the webhook was disabled or deleted. An event still waiting for a delivery attempt is kept until it is delivered.
 
-If you need to debug a webhook delivery from last week, you have 7 days. After that, the record is gone.
+Debug and [resend](/api-reference/webhooks#resending-events) an event within 2 days. After that, the record is gone.
 
 ### What You Should Do
 
@@ -156,7 +156,7 @@ If you need a longer history (support records, CRM, compliance), store messages 
 | Data Type | Retention Period |
 | :--- | :--- |
 | Analytics (parsed + raw) | **30 days** |
-| Webhook events | **7 days** |
+| Webhook events | **2 days** after delivery |
 | Deleted uploads | **2 days** after deletion |
 | Stale uploads | Soft-deleted **14 days** after upload or after the last post using it finished, then the 2-day deleted-upload window applies |
 | Imported posts | **30 days** |

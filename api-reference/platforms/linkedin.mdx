@@ -219,6 +219,7 @@ For general analytics concepts (refresh rates, data retention, what "Returns 0" 
 | `likes` | Reactions | |
 | `comments` | Comments | |
 | `shares` | Reposts | |
+| `saves` | Saves | If LinkedIn refuses it on a refresh, the last stored value is kept |
 
 #### Organization Posts
 **Period:** Rolling window (30 days).
@@ -241,6 +242,15 @@ For general analytics concepts (refresh rates, data retention, what "Returns 0" 
 ### Raw Analytics
 
 Raw analytics for LinkedIn retain **reaction** breakdowns from the platform (per reaction type) where available. Our standard post schema still exposes a single aggregated likes/reactions-style metric; use raw data when you need the full split.
+
+**Personal (member) posts** also get, in `metrics`: `clicks` (link clicks), `sends`, `followersGained` and `profileViews`. A metric LinkedIn refuses for a post is listed in `metrics.unavailableMetrics`; the others are still stored.
+
+**Account snapshots** carry `daily`, a day-by-day series for the last 364 complete UTC days, read with `GET /api/v1/analytics/social-account/raw`:
+
+- Personal profiles: `impressions`, `reactions`, `comments`, `reshares`, `saves`, `sends` and `followerGains`.
+- Pages: `impressions`, `uniqueImpressions`, `clicks`, `likes`, `comments`, `shares`, `organicFollowerGains` and `paidFollowerGains`.
+
+A series LinkedIn didn't answer is listed in `daily.unavailable`, and `daily` is `null` if none came back. LinkedIn keeps 12 months, so for a longer history keep older snapshots. The daily reactions, comments and reshares of a personal profile can differ from what LinkedIn shows (LinkedIn documents them as not consistent with its UI), and the newest day or two of Page follower gains read `0` because LinkedIn reports them two days late.
 
 **Organization video posts** also get:
 
@@ -315,4 +325,5 @@ Profile raw analytics for a LinkedIn Page include `followerStatistics`, the Page
 - **Personal accounts** do NOT have views analytics for profiles - only organizations get page views.
 - **Organization accounts** have page views for profile analytics. For individual posts, views exist only on video posts (video views); other posts return `0`.
 - Post count and following count are not provided through the LinkedIn API for either account type.
+- A personal profile's headline is stored in the social account's `bio`, refreshed when you select the profile, refresh channels and on every daily analytics run.
 - Organization post analytics only include posts from the last 30 days.
