@@ -144,8 +144,48 @@ A value the account doesn't allow is not rejected when you create the post. It f
 Each call counts against the account's TikTok rate limit, so fetch it when building your composer, not before every publish. If TikTok returns incomplete settings, the endpoint returns `502`.
 </Note>
 
-### Location Tags
+### Spark Ads Authorization Code
 
+Turn on **Ad authorization** for a public TikTok post and get its Spark Ads code. Hand the code to an advertiser, who adds it to their TikTok ad account to run the post as a Spark Ad. No extra TikTok permissions are needed.
+
+| Method | Endpoint | What it does |
+| :--- | :--- | :--- |
+| `GET` | `/api/v1/misc/tiktok/ad-authorization` | Current code, its validity window and `status`. |
+| `POST` | `/api/v1/misc/tiktok/ad-authorization` | Turns on ad authorization and returns the code. Enabling it accepts TikTok's Advertising Content Terms of Service for the post. |
+| `POST` | `/api/v1/misc/tiktok/ad-authorization/extend` | Extends the code, or issues a new one after it was disabled. |
+| `DELETE` | `/api/v1/misc/tiktok/ad-authorization` | Turns ad authorization off. |
+
+Address the post with `teamId` plus **exactly one** of:
+
+| Param | Description |
+| :--- | :--- |
+| `postId` | A bundle.social post published to TikTok. It must have been published from the TikTok account connected to the team now. |
+| `platformPostId` | The TikTok post ID (`item_id`) of a public post on the team's TikTok account, for posts published outside bundle.social. |
+
+`POST` and `extend` also take `authorizationDays`: `7`, `30`, `60`, `180` or `365` (default `30`).
+
+```json
+{
+  "teamId": "team_123",
+  "postId": "post_abc123",
+  "authorizationDays": 60
+}
+```
+
+```json
+{
+  "platformPostId": "7312345678901234567",
+  "authCode": "<spark-ads-code>",
+  "startsAt": "2026-11-17T10:00:00.000Z",
+  "expiresAt": "2027-01-16T10:00:00.000Z",
+  "authorizationDays": 60,
+  "status": "NOT_USED"
+}
+```
+
+`status` is `NOT_USED`, `IN_USE` (an advertiser runs the post as a Spark Ad) or `EXPIRED`. TikTok's own refusals come back as `400`, its rate limits as `429`, and anything else it fails on as `502`.
+
+### Location Tags
 **Endpoint:** `GET /api/v1/misc/tiktok/locations`
 
 Searches TikTok's location tags for the team's TikTok account. Put the chosen tag on a post with `locationId` and `locationName`.

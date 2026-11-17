@@ -152,7 +152,7 @@ A `POSTED` post can still carry a non-fatal warning in `data.errors`, for exampl
 }
 ```
 
-It's sent once per post. `externallyDeletedAt` never changes after that, and the post stops getting analytics refreshes. Webhooks with no event filter receive it automatically, so make sure your handler ignores event types it doesn't know.
+It's sent once per post. `externallyDeletedAt` never changes after that, and the post stops getting analytics refreshes. Platform terms generally require you to delete the post and its stats on your side when you receive it. Webhooks with no event filter receive it automatically, so make sure your handler ignores event types it doesn't know.
 
 ### Comment Events Payload
 
@@ -257,7 +257,7 @@ When this happens:
 
 ### Resending Events
 
-Made a mistake in your handler? Event got lost? You can resend any webhook event from the dashboard or via the API. We'll create a fresh delivery attempt with the same payload.
+Made a mistake in your handler? Event got lost? You can resend any webhook event from the dashboard or via the API. We'll create a fresh delivery attempt with the same payload. Events are kept for [2 days](/api-reference/data-retention#webhook-events) after delivery, so resend within that window.
 
 ---
 

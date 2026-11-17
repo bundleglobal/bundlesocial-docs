@@ -66,6 +66,7 @@ Send Threads-specific options inside `data.THREADS`.
 | `allowlistedCountryCodes` | `string[]` | Restrict post visibility to these ISO 3166-1 alpha-2 country codes. Requires Meta account eligibility. |
 | `crosspostToInstagramStory` | `boolean` | Cross-share the post to the linked Instagram account as a Story. |
 | `crosspostToInstagramStoryDarkMode` | `boolean` | Cross-share the post to the linked Instagram account as a Story in dark mode. |
+| `isGhostPost` | `boolean` | Publish a ghost post that Threads archives after 24 hours. Text only. See [Ghost Posts](#ghost-posts). |
 
 ```json
 {
@@ -145,6 +146,27 @@ Attach a GIF to a **text-only** post. GIPHY is currently the only supported prov
   }
 }
 ```
+
+---
+
+## Ghost Posts
+
+Set `isGhostPost: true` to publish a text post that Threads archives automatically 24 hours after it goes live.
+
+```json
+{
+  "data": {
+    "THREADS": {
+      "text": "Gone tomorrow",
+      "isGhostPost": true
+    }
+  }
+}
+```
+
+<Warning>
+Ghost posts are **plain text only**. With `isGhostPost: true`, a post that also has `uploadIds`, `poll`, `gif`, `linkAttachment`, `topicTag`, `replyControl`, `allowlistedCountryCodes`, `crosspostToInstagramStory` or `crosspostToInstagramStoryDarkMode` fails validation with `400`, with one message per field.
+</Warning>
 
 ---
 

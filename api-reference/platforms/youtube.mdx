@@ -29,6 +29,16 @@ There is no special "upload as Short" button. YouTube decides for you based on t
 
 If your video meets these criteria, it becomes a Short. If it doesn't, it's a regular video.
 
+### Custom Thumbnails
+
+YouTube applies a Short's custom thumbnail reliably only after the video has finished processing. So for a `SHORT`, and for a `VIDEO` that is square or vertical and up to 180 seconds long (or has no size or duration metadata), we set the thumbnail **after** processing:
+
+- The post becomes `POSTED` and `post.published` is sent right away, with `externalData.YOUTUBE.thumbnailStatus: "PENDING"`.
+- We check processing for up to 24 hours, then set the thumbnail. `thumbnailStatus` becomes `APPLIED`, or `FAILED` with YouTube's reason added as a warning in `errors.YOUTUBE`. The post stays `POSTED` either way. Read the result with `GET /api/v1/post/{id}`.
+- Setting a thumbnail manually while the video is still processing, or while we are applying the queued one, returns `400`. A manual thumbnail set after that wins over the queued one.
+
+Landscape videos get the thumbnail right after upload, as before.
+
 ### YouTube Title is Required
 Unlike most platforms where you just need text, YouTube treats `data.YOUTUBE.text` as the **video title**. If you leave it empty, YouTube can reject the upload.
 
@@ -55,7 +65,7 @@ Send YouTube-specific options inside `data.YOUTUBE`.
 | `uploadIds` | `string[]` | Required. One uploaded video. |
 | `text` | `string` | Video title. Max 100 characters. |
 | `description` | `string` | Video description. Max 5,000 characters. |
-| `thumbnail` | `string` | Optional thumbnail image URL uploaded through bundle.social. If YouTube rejects it (often while a new video is still processing), we retry a few times; if it still fails, the post stays `POSTED` and YouTube's reason is in `errors.YOUTUBE`. |
+| `thumbnail` | `string` | Optional thumbnail image URL uploaded through bundle.social. For Shorts it is set after YouTube finishes processing the video. See [Custom Thumbnails](#custom-thumbnails). |
 | `privacy` | `enum` | `PRIVATE`, `PUBLIC`, or `UNLISTED`. Default sent to YouTube is public if omitted. |
 | `defaultLanguage` | `string` | BCP-47 language for the video's title and description, for example `en` or `pl`. Max 35 characters. |
 | `defaultAudioLanguage` | `string` | BCP-47 language for the video's default audio track, for example `en` or `pl`. Max 35 characters. |

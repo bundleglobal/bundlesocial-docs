@@ -166,6 +166,10 @@ Example response:
 
 Both endpoints return the updated review object.
 
+### Reply Moderation State
+
+Google moderates replies, and its reply response doesn't include the result. So right after you reply, `reviewReplyState` and `reviewReplyPolicyViolation` are `null`. We then ask Google for the state of replies from the last 30 days that are still `null`, `PENDING` or `UNSPECIFIED`: on every run during the first day, about every 3 hours until day 7, then daily. `reviewReplyStateCheckedAt` is when we last asked. Replying again or deleting the reply resets it, so the new reply is checked on the next run.
+
 ---
 
 ## Quirks & Gotchas
