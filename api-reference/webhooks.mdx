@@ -359,3 +359,18 @@ When `social-account.updated` arrives with a `deleteOn`, show a "hey, reconnect 
 3. **Verify signatures.** Always. No exceptions. Even in development. See the [SDK](/api-reference/sdk) for built-in signature verification, or check the [Swagger](/api-reference/openapi) for the raw details.
 4. **Use HTTPS.** We only send webhooks to HTTPS URLs. Sorry, `http://localhost` works via ngrok though.
 5. **Monitor your failures.** If your endpoint has been failing for days with no successful deliveries, fix it before the 7-day auto-disable kicks in. You'll get an email + dashboard notification when it does, but catching it sooner is better.
+
+---
+
+## Using a Hosted Webhook Gateway
+
+We recommend the [Hookdeck Event Gateway](https://hookdeck.com/event-gateway) with its [bundle.social source type](https://hookdeck.com/docs/sources?type=BUNDLE_SOCIAL#source-types) to handle the best practices for you:
+
+1. **Respond fast.** Hookdeck acknowledges every bundle.social delivery immediately and queues it for your endpoint, so slow processing doesn't count as a failed delivery.
+2. **Be idempotent.** Deduplication rules drop repeated deliveries that arrive within a window of up to an hour, before they reach your endpoint.
+3. **Verify signatures.** The bundle.social source type verifies the `x-signature` header with your Signing Secret.
+4. **Use HTTPS.** You get an HTTPS URL, and the Hookdeck CLI forwards events to `localhost` during development.
+5. **Monitor your failures.** With a retry rule, failed deliveries to your endpoint are retried automatically. They also raise alerts and can be retried again once you've fixed the problem, so your bundle.social webhook stays enabled.
+6. **Test with sample events.** [Hookdeck Inspect's bundle.social page](https://inspect.hookdeck.com/webhooks/bundle-social) gives you a URL and sends sample bundle.social webhooks to it, so you can see each payload and build your handler before you connect a real account. The samples aren't signed, so use them to test how you handle events, not signature verification.
+
+For a full walkthrough, see Hookdeck's [guide to bundle.social webhooks](https://hookdeck.com/webhooks/platforms/guide-to-bundle-social-webhooks-features-and-best-practices).
