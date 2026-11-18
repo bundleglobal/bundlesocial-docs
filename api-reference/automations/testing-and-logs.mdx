@@ -54,7 +54,7 @@ Every run is logged as an **execution**. This is where you answer "why didn't my
 - `GET /api/v1/automations/:id/executions?teamId=team_123` - runs of one flow, newest first
 - `GET /api/v1/automation-executions/:id` - one run, with every step
 
-Filters for the list: `status`, `platform`, `socialAccountId`, `conversationId`, `fetchedCommentId`, `flowVersionId`, `triggerId`. Paginate with `limit` (max 500) and either `offset` or `cursor` (pass back `nextCursor`), same as [conversations](/api-reference/direct-messages/conversations#pagination).
+Filters for the list: `status`, `platform`, `socialAccountId`, `conversationId`, `fetchedCommentId`, `flowVersionId`, `triggerId`. Paginate with `limit` (max 1000) and either `offset` or `cursor` (pass back `nextCursor`), same as [conversations](/api-reference/direct-messages/conversations#pagination).
 
 ```json
 {

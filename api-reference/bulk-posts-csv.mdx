@@ -103,7 +103,7 @@ Returns the full import object (same shape as the `POST` response).
 | Parameter | Type | Default | Description |
 | :--- | :--- | :--- | :--- |
 | `offset` | number | `0` | Skip this many records |
-| `limit` | number | `10` | How many to return |
+| `limit` | number | `20` | How many to return, up to 1000 |
 
 Returns `{ items, total }`, newest first.
 
@@ -119,7 +119,7 @@ Once the import finishes (or while it's running), you can inspect individual row
 | :--- | :--- | :--- | :--- |
 | `status` | string | - | Filter by `SUCCESS` or `FAILED` |
 | `offset` | number | `0` | Skip this many rows |
-| `limit` | number | `10` | How many to return |
+| `limit` | number | `50` | How many to return, up to 1000 |
 
 ```bash
 curl "https://api.bundle.social/api/v1/post-csv-import/import_abc123/rows?status=FAILED" \

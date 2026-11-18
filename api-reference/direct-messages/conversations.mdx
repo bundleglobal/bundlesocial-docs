@@ -19,7 +19,7 @@ Query params:
 - `platform` (optional) - `INSTAGRAM` or `FACEBOOK`
 - `socialAccountId` (optional)
 - `status` (optional) - `OPEN` or `ARCHIVED`
-- `limit` (max 500), and either `offset` or `cursor`
+- `limit` (max 1000), and either `offset` or `cursor`
 
 Conversations come back with the most recent activity first.
 
@@ -86,7 +86,7 @@ Both list endpoints support two styles, pick one per request:
 
 The conversation list is sorted by `lastActivityAt`, which changes with every new message. A conversation that gets a new message while you page through the list moves to the top, so it can be missing from later pages. Refresh the first page (or use [webhooks](/api-reference/direct-messages/webhooks)) to catch it.
 
-`limit` defaults to 10 (max 500). `total` is only returned on the first page (when you don't send a `cursor`). Sending a `cursor` together with a non-zero `offset` returns `400`. When `nextCursor` is empty, you've reached the end.
+`limit` defaults to 10 (max 1000). `total` is only returned on the first page (when you don't send a `cursor`). Sending a `cursor` together with a non-zero `offset` returns `400`. When `nextCursor` is empty, you've reached the end.
 
 ---
 
