@@ -70,7 +70,7 @@ We validate everything before sending to the platform. If your content breaks a 
 | Files | 1 video (required) |
 | Max size | 1 GB |
 | Resolution | 360x360 to 4096x4096 |
-| Aspect ratio | 0.01:1 to 10:6 |
+| Aspect ratio | 0.01:1 to 16:9 |
 | Duration | Max 10 min (600s) |
 
 ### Images (Photo Mode)
@@ -79,7 +79,7 @@ We validate everything before sending to the platform. If your content breaks a 
 | Files | 1-35 images |
 | Format | **JPG/JPEG/WebP only** - PNG and other formats will be rejected for TikTok Photo Mode |
 | Max size | 20 MB each |
-| Max width | 1920px |
+| Max resolution | 1080x1920 (portrait) or 1920x1080 (landscape). Larger images are rejected unless `autoScale: true` |
 
 <Warning>
 **PNG is not valid for TikTok Photo Mode.** Convert PNG assets before creating the TikTok image post.

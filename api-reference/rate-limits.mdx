@@ -63,6 +63,10 @@ These are **daily limits per connected social account**, counted per **UTC calen
 | SNAPCHAT | 5 | 20 | 40 |
 
 <Note>
+**X limits can be set to custom values on paid plans,** because X usage is billed separately from your plan. This applies to both the posting and the commenting daily limits for Twitter/X. See [pricing](https://bundle.social/pricing).
+</Note>
+
+<Note>
 **YouTube also has an organization-wide daily upload cap.** On top of the per-account limits above, new YouTube uploads are capped per organization per day. This day follows YouTube's quota day and resets at **midnight Pacific Time**, not UTC. When the cap is reached, the YouTube publish fails with `YT:orgDailyUploadLimit` and isn't retried automatically, see [Errors](/api-reference/errors#youtube). Need a higher cap? [Contact us](https://bundle.social/contact).
 </Note>
 
@@ -91,6 +95,7 @@ Daily caps per connected account, per platform, for comments created via the API
 
 | Platform | FREE | PRO | BUSINESS |
 | -------- | ---- | --- | -------- |
+| TWITTER  | 3 | 15 | 15 |
 | FACEBOOK  | 3 | 50 | 100 |
 | INSTAGRAM  | 3 | 50 | 100 |
 | LINKEDIN  | 3 | 18 | 24 |
@@ -104,7 +109,7 @@ Daily caps per connected account, per platform, for comments created via the API
 | BLUESKY  | 3 | 50 | 100 |
 
 <Note>
-Comment creation is currently available for Facebook, Instagram, LinkedIn, YouTube, TikTok, Reddit, Threads, Mastodon, Discord, Slack, and Bluesky. Twitter/X, Pinterest, and Google Business are not supported by the Comments API.
+Comment creation is currently available for Twitter/X, Facebook, Instagram, LinkedIn, YouTube, TikTok, Reddit, Threads, Mastodon, Discord, Slack, and Bluesky. Pinterest and Google Business are not supported by the Comments API.
 </Note>
 
 ### Monthly organization-wide limits
