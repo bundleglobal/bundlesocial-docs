@@ -5,7 +5,7 @@ icon: plug
 keywords: ["mcp server social media", "model context protocol social media", "bundle.social mcp", "claude social media", "cursor social media mcp"]
 ---
 
-`bundlesocial-mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes the bundle.social operations as MCP tools - so Claude Desktop, Claude Code, Cursor and any other MCP client can post, schedule, import, analyze content and manage connected accounts across 14+ platforms.
+`bundlesocial-mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes the bundle.social operations as MCP tools - so Claude Code, Claude Desktop, Cursor, VS Code, Codex, Gemini CLI and any other MCP client can post, schedule, import, analyze content and manage connected accounts across 14+ platforms.
 
 Use it as a **hosted server** at `https://mcp.bundle.social` (nothing to install, authenticated with your API key) or run it as a **local stdio server** (`npx bundlesocial-mcp`). Both expose the same tools; the local server can also read files from your disk.
 
@@ -116,8 +116,38 @@ An API key covers every team in your organization. Name the team in your prompt 
     }
     ```
   </Tab>
+  <Tab title="VS Code">
+    `.mcp.json` at the workspace root, or `~/.copilot/mcp-config.json` for every workspace. VS Code reads `${BUNDLESOCIAL_API_KEY}` from your environment, so the file is safe to commit:
+    ```json
+    {
+      "mcpServers": {
+        "bundlesocial": {
+          "type": "http",
+          "url": "https://mcp.bundle.social",
+          "headers": { "Authorization": "Bearer ${BUNDLESOCIAL_API_KEY}" }
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Codex">
+    `~/.codex/config.toml`, with your key exported as `BUNDLESOCIAL_API_KEY`:
+    ```toml
+    [mcp_servers.bundlesocial]
+    url = "https://mcp.bundle.social"
+    bearer_token_env_var = "BUNDLESOCIAL_API_KEY"
+    ```
+  </Tab>
+  <Tab title="Gemini CLI">
+    ```bash
+    gemini mcp add --transport http \
+      --header "Authorization: Bearer YOUR_API_KEY" \
+      bundlesocial https://mcp.bundle.social
+    ```
+    In `settings.json`, use `httpUrl` (not `url`, which is the older SSE transport) and `headers`.
+  </Tab>
   <Tab title="Other clients">
-    Point any client that supports remote MCP servers (Streamable HTTP) at `https://mcp.bundle.social` and send the key as `Authorization: Bearer YOUR_API_KEY` (or `x-api-key: YOUR_API_KEY`). Local file paths are not readable on the hosted server: pass media and CSV files as public `https://` URLs.
+    Point any client that supports remote MCP servers (Streamable HTTP) at `https://mcp.bundle.social` and send the key as `Authorization: Bearer YOUR_API_KEY` (or `x-api-key: YOUR_API_KEY`). Agents built on the Claude, OpenAI or xAI APIs take the same URL and key in their remote MCP tool settings. Local file paths are not readable on the hosted server: pass media and CSV files as public `https://` URLs.
   </Tab>
 </Tabs>
 
