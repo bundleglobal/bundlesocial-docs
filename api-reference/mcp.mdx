@@ -103,6 +103,15 @@ An API key covers every team in your organization. Name the team in your prompt 
     ```
     Add `--scope project` to save it in the project's `.mcp.json`.
   </Tab>
+  <Tab title="Claude Desktop & claude.ai">
+    Open **Customize → Connectors**, click **+ Add**, then **Add custom connector**:
+
+    - URL: `https://mcp.bundle.social`
+    - Sign in: **No sign in**
+    - Request headers: `Authorization` = `Bearer YOUR_API_KEY`
+
+    The connector works in Claude Desktop, on claude.ai and in the mobile apps. On Team and Enterprise plans everyone who uses a shared connector posts with the same key; to keep keys per person, use the local server below.
+  </Tab>
   <Tab title="Cursor">
     `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project):
     ```json
@@ -115,6 +124,7 @@ An API key covers every team in your organization. Name the team in your prompt 
       }
     }
     ```
+    To keep the key out of the file, write the value as `Bearer ${env:BUNDLESOCIAL_API_KEY}`.
   </Tab>
   <Tab title="VS Code">
     `.mcp.json` at the workspace root, or `~/.copilot/mcp-config.json` for every workspace. VS Code reads `${BUNDLESOCIAL_API_KEY}` from your environment, so the file is safe to commit:
