@@ -7,7 +7,7 @@ keywords: ["mcp server social media", "model context protocol social media", "bu
 
 `bundlesocial-mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes the bundle.social operations as MCP tools - so Claude Desktop, Claude Code, Cursor and any other MCP client can post, schedule, import, analyze content and manage connected accounts across 14+ platforms.
 
-Use it as a **hosted server** at `https://mcp.bundle.social/mcp` (nothing to install, authenticated with your API key) or run it as a **local stdio server** (`npx bundlesocial-mcp`). Both expose the same tools; the local server can also read files from your disk.
+Use it as a **hosted server** at `https://mcp.bundle.social` (nothing to install, authenticated with your API key) or run it as a **local stdio server** (`npx bundlesocial-mcp`). Both expose the same tools; the local server can also read files from your disk.
 
 <CardGroup cols={2}>
   <Card title="npm: bundlesocial-mcp" icon="npm" href="https://www.npmjs.com/package/bundlesocial-mcp">
@@ -98,7 +98,7 @@ An API key covers every team in your organization. Name the team in your prompt 
 <Tabs>
   <Tab title="Claude Code">
     ```bash
-    claude mcp add --transport http bundlesocial https://mcp.bundle.social/mcp \
+    claude mcp add --transport http bundlesocial https://mcp.bundle.social \
       --header "Authorization: Bearer YOUR_API_KEY"
     ```
     Add `--scope project` to save it in the project's `.mcp.json`.
@@ -109,7 +109,7 @@ An API key covers every team in your organization. Name the team in your prompt 
     {
       "mcpServers": {
         "bundlesocial": {
-          "url": "https://mcp.bundle.social/mcp",
+          "url": "https://mcp.bundle.social",
           "headers": { "Authorization": "Bearer YOUR_API_KEY" }
         }
       }
@@ -117,7 +117,7 @@ An API key covers every team in your organization. Name the team in your prompt 
     ```
   </Tab>
   <Tab title="Other clients">
-    Point any client that supports remote MCP servers (Streamable HTTP) at `https://mcp.bundle.social/mcp` and send the key as `Authorization: Bearer YOUR_API_KEY` (or `x-api-key: YOUR_API_KEY`). Local file paths are not readable on the hosted server: pass media and CSV files as public `https://` URLs.
+    Point any client that supports remote MCP servers (Streamable HTTP) at `https://mcp.bundle.social` and send the key as `Authorization: Bearer YOUR_API_KEY` (or `x-api-key: YOUR_API_KEY`). Local file paths are not readable on the hosted server: pass media and CSV files as public `https://` URLs.
   </Tab>
 </Tabs>
 
