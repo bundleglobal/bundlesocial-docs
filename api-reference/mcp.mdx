@@ -7,7 +7,7 @@ keywords: ["mcp server social media", "model context protocol social media", "bu
 
 `bundlesocial-mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes the bundle.social operations as MCP tools - so Claude Desktop, Claude Code, Cursor and any other MCP client can post, schedule, import, analyze content and manage connected accounts across 14+ platforms.
 
-It ships as a **local stdio server** (`npx bundlesocial-mcp`). A hosted remote server at `mcp.bundle.social` is on the roadmap.
+Use it as a **hosted server** at `https://mcp.bundle.social/mcp` (nothing to install, authenticated with your API key) or run it as a **local stdio server** (`npx bundlesocial-mcp`). Both expose the same tools; the local server can also read files from your disk.
 
 <CardGroup cols={2}>
   <Card title="npm: bundlesocial-mcp" icon="npm" href="https://www.npmjs.com/package/bundlesocial-mcp">
@@ -89,7 +89,41 @@ Errors come back as `{ "error": { "code", "message", "details"? } }` with `isErr
 
 ## Configuration
 
-Reads `BUNDLESOCIAL_API_KEY` (required), `BUNDLESOCIAL_TEAM_ID` (optional - needed only if your org has more than one team) and `BUNDLESOCIAL_API_URL` (optional). Get an API key in the [dashboard](https://bundle.social/dashboard/organization/api-keys).
+Get an API key in the [dashboard](https://bundle.social/dashboard/organization/api-keys) and put it in place of `YOUR_API_KEY`.
+
+An API key covers every team in your organization. Name the team in your prompt ("post this for the Acme team"): every team-scoped tool accepts a team id or the exact team name. To set a default team, send an `x-bundle-team-id` header to the hosted server, or set `BUNDLESOCIAL_TEAM_ID` for the local server.
+
+### Hosted server
+
+<Tabs>
+  <Tab title="Claude Code">
+    ```bash
+    claude mcp add --transport http bundlesocial https://mcp.bundle.social/mcp \
+      --header "Authorization: Bearer YOUR_API_KEY"
+    ```
+    Add `--scope project` to save it in the project's `.mcp.json`.
+  </Tab>
+  <Tab title="Cursor">
+    `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project):
+    ```json
+    {
+      "mcpServers": {
+        "bundlesocial": {
+          "url": "https://mcp.bundle.social/mcp",
+          "headers": { "Authorization": "Bearer YOUR_API_KEY" }
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Other clients">
+    Point any client that supports remote MCP servers (Streamable HTTP) at `https://mcp.bundle.social/mcp` and send the key as `Authorization: Bearer YOUR_API_KEY` (or `x-api-key: YOUR_API_KEY`). Local file paths are not readable on the hosted server: pass media and CSV files as public `https://` URLs.
+  </Tab>
+</Tabs>
+
+### Local server
+
+Reads `BUNDLESOCIAL_API_KEY` (required), `BUNDLESOCIAL_TEAM_ID` (optional default team) and `BUNDLESOCIAL_API_URL` (optional). Needs Node.js 20+.
 
 <Tabs>
   <Tab title="Claude Desktop">
@@ -100,7 +134,7 @@ Reads `BUNDLESOCIAL_API_KEY` (required), `BUNDLESOCIAL_TEAM_ID` (optional - need
         "bundlesocial": {
           "command": "npx",
           "args": ["-y", "bundlesocial-mcp"],
-          "env": { "BUNDLESOCIAL_API_KEY": "sk_live_..." }
+          "env": { "BUNDLESOCIAL_API_KEY": "YOUR_API_KEY" }
         }
       }
     }
@@ -108,30 +142,17 @@ Reads `BUNDLESOCIAL_API_KEY` (required), `BUNDLESOCIAL_TEAM_ID` (optional - need
   </Tab>
   <Tab title="Claude Code">
     ```bash
-    claude mcp add bundlesocial --env BUNDLESOCIAL_API_KEY=sk_live_... -- npx -y bundlesocial-mcp
-    ```
-    Or in `.mcp.json`:
-    ```json
-    {
-      "mcpServers": {
-        "bundlesocial": {
-          "command": "npx",
-          "args": ["-y", "bundlesocial-mcp"],
-          "env": { "BUNDLESOCIAL_API_KEY": "sk_live_..." }
-        }
-      }
-    }
+    claude mcp add bundlesocial --env BUNDLESOCIAL_API_KEY=YOUR_API_KEY -- npx -y bundlesocial-mcp
     ```
   </Tab>
   <Tab title="Cursor">
-    `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project):
     ```json
     {
       "mcpServers": {
         "bundlesocial": {
           "command": "npx",
           "args": ["-y", "bundlesocial-mcp"],
-          "env": { "BUNDLESOCIAL_API_KEY": "sk_live_..." }
+          "env": { "BUNDLESOCIAL_API_KEY": "YOUR_API_KEY" }
         }
       }
     }
@@ -142,6 +163,7 @@ Reads `BUNDLESOCIAL_API_KEY` (required), `BUNDLESOCIAL_TEAM_ID` (optional - need
 ## Example prompts
 
 - "List my connected social accounts via bundle.social."
+- "Show the accounts connected to the Acme team."
 - "Post 'We just shipped dark mode 🌙' to X and Bluesky."
 - "Schedule a LinkedIn post for next Monday 9am UTC announcing the launch."
 - "Post to r/test on Reddit - first check the subreddit's requirements and flairs, then post with the right flair."
