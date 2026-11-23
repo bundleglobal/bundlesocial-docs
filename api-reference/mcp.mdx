@@ -20,7 +20,7 @@ Use it as a **hosted server** at `https://mcp.bundle.social` (nothing to install
 
 ## Tools
 
-The server covers the whole bundle.social API (the platform-specific edit/delete-after-publish helpers are reached via `trigger_integration_tool`).
+Dedicated tools cover the everyday work below. Everything else in the public API (editing or deleting published posts per platform, YouTube playlists, Google Business profile, reviews and recommendations, direct messages, automations, credits) is reachable through `search_api_actions` and `call_api_*`, so the whole API is available to an agent.
 
 **Diagnostics & discovery**
 
@@ -54,8 +54,8 @@ The server covers the whole bundle.social API (the platform-specific edit/delete
 
 | Tool | Description |
 |---|---|
-| `upload_media` | Upload an image/video/document from a URL (or local path in stdio mode); auto-chunks large local files. |
-| `init_large_upload` / `finalize_large_upload` | Low-level chunked-upload primitives (for manual control). |
+| `upload_media` | Upload an image/video/document from a URL (or local path in stdio mode); local files over ~90 MB go straight to storage automatically. |
+| `init_large_upload` / `finalize_large_upload` | Direct upload of any file up to 5 GB: `init` returns a signed `url`, PUT the bytes there (e.g. `curl -X PUT --upload-file`), then `finalize`. This is how an agent with a shell sends a local file to the hosted server. |
 | `list_media` / `get_media` / `delete_media` / `delete_media_many` | List / fetch / delete uploads. |
 
 **Integrations (social accounts)**
@@ -82,8 +82,17 @@ The server covers the whole bundle.social API (the platform-specific edit/delete
 | Tool | Description |
 |---|---|
 | `list_teams` / `get_team` / `create_team` / `update_team` / `delete_team` | Manage teams. |
-| `get_organization` / `get_usage` | Your organization, and posts/comments/uploads/imports usage & quotas. |
+| `get_organization` / `get_usage` | Your organization, and posts/comments/uploads/messages/imports usage & quotas. |
 | `get_daily_limits_usage` | A connected account's daily post/comment allowance for a given day. |
+
+**Everything else in the API**
+
+| Tool | Description |
+|---|---|
+| `search_api_actions` | Search all ~200 public API actions by keyword. A narrow search returns each action's parameters. |
+| `call_api_read` | Run a read action by id, with a flat `params` object. |
+| `call_api_action` | Run an action that changes data (marked destructive, so clients can ask for confirmation). |
+| `get_credit_balance` / `quote_billable_usage` | Prepaid credit balance for X (Twitter) pay-per-use actions, and a price quote before running them. |
 
 Errors come back as `{ "error": { "code", "message", "details"? } }` with `isError: true`. The per-platform fields for posts are documented in [Platform parameters](/api-reference/platform-parameters).
 

@@ -73,8 +73,8 @@ Run `bundlesocial <command> --help` for the full option list of any command. The
 
 | Command | What it does |
 |---|---|
-| `media:upload <path-or-url>` | Upload an image/video/document; returns the upload object. |
-| `media:upload-large <path>` | Chunked upload for large files (>~90 MB). |
+| `media:upload <path-or-url>` | Upload an image/video/document; local files over ~90 MB go straight to storage automatically. Returns the upload object. |
+| `media:upload-large <path>` | Force the direct-to-storage upload for any file up to 5 GB (jpg, png, gif, mp4, mov, pdf). |
 | `media:list` / `media:get <id>` / `media:delete <id>` / `media:delete-many` | List / fetch / delete uploads. |
 
 **Integrations (social accounts)**
@@ -103,9 +103,22 @@ Run `bundlesocial <command> --help` for the full option list of any command. The
 | Command | What it does |
 |---|---|
 | `teams:list` / `teams:get <id>` / `teams:create` / `teams:update <id>` / `teams:delete <id>` | Manage teams. |
-| `org:get` / `org:usage` | Your organization, and posts/comments/uploads/imports usage & quotas. |
+| `org:get` / `org:usage` | Your organization, and posts/comments/uploads/messages/imports usage & quotas. |
+| `credits:balance` / `credits:quote` | Prepaid credit balance for X (Twitter) pay-per-use actions, and a price quote before running them. |
 | `org:daily-limits` | A connected account's daily post/comment allowance for a given day. |
 | `doctor` | Diagnostic JSON: API key, connectivity, organization API access, team selection, integrations, quotas. |
+
+**Everything else in the API**
+
+| Command | What it does |
+|---|---|
+| `api:actions [query...]` | Search all ~200 public API actions (`--read-only` / `--writes` to filter); a narrow search shows parameters. |
+| `api:call <action>` | Run any action by id with `--data <json>` and/or repeated `--param key=value`; `teamId` takes a team id or name. |
+
+```bash
+bundlesocial api:actions youtube playlist
+bundlesocial api:call misc.youtube-edit-video --param postId=post_123 --param title="New title"
+```
 
 ### Examples
 
