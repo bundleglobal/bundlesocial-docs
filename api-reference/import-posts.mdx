@@ -54,6 +54,17 @@ Platform APIs are inconsistent. Some filters/surfaces may return no data on spec
 Facebook: videos in the Page's video library that aren't published (drafts, scheduled, ad-only uploads) are skipped.
 </Note>
 
+### Snapchat
+
+`socialAccountType: "SNAPCHAT"` imports the Public Profile's Spotlights, including ones posted in the Snapchat app, as `VIDEO` posts.
+
+- The video link is in `extraData.media[].mediaUrl`. It's Snap's CDN link; we store the link, not a copy of the file. Running the import again refreshes it.
+- `permalink` is `null`, because Snap doesn't return one.
+- Spotlights still in review or rejected by Snap are skipped.
+- Spotlights published through bundle.social are already in your posts and aren't imported again.
+- The import saves no analytics snapshot, since Snap's list has no stats. Stats come from the [ongoing analytics refresh](#ongoing-analytics-refresh) of imported posts, where it's enabled.
+- `mediaType: "IMAGE"` and `surface: "STORY"` return no posts.
+
 ### What `count` means (and `onlyLatest`)
 
 By default, `count` is the number of posts **you don't have yet** that we import. Posts you already imported are skipped and don't count toward your limit, but the import keeps going further back into older posts until it has found `count` new ones. It stops early only when it has gone through at least `count` posts you already have in a row (and at least 3 pages of them), or when the platform has no older posts.

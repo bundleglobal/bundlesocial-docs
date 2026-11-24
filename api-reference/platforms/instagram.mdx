@@ -135,6 +135,13 @@ Instagram audio search for Reels is documented separately: [Instagram Music Libr
 - Uses the account page token (`socialAccount.accessToken`).
 - Missing page permissions/features (for example `pages_read_engagement`) return explicit `400` with actionable message.
 
+#### `DELETE /misc/instagram/post`
+- Purpose: delete a post published through bundle.social from Instagram. Body: `{ "teamId": "team_123", "postId": "post_123" }`.
+- Works only for accounts connected via `FACEBOOK` login flow; accounts connected with the direct `INSTAGRAM` method get `400`, because Meta supports deletion only with Facebook Login.
+- Needs Meta's `instagram_manage_contents` permission, which is still in Meta's review for our app. Until then the endpoint is enabled per organization on request (contact support); other organizations get `403`.
+- Accounts connected before access was enabled have to reconnect once to grant the permission.
+- This deletes the post on Instagram only. Delete it in bundle.social with `DELETE /api/v1/post/{id}`.
+
 <Note>
 Meta location search can be inconsistent. If you hit the permission/error path, there is usually nothing we can reliably fix from API side right now (this behavior is widely reported in Meta developer threads). The good news: `locationId` tagging itself still works when you already have a valid location/page ID, so known IDs found externally can still be used in publish payloads. We hope this endpoint becomes stable for all accounts over time.
 </Note>

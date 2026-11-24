@@ -6,6 +6,22 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
+<Update label="2026-11-24">
+**Breaking: `GET /api/v1/organization` no longer returns `teams`.** The array was deprecated on October 14 with a removal date of November 15. List teams with the paginated `GET /api/v1/team` (`offset`, `limit`, optional `search`; returns `{ items, total }`). The rest of the organization response is unchanged. See [Finding your team IDs](/api-reference/introduction#finding-your-team-ids).
+
+**Hosted MCP server:** connect Claude Code, Claude Desktop and claude.ai, Cursor, VS Code, Codex, Gemini CLI or any client that supports remote MCP servers to `https://mcp.bundle.social` with an API key. Nothing to install. Besides the dedicated tools, `search_api_actions`, `call_api_read` and `call_api_action` reach every public API action. The dashboard's **Organization → MCP** page creates a key, fills it into the setup command for your client and shows when the agent's first request arrives. See [MCP](/api-reference/mcp).
+
+**CLI:** the command is now `bundlesocial`. `api:actions` and `api:call` run any public API action, and local files over ~90 MB upload straight to storage (up to 5 GB). See [CLI](/api-reference/cli).
+
+**YouTube embedding:** `data.YOUTUBE.embeddable` sets whether other websites can embed the video. Leave it out to keep YouTube's default. It also works in `PATCH /api/v1/misc/youtube/video` and as `youtubeEmbeddable` in CSV imports. Editing a published video no longer resets its privacy, embedding, license, stats visibility or scheduled `publishAt`. See [Post Options](/api-reference/platforms/youtube#post-options).
+
+**Delete published Instagram posts:** `DELETE /api/v1/misc/instagram/post` with `{ teamId, postId }` deletes the post on Instagram. It works for accounts connected with Facebook Login and needs a permission Meta hasn't approved for us yet, so it's enabled per organization on request; others get `403`. Accounts have to reconnect once to grant the new permission. See [Delete a Published Post](/api-reference/platforms/instagram#delete-misc-instagram-post).
+
+**Snapchat post history import:** `socialAccountType: "SNAPCHAT"` imports the Public Profile's Spotlights, including ones posted in the Snapchat app, as `VIDEO` posts with the video link in `extraData.media[]`. See [Import Post History](/api-reference/import-posts#snapchat).
+
+**TikTok accounts that need reconnecting:** calls for a TikTok account whose token is dead (post settings, locations, Spark Ads authorization, comment delete, the commercial music list) now return `400` with `type: "RECONNECT_REQUIRED"` instead of `500`. Error bodies have a new optional `type` field for machine-readable error types. TikTok refusals on these endpoints return `400`, `429` or `502` instead of `500`, and deleting a TikTok comment that TikTok refuses no longer reports success. See [Error Types](/api-reference/errors#error-types).
+</Update>
+
 <Update label="2026-11-17">
 **Page size on list endpoints:** every list endpoint takes `limit` from 1 to 1000 and an `offset` of 0 or more, both whole numbers. `0` or an empty `limit` means the endpoint's default (10 on most lists, 20 or 50 on CSV and comment imports, reviews and recommendations). A `limit` above 1000 now returns `400` with `limit: must be at most 1000. Use offset to fetch more.`, and a negative or fractional value returns `400` too. Lists that capped `limit` at 100 or 500 (reviews, recommendations, conversations, flow executions) now go up to 1000. Validation errors on query parameters name the field that failed.
 
