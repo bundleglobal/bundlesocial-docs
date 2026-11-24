@@ -98,9 +98,9 @@ It returns `{ items, total }`, so it works the same whether you have 3 teams or 
 
 Every list endpoint pages the same way: `limit` from 1 to 1000 (`0` or empty means the endpoint's default) and `offset` to skip ahead. A `limit` above 1000 returns `400`, so page with `offset` to fetch more.
 
-<Warning>
-`GET /api/v1/organization` still returns a `teams` array, but it's **deprecated and will be removed on November 15, 2026**. It isn't paginated, so it gets slow for organizations with many teams. Use `GET /api/v1/team` instead. The rest of the organization response (ID, plan, settings) stays.
-</Warning>
+<Note>
+`GET /api/v1/organization` no longer returns a `teams` array (removed on November 23, 2026). Use `GET /api/v1/team`.
+</Note>
 
 ---
 

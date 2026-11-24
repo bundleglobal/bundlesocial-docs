@@ -72,6 +72,7 @@ Send YouTube-specific options inside `data.YOUTUBE`.
 | `madeForKids` | `boolean` | Required by YouTube policy. Set `true` when the video is made for children. |
 | `containsSyntheticMedia` | `boolean` | Set `true` when the video contains AI-generated or synthetic content. |
 | `hasPaidProductPlacement` | `boolean` | Set `true` when the video contains paid product placement. |
+| `embeddable` | `boolean` | Whether other websites can embed the video. Leave it out to keep YouTube's default. Also accepted by `PATCH /api/v1/misc/youtube/video` and as `youtubeEmbeddable` in CSV imports. |
 
 ```json
 {
@@ -91,7 +92,8 @@ Send YouTube-specific options inside `data.YOUTUBE`.
       "defaultAudioLanguage": "en",
       "madeForKids": false,
       "containsSyntheticMedia": false,
-      "hasPaidProductPlacement": false
+      "hasPaidProductPlacement": false,
+      "embeddable": true
     }
   }
 }

@@ -79,6 +79,24 @@ Errors returned by our own endpoints (not the per-platform `errorsVerbose` of a 
 
 `502`, `503` and `504` mean the platform had a problem, not your request, so they're safe to retry.
 
+### Error Types
+
+Some `4xx` responses also carry a machine-readable `type`. Branch on `type`, not on the text of `message`.
+
+```json
+{
+  "statusCode": 400,
+  "message": "TikTok authorization expired. Reconnect the TikTok account for this team.",
+  "type": "RECONNECT_REQUIRED"
+}
+```
+
+| `type` | Meaning | Action |
+| :--- | :--- | :--- |
+| `RECONNECT_REQUIRED` | The account's token is no longer valid and can't be refreshed. Today returned for TikTok. | Ask the user to reconnect the account. Retrying won't help. |
+
+`type` is a string, and new values may be added. Treat a value you don't know like an error without a `type`.
+
 {/* most-common-errors:start */}
 
 ## Most Common Platform Errors
