@@ -5,9 +5,9 @@ icon: plug
 keywords: ["mcp server social media", "model context protocol social media", "bundle.social mcp", "claude social media", "cursor social media mcp"]
 ---
 
-`bundlesocial-mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes the bundle.social operations as MCP tools - so Claude Desktop, Claude Code, Cursor and any other MCP client can post, schedule, import, analyze content and manage connected accounts across 14+ platforms.
+`bundlesocial-mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes the bundle.social operations as MCP tools - so Claude Code, Claude Desktop, Cursor, VS Code, Codex, Gemini CLI and any other MCP client can post, schedule, import, analyze content and manage connected accounts across 14+ platforms.
 
-It ships as a **local stdio server** (`npx bundlesocial-mcp`). A hosted remote server at `mcp.bundle.social` is on the roadmap.
+Use it as a **hosted server** at `https://mcp.bundle.social` (nothing to install, authenticated with your API key) or run it as a **local stdio server** (`npx bundlesocial-mcp`). Both expose the same tools; the local server can also read files from your disk.
 
 <CardGroup cols={2}>
   <Card title="npm: bundlesocial-mcp" icon="npm" href="https://www.npmjs.com/package/bundlesocial-mcp">
@@ -20,7 +20,7 @@ It ships as a **local stdio server** (`npx bundlesocial-mcp`). A hosted remote s
 
 ## Tools
 
-The server covers the whole bundle.social API (the platform-specific edit/delete-after-publish helpers are reached via `trigger_integration_tool`).
+Dedicated tools cover the everyday work below. Everything else in the public API (editing or deleting published posts per platform, YouTube playlists, Google Business profile, reviews and recommendations, direct messages, automations, credits) is reachable through `search_api_actions` and `call_api_*`, so the whole API is available to an agent.
 
 **Diagnostics & discovery**
 
@@ -54,8 +54,8 @@ The server covers the whole bundle.social API (the platform-specific edit/delete
 
 | Tool | Description |
 |---|---|
-| `upload_media` | Upload an image/video/document from a URL (or local path in stdio mode); auto-chunks large local files. |
-| `init_large_upload` / `finalize_large_upload` | Low-level chunked-upload primitives (for manual control). |
+| `upload_media` | Upload an image/video/document from a URL (or local path in stdio mode); local files over ~90 MB go straight to storage automatically. |
+| `init_large_upload` / `finalize_large_upload` | Direct upload of any file up to 5 GB: `init` returns a signed `url`, PUT the bytes there (e.g. `curl -X PUT --upload-file`), then `finalize`. This is how an agent with a shell sends a local file to the hosted server. |
 | `list_media` / `get_media` / `delete_media` / `delete_media_many` | List / fetch / delete uploads. |
 
 **Integrations (social accounts)**
@@ -82,14 +82,97 @@ The server covers the whole bundle.social API (the platform-specific edit/delete
 | Tool | Description |
 |---|---|
 | `list_teams` / `get_team` / `create_team` / `update_team` / `delete_team` | Manage teams. |
-| `get_organization` / `get_usage` | Your organization, and posts/comments/uploads/imports usage & quotas. |
+| `get_organization` / `get_usage` | Your organization, and posts/comments/uploads/messages/imports usage & quotas. |
 | `get_daily_limits_usage` | A connected account's daily post/comment allowance for a given day. |
+
+**Everything else in the API**
+
+| Tool | Description |
+|---|---|
+| `search_api_actions` | Search all ~200 public API actions by keyword. A narrow search returns each action's parameters. |
+| `call_api_read` | Run a read action by id, with a flat `params` object. |
+| `call_api_action` | Run an action that changes data (marked destructive, so clients can ask for confirmation). |
+| `get_credit_balance` / `quote_billable_usage` | Prepaid credit balance for X (Twitter) pay-per-use actions, and a price quote before running them. |
 
 Errors come back as `{ "error": { "code", "message", "details"? } }` with `isError: true`. The per-platform fields for posts are documented in [Platform parameters](/api-reference/platform-parameters).
 
 ## Configuration
 
-Reads `BUNDLESOCIAL_API_KEY` (required), `BUNDLESOCIAL_TEAM_ID` (optional - needed only if your org has more than one team) and `BUNDLESOCIAL_API_URL` (optional). Get an API key in the [dashboard](https://bundle.social/dashboard/organization/api-keys).
+Get an API key in the [dashboard](https://bundle.social/dashboard/organization/api-keys) and put it in place of `YOUR_API_KEY`.
+
+An API key covers every team in your organization. Name the team in your prompt ("post this for the Acme team"): every team-scoped tool accepts a team id or the exact team name. To set a default team, send an `x-bundle-team-id` header to the hosted server, or set `BUNDLESOCIAL_TEAM_ID` for the local server.
+
+### Hosted server
+
+<Tabs>
+  <Tab title="Claude Code">
+    ```bash
+    claude mcp add --transport http bundlesocial https://mcp.bundle.social \
+      --header "Authorization: Bearer YOUR_API_KEY"
+    ```
+    Add `--scope project` to save it in the project's `.mcp.json`.
+  </Tab>
+  <Tab title="Claude Desktop & claude.ai">
+    Open **Customize → Connectors**, click **+ Add**, then **Add custom connector**:
+
+    - URL: `https://mcp.bundle.social`
+    - Sign in: **No sign in**
+    - Request headers: `Authorization` = `Bearer YOUR_API_KEY`
+
+    The connector works in Claude Desktop, on claude.ai and in the mobile apps. On Team and Enterprise plans everyone who uses a shared connector posts with the same key; to keep keys per person, use the local server below.
+  </Tab>
+  <Tab title="Cursor">
+    `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project):
+    ```json
+    {
+      "mcpServers": {
+        "bundlesocial": {
+          "url": "https://mcp.bundle.social",
+          "headers": { "Authorization": "Bearer YOUR_API_KEY" }
+        }
+      }
+    }
+    ```
+    To keep the key out of the file, write the value as `Bearer ${env:BUNDLESOCIAL_API_KEY}`.
+  </Tab>
+  <Tab title="VS Code">
+    `.mcp.json` at the workspace root, or `~/.copilot/mcp-config.json` for every workspace. VS Code reads `${BUNDLESOCIAL_API_KEY}` from your environment, so the file is safe to commit:
+    ```json
+    {
+      "mcpServers": {
+        "bundlesocial": {
+          "type": "http",
+          "url": "https://mcp.bundle.social",
+          "headers": { "Authorization": "Bearer ${BUNDLESOCIAL_API_KEY}" }
+        }
+      }
+    }
+    ```
+  </Tab>
+  <Tab title="Codex">
+    `~/.codex/config.toml`, with your key exported as `BUNDLESOCIAL_API_KEY`:
+    ```toml
+    [mcp_servers.bundlesocial]
+    url = "https://mcp.bundle.social"
+    bearer_token_env_var = "BUNDLESOCIAL_API_KEY"
+    ```
+  </Tab>
+  <Tab title="Gemini CLI">
+    ```bash
+    gemini mcp add --transport http \
+      --header "Authorization: Bearer YOUR_API_KEY" \
+      bundlesocial https://mcp.bundle.social
+    ```
+    In `settings.json`, use `httpUrl` (not `url`, which is the older SSE transport) and `headers`.
+  </Tab>
+  <Tab title="Other clients">
+    Point any client that supports remote MCP servers (Streamable HTTP) at `https://mcp.bundle.social` and send the key as `Authorization: Bearer YOUR_API_KEY` (or `x-api-key: YOUR_API_KEY`). Agents built on the Claude, OpenAI or xAI APIs take the same URL and key in their remote MCP tool settings. Local file paths are not readable on the hosted server: pass media and CSV files as public `https://` URLs.
+  </Tab>
+</Tabs>
+
+### Local server
+
+Reads `BUNDLESOCIAL_API_KEY` (required), `BUNDLESOCIAL_TEAM_ID` (optional default team) and `BUNDLESOCIAL_API_URL` (optional). Needs Node.js 20+.
 
 <Tabs>
   <Tab title="Claude Desktop">
@@ -100,7 +183,7 @@ Reads `BUNDLESOCIAL_API_KEY` (required), `BUNDLESOCIAL_TEAM_ID` (optional - need
         "bundlesocial": {
           "command": "npx",
           "args": ["-y", "bundlesocial-mcp"],
-          "env": { "BUNDLESOCIAL_API_KEY": "sk_live_..." }
+          "env": { "BUNDLESOCIAL_API_KEY": "YOUR_API_KEY" }
         }
       }
     }
@@ -108,30 +191,17 @@ Reads `BUNDLESOCIAL_API_KEY` (required), `BUNDLESOCIAL_TEAM_ID` (optional - need
   </Tab>
   <Tab title="Claude Code">
     ```bash
-    claude mcp add bundlesocial --env BUNDLESOCIAL_API_KEY=sk_live_... -- npx -y bundlesocial-mcp
-    ```
-    Or in `.mcp.json`:
-    ```json
-    {
-      "mcpServers": {
-        "bundlesocial": {
-          "command": "npx",
-          "args": ["-y", "bundlesocial-mcp"],
-          "env": { "BUNDLESOCIAL_API_KEY": "sk_live_..." }
-        }
-      }
-    }
+    claude mcp add bundlesocial --env BUNDLESOCIAL_API_KEY=YOUR_API_KEY -- npx -y bundlesocial-mcp
     ```
   </Tab>
   <Tab title="Cursor">
-    `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project):
     ```json
     {
       "mcpServers": {
         "bundlesocial": {
           "command": "npx",
           "args": ["-y", "bundlesocial-mcp"],
-          "env": { "BUNDLESOCIAL_API_KEY": "sk_live_..." }
+          "env": { "BUNDLESOCIAL_API_KEY": "YOUR_API_KEY" }
         }
       }
     }
@@ -142,6 +212,7 @@ Reads `BUNDLESOCIAL_API_KEY` (required), `BUNDLESOCIAL_TEAM_ID` (optional - need
 ## Example prompts
 
 - "List my connected social accounts via bundle.social."
+- "Show the accounts connected to the Acme team."
 - "Post 'We just shipped dark mode 🌙' to X and Bluesky."
 - "Schedule a LinkedIn post for next Monday 9am UTC announcing the launch."
 - "Post to r/test on Reddit - first check the subreddit's requirements and flairs, then post with the right flair."
