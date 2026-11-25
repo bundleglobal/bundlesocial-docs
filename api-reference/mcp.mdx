@@ -55,6 +55,7 @@ Dedicated tools cover the everyday work below. Everything else in the public API
 | Tool | Description |
 |---|---|
 | `upload_media` | Upload an image/video/document from a URL (or local path in stdio mode); local files over ~90 MB go straight to storage automatically. |
+| `create_upload_link` / `get_upload_link` | A link the user opens to add files from their device without signing in, for chats that can't send a file (claude.ai, ChatGPT). `get_upload_link` returns the upload ids. See [Upload links](/api-reference/upload-content#upload-links). |
 | `init_large_upload` / `finalize_large_upload` | Direct upload of any file up to 5 GB: `init` returns a signed `url`, PUT the bytes there (e.g. `curl -X PUT --upload-file`), then `finalize`. This is how an agent with a shell sends a local file to the hosted server. |
 | `list_media` / `get_media` / `delete_media` / `delete_media_many` | List / fetch / delete uploads. |
 
@@ -219,7 +220,7 @@ Use an API key for scripts, scheduled agents and anything that runs without you,
   </Tab>
 </Tabs>
 
-The hosted server can't read files from your disk: pass media and CSV files as public `https://` URLs, or let an agent with a shell use `init_large_upload`.
+The hosted server can't read files from your disk: pass media and CSV files as public `https://` URLs, ask for an [upload link](/api-reference/upload-content#upload-links) (`create_upload_link`), or let an agent with a shell use `init_large_upload`.
 
 ### Teams
 

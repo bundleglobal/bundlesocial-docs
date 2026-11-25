@@ -9,6 +9,10 @@ keywords: ["product updates", "new features", "release notes", "social media api
 <Update label="2026-11-25">
 **Sign in to the MCP server instead of using an API key:** add `https://mcp.bundle.social` to Claude (claude.ai, Desktop and mobile), ChatGPT, Claude Code, Cursor or Codex and sign in with your bundle.social account. Choose **Full access** or **Read only** and an optional default team; the app never sees an API key. Connected apps are listed under **Organization → Connected apps**, where you can disconnect them, and changing your password or email in the dashboard disconnects them all. API keys keep working for scripts, scheduled agents, VS Code and Gemini CLI. See [MCP](/api-reference/mcp#hosted-server-sign-in).
 
+**Upload links:** `POST /api/v1/upload/link` returns a link a person opens in the browser to add files to a team's media library without a bundle.social login, for example from their phone or from an AI chat that can't send a file. `GET /api/v1/upload/link/:id` returns the status and the upload ids. In the MCP server: `create_upload_link` and `get_upload_link`. See [Upload links](/api-reference/upload-content#upload-links).
+
+**MCP tools carry explicit hints:** every tool now sets `readOnlyHint`, `destructiveHint` and `openWorldHint`, so clients can tell reads from writes and ask before changes.
+
 **`check_setup` on a large organization** lists at most 20 teams plus `totalTeams`; `list_teams` (with `search`) has the rest. The same applies to the team list in `TEAM_ID_REQUIRED`, `TEAM_NOT_FOUND` and `TEAM_AMBIGUOUS` errors.
 </Update>
 

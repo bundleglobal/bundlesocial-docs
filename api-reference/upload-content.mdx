@@ -17,6 +17,8 @@ You have three ways to upload files.
 | **Direct Upload** | One-shot uploads of moderate files. | 5 GiB (single-request storage limit) |
 | **Simple Upload** | Images and small clips. | 90 MB |
 
+If the file is already online, [upload it from a URL](#upload-from-a-url). If someone else has it, on their phone or in an AI chat, send them an [upload link](#upload-links).
+
 <Warning>
 **Recommendation:** Use **Multipart Upload** for videos. It is the only method where a
 network drop costs you one 64 MiB chunk instead of the whole transfer - with Direct or
@@ -236,6 +238,54 @@ The response is the upload itself. Use `id` in `uploadIds`, and `url` wherever a
 <Note>
 The **1 GB / 60 s** limit applies only to URL imports, because we download the file for you. Uploads where you send the bytes stream straight to storage and allow up to your full video limit.
 </Note>
+
+---
+
+## Upload links
+
+An upload link lets a person add files to a team's media library from their browser, **without a bundle.social login**. Use it when the file isn't yours to send: a photo on someone's phone, raw footage from a client or a creator, or an attachment in an AI chat (claude.ai, ChatGPT) that can't reach our servers. It works like the [portal link](/api-reference/connect-social-accounts) for connecting accounts, but for media.
+
+**1. Create the link:** `POST /api/v1/upload/link`
+
+```bash
+curl -X POST "https://api.bundle.social/api/v1/upload/link" \
+  -H "x-api-key: YOUR_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{ "teamId": "YOUR_TEAM_ID", "maxFiles": 2, "expiresIn": 60 }'
+```
+
+| Field | Default | Notes |
+| :--- | :--- | :--- |
+| `teamId` | none | The team whose library receives the files. Leave it out for the organization's library. |
+| `maxFiles` | `1` | 1 to 10 files. |
+| `expiresIn` | `60` | Minutes the link stays open, 5 to 1440. |
+
+```json
+{
+  "id": "4f1c2b6e-…",
+  "url": "https://bundle.social/upload#…",
+  "status": "WAITING",
+  "maxFiles": 2,
+  "expiresAt": "2026-11-25T21:00:00.000Z",
+  "uploadIds": []
+}
+```
+
+**2. Send the `url` to the person.** It is shown only once. They open it, drop their files (JPG, PNG, GIF, MP4, MOV or PDF, up to 5 GB each), and see when they're done.
+
+**3. Read the upload ids:** `GET /api/v1/upload/link/:id`
+
+```json
+{ "id": "4f1c2b6e-…", "status": "COMPLETED", "uploadIds": ["upl_123", "upl_456"], "...": "..." }
+```
+
+`status` is `WAITING` until all `maxFiles` files are in, then `COMPLETED`, or `EXPIRED` once the link closes. Poll it, or check when the person tells you they're done, and use the ids in `uploadIds` like any other upload. The status stays readable for 24 hours after the link closes.
+
+<Note>
+Files added through a link count toward your monthly upload limit and go through the same checks as any upload. The link's secret sits after `#` in the URL, so it never reaches server logs; anyone with the link can add files until it fills up or closes, so share it only with the person who should.
+</Note>
+
+In the MCP server, `create_upload_link` and `get_upload_link` do the same, so an AI chat can ask you for a file it can't receive.
 
 ---
 
