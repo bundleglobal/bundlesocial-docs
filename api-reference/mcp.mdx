@@ -116,8 +116,10 @@ An API key covers every team in your organization. Name the team in your prompt 
     Open **Customize → Connectors**, click **+ Add**, then **Add custom connector**:
 
     - URL: `https://mcp.bundle.social`
-    - Sign in: **No sign in**
+    - Authentication: **No sign-in**
     - Request headers: `Authorization` = `Bearer YOUR_API_KEY`
+
+    Claude may tag **Sign in now** as Detected and warn that the connector will likely fail. Choose **No sign-in** anyway: the server needs an API key, not an account, and the header sends it.
 
     The connector works in Claude Desktop, on claude.ai and in the mobile apps. On Team and Enterprise plans everyone who uses a shared connector posts with the same key; to keep keys per person, use the local server below.
   </Tab>
