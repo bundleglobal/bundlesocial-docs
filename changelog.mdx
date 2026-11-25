@@ -6,6 +6,12 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
+<Update label="2026-11-25">
+**Sign in to the MCP server instead of using an API key:** add `https://mcp.bundle.social` to Claude (claude.ai, Desktop and mobile), ChatGPT, Claude Code, Cursor or Codex and sign in with your bundle.social account. Choose **Full access** or **Read only** and an optional default team; the app never sees an API key. Connected apps are listed under **Organization → Connected apps**, where you can disconnect them, and changing your password or email in the dashboard disconnects them all. API keys keep working for scripts, scheduled agents, VS Code and Gemini CLI. See [MCP](/api-reference/mcp#hosted-server-sign-in).
+
+**`check_setup` on a large organization** lists at most 20 teams plus `totalTeams`; `list_teams` (with `search`) has the rest. The same applies to the team list in `TEAM_ID_REQUIRED`, `TEAM_NOT_FOUND` and `TEAM_AMBIGUOUS` errors.
+</Update>
+
 <Update label="2026-11-24">
 **Breaking: `GET /api/v1/organization` no longer returns `teams`.** The array was deprecated on October 14 with a removal date of November 15. List teams with the paginated `GET /api/v1/team` (`offset`, `limit`, optional `search`; returns `{ items, total }`). The rest of the organization response is unchanged. See [Finding your team IDs](/api-reference/introduction#finding-your-team-ids).
 
