@@ -17,7 +17,7 @@ You have three ways to upload files.
 | **Direct Upload** | One-shot uploads of moderate files. | 5 GiB (single-request storage limit) |
 | **Simple Upload** | Images and small clips. | 90 MB |
 
-If the file is already online, [upload it from a URL](#upload-from-a-url). If someone else has it, on their phone or in an AI chat, send them an [upload link](#upload-links).
+If the file is already online, [upload it from a URL](#upload-from-a-url). For AI assistants that can't hand over a file, there are [upload links](#upload-links).
 
 <Warning>
 **Recommendation:** Use **Multipart Upload** for videos. It is the only method where a
@@ -243,7 +243,11 @@ The **1 GB / 60 s** limit applies only to URL imports, because we download the f
 
 ## Upload links
 
-An upload link lets a person add files to a team's media library from their browser, **without a bundle.social login**. Use it when the file isn't yours to send: a photo on someone's phone, raw footage from a client or a creator, or an attachment in an AI chat (claude.ai, ChatGPT) that can't reach our servers. It works like the [portal link](/api-reference/connect-social-accounts) for connecting accounts, but for media.
+<Info>
+Upload links are built for **AI assistants and the [MCP server](/api-reference/mcp)**. A chat like claude.ai can't pass a file the user attached to a remote tool, so it creates a link, the user opens it and adds the file, and the assistant picks up the upload id. The page has no branding or translations. To upload from your own app, use the methods above.
+</Info>
+
+An upload link lets a person add files to a team's media library from their browser, **without a bundle.social login**.
 
 **1. Create the link:** `POST /api/v1/upload/link`
 
