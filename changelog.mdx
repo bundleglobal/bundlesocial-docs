@@ -9,7 +9,7 @@ keywords: ["product updates", "new features", "release notes", "social media api
 <Update label="2026-11-25">
 **Sign in to the MCP server instead of using an API key:** add `https://mcp.bundle.social` to Claude (claude.ai, Desktop and mobile), ChatGPT, Claude Code, Cursor or Codex and sign in with your bundle.social account. Choose **Full access** or **Read only** and an optional default team; the app never sees an API key. Connected apps are listed under **Organization → Connected apps**, where you can disconnect them, and changing your password or email in the dashboard disconnects them all. API keys keep working for scripts, scheduled agents, VS Code and Gemini CLI. See [MCP](/api-reference/mcp#hosted-server-sign-in).
 
-**Upload links:** `POST /api/v1/upload/link` returns a link a person opens in the browser to add files to a team's media library without a bundle.social login. It's built for AI assistants that can't hand over a file the user attached. `GET /api/v1/upload/link/:id` returns the status and the upload ids. In the MCP server: `create_upload_link` and `get_upload_link`, and `upload_media` takes a file attached in ChatGPT. See [Upload links](/api-reference/upload-content#upload-links).
+**MCP: files from the chat.** claude.ai and ChatGPT can't hand a file the user attached to a remote server, so the MCP server can now give the user an upload link (`create_upload_link`, then `get_upload_link` for the upload ids): they open it and add the file without signing in. In ChatGPT, `upload_media` also takes the attached file directly. See [MCP](/api-reference/mcp).
 
 **MCP tools carry explicit hints:** every tool now sets `readOnlyHint`, `destructiveHint` and `openWorldHint`, so clients can tell reads from writes and ask before changes.
 
