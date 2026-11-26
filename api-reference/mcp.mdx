@@ -1,13 +1,13 @@
 ---
 title: MCP Server
-description: Drive bundle.social from Claude, Cursor and other Model Context Protocol clients.
+description: Drive bundle.social from Claude, ChatGPT, Cursor and other Model Context Protocol clients.
 icon: plug
 keywords: ["mcp server social media", "model context protocol social media", "bundle.social mcp", "claude social media", "cursor social media mcp"]
 ---
 
-`bundlesocial-mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes the bundle.social operations as MCP tools - so Claude Code, Claude Desktop, Cursor, VS Code, Codex, Gemini CLI and any other MCP client can post, schedule, import, analyze content and manage connected accounts across 14+ platforms.
+`bundlesocial-mcp` is a [Model Context Protocol](https://modelcontextprotocol.io) server that exposes the bundle.social operations as MCP tools - so Claude, ChatGPT, Claude Code, Cursor, Codex, VS Code, Gemini CLI and any other MCP client can post, schedule, import, analyze content and manage connected accounts across 14+ platforms.
 
-Use it as a **hosted server** at `https://mcp.bundle.social` (nothing to install, authenticated with your API key) or run it as a **local stdio server** (`npx bundlesocial-mcp`). Both expose the same tools; the local server can also read files from your disk.
+Use it as a **hosted server** at `https://mcp.bundle.social` (nothing to install: paste the URL and sign in with your bundle.social account, or send an API key) or run it as a **local stdio server** (`npx bundlesocial-mcp`). Both expose the same tools; the local server can also read files from your disk.
 
 <CardGroup cols={2}>
   <Card title="npm: bundlesocial-mcp" icon="npm" href="https://www.npmjs.com/package/bundlesocial-mcp">
@@ -26,7 +26,7 @@ Dedicated tools cover the everyday work below. Everything else in the public API
 
 | Tool | Description |
 |---|---|
-| `check_setup` | Diagnostic JSON: API key, connectivity, organization API access, team selection, integrations, quotas. |
+| `check_setup` | Diagnostic JSON: connection or API key, connectivity, organization API access, team selection, integrations, quotas. |
 | `list_integrations` | List connected social accounts (ids, platform types, channels). |
 | `list_integration_tools` / `trigger_integration_tool` | List & call read-only platform helpers - subreddit flairs/requirements, YouTube categories/playlists/regions, LinkedIn mentions, Instagram locations/audio/business discovery, Google Business categories, TikTok trending music. |
 
@@ -54,7 +54,8 @@ Dedicated tools cover the everyday work below. Everything else in the public API
 
 | Tool | Description |
 |---|---|
-| `upload_media` | Upload an image/video/document from a URL (or local path in stdio mode); local files over ~90 MB go straight to storage automatically. |
+| `upload_media` | Upload an image/video/document from a URL, a file attached in ChatGPT, or a local path in stdio mode; local files over ~90 MB go straight to storage automatically. |
+| `create_upload_link` / `get_upload_link` | A link the user opens to add files from their device without signing in, for chats that can't send a file (claude.ai, ChatGPT). `get_upload_link` returns the upload ids. |
 | `init_large_upload` / `finalize_large_upload` | Direct upload of any file up to 5 GB: `init` returns a signed `url`, PUT the bytes there (e.g. `curl -X PUT --upload-file`), then `finalize`. This is how an agent with a shell sends a local file to the hosted server. |
 | `list_media` / `get_media` / `delete_media` / `delete_media_many` | List / fetch / delete uploads. |
 
@@ -98,11 +99,67 @@ Errors come back as `{ "error": { "code", "message", "details"? } }` with `isErr
 
 ## Configuration
 
-Get an API key in the [dashboard](https://bundle.social/dashboard/organization/api-keys) and put it in place of `YOUR_API_KEY`.
+### Hosted server: sign in
 
-An API key covers every team in your organization. Name the team in your prompt ("post this for the Acme team"): every team-scoped tool accepts a team id or the exact team name. To set a default team, send an `x-bundle-team-id` header to the hosted server, or set `BUNDLESOCIAL_TEAM_ID` for the local server.
+Add `https://mcp.bundle.social` to your client. The first time it connects, it opens bundle.social in your browser: sign in, choose **Full access** (post, schedule, reply, upload) or **Read only** (posts, comments and analytics), optionally pick a default team, and click **Allow**. There is no key to copy. Only the organization's owner can allow access for now.
 
-### Hosted server
+Every connected app is listed in [Connected apps](https://bundle.social/dashboard/organization/connected-apps), where you can disconnect it; the app then asks you to sign in again. Changing your password or email, or resetting your password, in the dashboard disconnects all your apps.
+
+<Tabs>
+  <Tab title="Claude">
+    On claude.ai or in Claude Desktop, open **Customize → Connectors**, click **+ Add**, then **Add custom connector**:
+
+    - Name: `bundle.social`
+    - URL: `https://mcp.bundle.social`
+    - Leave the advanced settings empty.
+
+    Click **Add**, then **Connect**. The connector works in Claude Desktop, on claude.ai and in the mobile apps.
+  </Tab>
+  <Tab title="ChatGPT">
+    In **Settings → Apps & Connectors**, turn on **Developer mode** under **Advanced settings**, then create an app:
+
+    - Name: `bundle.social`
+    - MCP server URL: `https://mcp.bundle.social`
+    - Authentication: **OAuth**
+
+    Confirm the warning, click **Create**, then **Connect**. Right after connecting, ChatGPT may need a second message before it lists the tools.
+  </Tab>
+  <Tab title="Claude Code">
+    ```bash
+    claude mcp add --transport http bundlesocial https://mcp.bundle.social
+    ```
+    Then type `/mcp` in Claude Code, pick `bundlesocial` and choose **Authenticate**. The config holds no secret, so `--scope project` can share it in the project's `.mcp.json`.
+  </Tab>
+  <Tab title="Cursor">
+    `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project):
+    ```json
+    {
+      "mcpServers": {
+        "bundlesocial": { "url": "https://mcp.bundle.social" }
+      }
+    }
+    ```
+    Then open **Cursor Settings → MCP** and click **Connect** next to `bundlesocial`.
+  </Tab>
+  <Tab title="Codex">
+    `~/.codex/config.toml`:
+    ```toml
+    [mcp_servers.bundlesocial]
+    url = "https://mcp.bundle.social"
+    ```
+    Then sign in:
+    ```bash
+    codex mcp login bundlesocial
+    ```
+  </Tab>
+  <Tab title="Other clients">
+    Point any client that supports remote MCP servers (Streamable HTTP) at `https://mcp.bundle.social`. A client that supports MCP sign-in (OAuth) opens bundle.social for you to sign in; for one that doesn't, use an API key below.
+  </Tab>
+</Tabs>
+
+### Hosted server: API key
+
+Use an API key for scripts, scheduled agents and anything that runs without you, and for clients where sign-in isn't available. We recommend a key for VS Code and Gemini CLI. Get one in the [dashboard](https://bundle.social/dashboard/organization/api-keys) and put it in place of `YOUR_API_KEY`. A key covers the whole organization and stays valid until you delete it.
 
 <Tabs>
   <Tab title="Claude Code">
@@ -110,21 +167,12 @@ An API key covers every team in your organization. Name the team in your prompt 
     claude mcp add --transport http bundlesocial https://mcp.bundle.social \
       --header "Authorization: Bearer YOUR_API_KEY"
     ```
-    Add `--scope project` to save it in the project's `.mcp.json`.
+    In a committed `.mcp.json`, write the header as `Bearer ${BUNDLESOCIAL_API_KEY}` and set that variable on each machine.
   </Tab>
   <Tab title="Claude Desktop & claude.ai">
-    Open **Customize → Connectors**, click **+ Add**, then **Add custom connector**:
-
-    - URL: `https://mcp.bundle.social`
-    - Authentication: **No sign-in**
-    - Request headers: `Authorization` = `Bearer YOUR_API_KEY`
-
-    Claude may tag **Sign in now** as Detected and warn that the connector will likely fail. Choose **No sign-in** anyway: the server needs an API key, not an account, and the header sends it.
-
-    The connector works in Claude Desktop, on claude.ai and in the mobile apps. On Team and Enterprise plans everyone who uses a shared connector posts with the same key; to keep keys per person, use the local server below.
+    In **Add custom connector**, use `https://mcp.bundle.social`, choose **No sign-in**, and under **Request headers** add `Authorization` = `Bearer YOUR_API_KEY`. Claude may tag **Sign in now** as Detected; with a key, choose **No sign-in** anyway.
   </Tab>
   <Tab title="Cursor">
-    `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project):
     ```json
     {
       "mcpServers": {
@@ -168,9 +216,15 @@ An API key covers every team in your organization. Name the team in your prompt 
     In `settings.json`, use `httpUrl` (not `url`, which is the older SSE transport) and `headers`.
   </Tab>
   <Tab title="Other clients">
-    Point any client that supports remote MCP servers (Streamable HTTP) at `https://mcp.bundle.social` and send the key as `Authorization: Bearer YOUR_API_KEY` (or `x-api-key: YOUR_API_KEY`). Agents built on the Claude, OpenAI or xAI APIs take the same URL and key in their remote MCP tool settings. Local file paths are not readable on the hosted server: pass media and CSV files as public `https://` URLs.
+    Send the key as `Authorization: Bearer YOUR_API_KEY` (or `x-api-key: YOUR_API_KEY`). Agents built on the Claude, OpenAI or xAI APIs take the same URL and key in their remote MCP tool settings.
   </Tab>
 </Tabs>
+
+The hosted server can't read files from your disk: pass media and CSV files as public `https://` URLs, ask for an upload link (`create_upload_link`: the user opens it and adds the file), or let an agent with a shell use `init_large_upload`.
+
+### Teams
+
+A connection or key covers every team in your organization. Name the team in your prompt ("post this for the Acme team"): every team-scoped tool accepts a team id or the exact team name. When you sign in you can pick a default team; with an API key, send an `x-bundle-team-id` header to the hosted server, or set `BUNDLESOCIAL_TEAM_ID` for the local server.
 
 ### Local server
 
