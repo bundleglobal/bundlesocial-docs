@@ -67,6 +67,7 @@ Send Threads-specific options inside `data.THREADS`.
 | `crosspostToInstagramStory` | `boolean` | Cross-share the post to the linked Instagram account as a Story. |
 | `crosspostToInstagramStoryDarkMode` | `boolean` | Cross-share the post to the linked Instagram account as a Story in dark mode. |
 | `isGhostPost` | `boolean` | Publish a ghost post that Threads archives after 24 hours. Text only. See [Ghost Posts](#ghost-posts). |
+| `locationId` / `locationName` | `string` | Tag a location on the post, both together. Find one with `GET /api/v1/misc/threads/locations`. See [Location Tags](#location-tags). |
 
 ```json
 {
@@ -91,6 +92,36 @@ Send Threads-specific options inside `data.THREADS`.
   }
 }
 ```
+
+---
+
+## Location Tags
+
+Find a location with `GET /api/v1/misc/threads/locations?teamId=team_123&q=Warsaw` (or `latitude` and `longitude` instead of `q`), then pass its `locationId` and `name` as `data.THREADS.locationId` and `data.THREADS.locationName`.
+
+- Needs Meta's `threads_location_tagging` permission, which is still in Meta's review for our app. Until it's approved, the search returns `403`, and a location on a post is skipped without blocking the post.
+- Accounts connected before the permission is granted have to reconnect once.
+
+## Delete a Published Post
+
+`DELETE /api/v1/misc/threads/post` with `{ "teamId": "team_123", "postId": "post_123" }` deletes a post published through bundle.social from Threads. `DELETE /api/v1/misc/threads/comment` does the same for a reply.
+
+- Needs Meta's `threads_delete` permission, also still in Meta's review. Until then these endpoints return `403`.
+- Threads allows 100 deletes per account per day.
+- This deletes the post on Threads only. Delete it in bundle.social with `DELETE /api/v1/post/{id}`.
+
+## Labs: Search, Mentions, Profiles and Trends
+
+Available to selected organizations while Meta reviews the permissions; other organizations get `403`.
+
+| Endpoint | What it does |
+| :--- | :--- |
+| `GET /api/v1/comment/discover/threads` | Public posts by keyword or topic tag, to reply to. |
+| `GET /api/v1/comment/discover/threads/mentions` | Posts that mention the account. |
+| `GET /api/v1/misc/threads/profile` | A public profile and its 7-day engagement, by exact username (profiles with at least 100 followers, 1,000 lookups per account per 24 hours). |
+| `GET /api/v1/misc/threads/trending` | Trending topics (US and JP). |
+
+Reply to a found post with `POST /api/v1/comment` and its `discoveredPostId`, within 7 days of the search.
 
 ---
 
