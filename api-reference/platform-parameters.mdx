@@ -78,6 +78,7 @@ Threads: post the first tweet, then add the rest as replies with `comments:creat
 | `uploadIds` | string[] | Up to ~10 images, or 1 video. |
 | `mediaItems` | `{ uploadId, altText? }[]` | Per-image alt text (alternative to `uploadIds`). |
 | `topicTag` | string | One topic tag shown in the post header. 1–50 chars, no periods (`.`) or ampersands (`&`). |
+| `locationId` / `locationName` | string | Location tag, both together. Find one with `GET /api/v1/misc/threads/locations` ([Threads](/api-reference/platforms/threads#location-tags)). |
 | `replyControl` | `everyone` \| `accounts_you_follow` \| `mentioned_only` \| `parent_post_author_only` \| `followers_only` | Who can reply. Threads defaults to `everyone`. |
 | `linkAttachment` | string (URL) | Link preview card. Text-only posts. |
 | `poll` | `{ optionA, optionB, optionC?, optionD? }` | 2–4 options, 1–25 chars each. Text-only posts, and not together with `gif`. |
@@ -124,6 +125,7 @@ Mentions: discover URNs with `integrations:trigger linkedin:mentions --data '{"q
 | `mediaTitle` | string | Video title - `type: POST` with a video only (not REEL/STORY). |
 | `thumbnail` | string (URL) | Video cover image. |
 | `nativeScheduleTime` | string (ISO 8601, local) | Schedule directly in Meta's scheduler instead of publishing now; max 30 days ahead. |
+| `isAiGenerated` | boolean | Facebook's AI disclosure - `type: REEL` only. |
 
 ```json
 { "FACEBOOK": { "type": "POST", "text": "Look at this", "link": "https://bundle.social" } }

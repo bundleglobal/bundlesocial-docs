@@ -6,6 +6,16 @@ keywords: ["product updates", "new features", "release notes", "social media api
 "og:title": "bundle.social Changelog - Product Updates & New Features"
 "og:description": "Stay up to date with the latest changes to bundle.social. See new features, improvements, and API updates."
 ---
+<Update label="2026-11-26">
+**Facebook Reels AI disclosure:** `data.FACEBOOK.isAiGenerated: true` marks a Reel as made or edited with AI. Ignored for posts and Stories. See [Post Options](/api-reference/platforms/facebook#post-options).
+
+**Threads location tags:** `data.THREADS.locationId` and `locationName` tag a location on a post; find one with `GET /api/v1/misc/threads/locations`. **Delete on Threads:** `DELETE /api/v1/misc/threads/post` and `/comment`. Both need Meta permissions that are still in review, so they return `403` until then. See [Threads](/api-reference/platforms/threads#location-tags).
+
+**Threads Labs:** keyword search, mentions, profile lookup and trending topics, for selected organizations while Meta reviews them. See [Labs](/api-reference/platforms/threads#labs-search-mentions-profiles-and-trends).
+
+**SDK 2.73.0** adds these methods and fields.
+</Update>
+
 <Update label="2026-11-25">
 **Sign in to the MCP server instead of using an API key:** add `https://mcp.bundle.social` to Claude (claude.ai, Desktop and mobile), ChatGPT, Claude Code, Cursor or Codex and sign in with your bundle.social account. Choose **Full access** or **Read only** and an optional default team; the app never sees an API key. Connected apps are listed under **Organization → Connected apps**, where you can disconnect them, and changing your password or email in the dashboard disconnects them all. API keys keep working for scripts, scheduled agents, VS Code and Gemini CLI. See [MCP](/api-reference/mcp#hosted-server-sign-in).
 

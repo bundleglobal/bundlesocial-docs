@@ -70,6 +70,7 @@ See [Platform Limits](/api-reference/limits#facebook) for the full breakdown of 
 | `thumbnail` | `string` | URL to an uploaded thumbnail image. |
 | `mediaTitle` | `string` | Video title for `POST` video uploads. Max 255 characters; titles over 255 UTF-8 bytes are cut to 255 bytes on a character boundary. |
 | `nativeScheduleTime` | `date` | Schedule inside Meta instead of immediately publishing through bundle.social. Max 30 days ahead. |
+| `isAiGenerated` | `boolean` | Set to `true` if the video was created or edited with AI; adds Facebook's AI disclosure. Only for `type: "REEL"`, ignored for other types. |
 
 ```json
 {
